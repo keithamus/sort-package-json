@@ -1,6 +1,6 @@
 {
   "name": "sort-package-json",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sort an Object or package.json based on the well-known package.json keys",
   "keywords": [
     "keys",
@@ -14,7 +14,7 @@
   "license": "MIT",
   "author": "Keith Cirkel <npm@keithcirkel.co.uk> (http://keithcirkel.co.uk/)",
   "main": "index.js",
-  "bin": "sort-package-json",
+  "bin": "index.js",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/keithamus/sort-package-json.git"
