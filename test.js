@@ -1,5 +1,5 @@
 var assert = require('assert');
-var sortPackageJson = require('.');
+var sortPackageJson = require('./');
 require('fs').readFile('./package.json', 'utf8', function (error, contents) {
   if (error) {
     console.error(error.stack || error);
