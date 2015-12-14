@@ -26,11 +26,19 @@
     "semantic-release": "travis-after-all && semantic-release pre && npm publish && semantic-release post",
     "test": "node test.js"
   },
+  "config": {
+    "ghooks": {
+      "pre-commit": "npm t",
+      "commit-msg": "validate-commit-msg"
+    }
+  },
   "dependencies": {
     "sort-object-keys": "^1.1.1"
   },
   "devDependencies": {
+    "ghooks": "^1.0.1",
     "semantic-release": "^4.3.5",
-    "travis-after-all": "^1.4.4"
+    "travis-after-all": "^1.4.4",
+    "validate-commit-msg": "^1.0.0"
   }
 }
