@@ -13,6 +13,9 @@
   },
   "license": "MIT",
   "author": "Keith Cirkel <npm@keithcirkel.co.uk> (http://keithcirkel.co.uk/)",
+  "files": [
+    "index.js"
+  ],
   "main": "index.js",
   "bin": "index.js",
   "repository": {
