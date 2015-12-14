@@ -1,6 +1,15 @@
 sudo: false
 language: node_js
+cache:
+  directories:
+    - node_modules
 node_js:
-  - "0.12"
-  - "4.2"
-  - "stable"
+  - '0.12'
+  - v4
+  - stable
+after_success:
+  - npm run semantic-release
+env:
+  global:
+    - secure: TV3UxGd/tUaeyVBiuiB52cvfxIQAX+kz51g9CBCQA7tQjdJWsJnjrKL9/tsrUYfriN44PHlOPJm5JIIwkEYyWooyZFCZbkhok86+WCpvrnAjlneBm+VZBlsNTp7VOxL4gaiZL8QDKyLCz7xwIWNOv2ti1VlZlwHv8TRa5XkuX2ii+FWBhPpdWooGoXkDeWp0OQO81s8tnqwDJNlWmzvrpPK/T+vV8lyn6tJzIib9sKLPOtNmHfYhOfoxtxtP0krMGQLUqzNbwsdrdeVAtd30ejPqQTNyta8FLtFOXdLdNBPvMQ9LzQ5t8umK3bSijFN6jlS1YWkSUQWyQMMf8LlNAgSlElA1N0DiMedk/hqpvVxTPGspagQFo9UvmHvfaDOAkT4pjXB4hPA/vPVpKtBzTA81KebhYjm6a2V20uqp8/jaYLegRDqZEJ8OdzeWPkoIfoXkFbcasXM+m1qWmipkhnWjnx10Hf46jXrNzTB9cmkaRPcr86laMvM6bhcuBxqCxzM2LUY2hoS3De+YsbTc9c0vTyY0QG+lZzX3Q2p7dAWm//ItjiJSRJ9P8TWM3KmVEjBTxr7yqmtbv11MuGGxOp6uLilYJG8miJLcemQHcAxe/5+MiVc8ev+90dypdLaHVaClWUXI0SOTOHoKf5ggycvCXidOCxFzNqJJxUlFrks=
+    - secure: J08WZ73MFD4An2klsQkAq/z2O+GfTB+QfCn27Eu4wLg284WIAOIdop14TT9fevPXsmfc3w0BnDm4OX1ITLvgpwsHjySaGSKB+XJK3T6Pgq/PlZ/dMGepivxzOMSiU9G4XuVbIjbpCe/pOX8ugFvVj6v0KZSB3bIYAT9EBxs4qJAa9btVQn3g6EDU3g/IQeNwgGGFUsw1rPLNFAZ5Y7OKdFWYMpy54C0hnebrpJYmjlDmaXes1jxWGjFv4Ul7Izb2f6n2EnQBnb3xC6+bq7I9USkecb6GyKfGuc66eB2FzKVq/KoxGcogova4uPpsq1+OMlEGtWBHIlT4CHLlX0lacCGaCaoJH8OVD3p4/RRwG5ix5Yo9VBdd3qkGLwl7VVd8rcCEt4J7VwrA92Mtjnx+tvFU+b4dcKzWXgYlz4bMoS0PsLgacGamDSPbNDTSrYxfwv2AMoPp4v3yZifewgX82PJZvuepmtN2wwmifaYz7NutTEhXs8dUItqragfZScg2EuyRdEOjfIs9xUxjj81HTb4OEOd8Ihz5mK+sUolq6Owzm48v2VSF55Esl4W+2CxPFk7T3w2g19hFZ+TgesVf0iIqxqPs80I4T5EpGUDLRM/Kf+HE7IAR31e4uGyFHhy/xGEw38qnlZIdIfmqvVrFZz1aLNKVJM0ne/msFt5voKM=

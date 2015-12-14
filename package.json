@@ -1,6 +1,6 @@
 {
   "name": "sort-package-json",
-  "version": "1.0.1",
+  "version": "0.0.0-development",
   "description": "Sort an Object or package.json based on the well-known package.json keys",
   "keywords": [
     "keys",
@@ -20,9 +20,13 @@
     "url": "git+ssh://git@github.com/keithamus/sort-package-json.git"
   },
   "scripts": {
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "test": "node test.js"
   },
   "dependencies": {
     "sort-object-keys": "^1.1.1"
+  },
+  "devDependencies": {
+    "semantic-release": "^4.3.5"
   }
 }
