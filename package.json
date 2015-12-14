@@ -23,13 +23,14 @@
     "url": "git+ssh://git@github.com/keithamus/sort-package-json.git"
   },
   "scripts": {
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "semantic-release": "travis-after-all && semantic-release pre && npm publish && semantic-release post",
     "test": "node test.js"
   },
   "dependencies": {
     "sort-object-keys": "^1.1.1"
   },
   "devDependencies": {
-    "semantic-release": "^4.3.5"
+    "semantic-release": "^4.3.5",
+    "travis-after-all": "^1.4.4"
   }
 }
