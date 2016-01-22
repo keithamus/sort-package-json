@@ -16,4 +16,24 @@ require('fs').readFile('./package.json', 'utf8', function (error, contents) {
     keywords: ['thing'],
     name: 'foo',
   }), null, 2), '{\n  "name": "foo",\n  "version": "1.0.0",\n  "keywords": [\n    "thing"\n  ],\n  "dependencies": {}\n}');
+
+  assert.deepEqual(Object.keys(sortPackageJson({
+    scripts: {
+      test: 'node test.js',
+      multiply: '2 * 3', // between p(ostinstall) and install
+      watch: 'watch things',
+      postinstall: 'echo "Installed"',
+      start: 'node server.js',
+      posttest: 'abc',
+      pretest: 'xyz',
+    }
+  }).scripts), [
+    'postinstall',
+    'multiply',
+    'start',
+    'pretest',
+    'test',
+    'posttest',
+    'watch',
+  ])
 });

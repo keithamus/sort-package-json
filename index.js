@@ -15,6 +15,25 @@ function sortPackageJson(packageJson) {
       packageJson[key] = sortObjectKeys(packageJson[key], sortList);
     }
   }
+  /*             b
+   *       pre | * | post
+   *   pre  0  | - |  -
+   * a  *   +  | 0 |  -
+   *   post +  | + |  0
+   */
+  function compareScriptKeys(a, b) {
+    if (a === b) return 0;
+    var aScript = a.replace(/^(pre|post)(.)/, '$2');
+    var bScript = b.replace(/^(pre|post)(.)/, '$2');
+    if (aScript === bScript) {
+      // pre* is always smaller; post* is always bigger
+      // Covers: pre* vs. *; pre* vs. post*; * vs. post*
+      if (a.indexOf('pre') === 0 || b.indexOf('post') === 0) return -1;
+      // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
+      return 1;
+    }
+    return aScript < bScript ? -1 : 1;
+  }
   sortSubKey('keywords');
   sortSubKey('homepage');
   sortSubKey('bugs', [ 'url', 'email' ]);
@@ -24,7 +43,7 @@ function sortPackageJson(packageJson) {
   sortSubKey('man');
   sortSubKey('directories', [ 'lib', 'bin', 'man', 'doc', 'example' ]);
   sortSubKey('repository', [ 'type', 'url' ]);
-  sortSubKey('scripts');
+  sortSubKey('scripts', compareScriptKeys);
   sortSubKey('config');
   sortSubKey('browser');
   sortSubKey('browserify');
