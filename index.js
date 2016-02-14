@@ -2,8 +2,12 @@
 var sortObjectKeys = require('sort-object-keys');
 function sortPackageJson(packageJson) {
   var wasString = false;
+  var endCharacters = '';
   if (typeof packageJson === 'string') {
     wasString = true;
+    if (packageJson.substr(-1) === '\n') {
+      endCharacters = '\n';
+    }
     packageJson = JSON.parse(packageJson);
   }
   function sortSubKey(key, sortList) {
@@ -104,7 +108,7 @@ function sortPackageJson(packageJson) {
     'private',
     'publishConfig',
   ]);
-  return wasString ? JSON.stringify(packageJson, null, 2) : packageJson;
+  return wasString ? JSON.stringify(packageJson, null, 2) + endCharacters : packageJson;
 }
 module.exports = sortPackageJson;
 module.exports.sortPackageJson = sortPackageJson;
