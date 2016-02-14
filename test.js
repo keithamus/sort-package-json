@@ -7,7 +7,7 @@ require('fs').readFile('./package.json', 'utf8', function (error, contents) {
   }
   var parsed = JSON.parse(contents);
   assert.deepEqual(typeof sortPackageJson(parsed), 'object', 'Accepts object, returns object');
-  assert.equal(JSON.stringify(sortPackageJson(parsed), null, 2), contents, 'Returned object is sorted');
+  assert.equal(JSON.stringify(sortPackageJson(parsed), null, 2) + '\n', contents, 'Returned object is sorted');
   assert.equal(sortPackageJson(contents), contents, 'Accepts string, returns sorted string');
 
   assert.equal(JSON.stringify(sortPackageJson({
