@@ -78,6 +78,7 @@ function sortPackageJson(packageJson) {
     'contributors',
     'files',
     'main',
+    'jsnext:main',
     'style',
     'example',
     'examplestyle',
