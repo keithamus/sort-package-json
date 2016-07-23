@@ -52,6 +52,18 @@ $ cat package.json
 }
 ```
 
+### Install
+
+#### API
+```sh
+npm install --save sort-package-json
+```
+
+#### CLI
+```sh
+npm install --global sort-package-json
+```
+
 ### PFAQ: Potential Frequently Asked Questions
 
 #### How does it sort?
