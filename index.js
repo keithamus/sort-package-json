@@ -119,6 +119,9 @@ if (require.main === module) {
   var fs = require('fs');
   var packageJsonPath = process.cwd() + '/package.json';
   var packageJson = fs.readFileSync(packageJsonPath, 'utf8');
-  fs.writeFileSync(packageJsonPath, sortPackageJson(packageJson), 'utf8');
-  console.log('Ok, your package.json is sorted');
+  var sorted = sortPackageJson(packageJson);
+  if (sorted !== packageJson) {
+    fs.writeFileSync(packageJsonPath, sorted, 'utf8');
+    console.log('Ok, your package.json is sorted');
+  }
 }
