@@ -69,6 +69,7 @@ function sortPackageJson(packageJson) {
   packageJson = sortObjectKeys(packageJson, [
     'name',
     'version',
+    'private',
     'description',
     'keywords',
     'homepage',
@@ -109,7 +110,6 @@ function sortPackageJson(packageJson) {
     'os',
     'cpu',
     'preferGlobal',
-    'private',
     'publishConfig',
   ]);
   return wasString ? JSON.stringify(packageJson, null, 2) + endCharacters : packageJson;
