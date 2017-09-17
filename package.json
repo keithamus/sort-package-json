@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "ghooks": "^1.0.1",
-    "semantic-release": "^4.3.5",
+    "semantic-release": "^6.3.2",
     "travis-after-all": "^1.4.4",
     "validate-commit-msg": "^2.0.0"
   }
