@@ -1,15 +1,41 @@
 {
-  "name": "sort-package-json",
-  "version": "0.0.0-development",
+  "name": "sort-package-json2",
+  "version": "0.0.1",
   "description": "Sort an Object or package.json based on the well-known package.json keys",
   "keywords": [
+    "arr",
+    "array",
+    "conf",
+    "config",
+    "deep",
+    "deterministic",
+    "function",
+    "js",
+    "json",
+    "key",
     "keys",
+    "obj",
     "object",
-    "sort"
+    "order",
+    "package",
+    "package-json",
+    "re",
+    "re-order",
+    "recursive",
+    "recursively",
+    "sort",
+    "source",
+    "stable",
+    "util",
+    "utils"
   ],
-  "homepage": "https://github.com/keithamus/sort-package-json#readme",
+  "homepage": "https://github.com/bluelovers/sort-package-json#readme",
   "bugs": {
-    "url": "https://github.com/keithamus/sort-package-json/issues"
+    "url": "https://github.com/bluelovers/sort-package-json/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bluelovers/sort-package-json.git"
   },
   "license": "MIT",
   "author": "Keith Cirkel <npm@keithcirkel.co.uk> (http://keithcirkel.co.uk/)",
@@ -17,28 +43,14 @@
     "index.js"
   ],
   "main": "index.js",
-  "bin": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/keithamus/sort-package-json.git"
+  "bin": {
+    "sort-package-json2": "index.js"
   },
   "scripts": {
-    "semantic-release": "travis-after-all && semantic-release pre && npm publish && semantic-release post",
     "test": "node test.js"
-  },
-  "config": {
-    "ghooks": {
-      "pre-commit": "npm t",
-      "commit-msg": "validate-commit-msg"
-    }
   },
   "dependencies": {
     "sort-object-keys": "^1.1.1"
   },
-  "devDependencies": {
-    "ghooks": "^1.0.1",
-    "semantic-release": "^4.3.5",
-    "travis-after-all": "^1.4.4",
-    "validate-commit-msg": "^2.0.0"
-  }
+  "devDependencies": {}
 }

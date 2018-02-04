@@ -10,9 +10,12 @@ function sortPackageJson(packageJson) {
     }
     packageJson = JSON.parse(packageJson);
   }
-  function sortSubKey(key, sortList) {
+  function sortSubKey(key, sortList, unique) {
     if (Array.isArray(packageJson[key])) {
       packageJson[key] = packageJson[key].sort();
+      if (unique) {
+        packageJson[key] = array_unique(packageJson[key]);
+      }
       return;
     }
     if (typeof packageJson[key] === 'object') {
@@ -38,7 +41,12 @@ function sortPackageJson(packageJson) {
     }
     return aScript < bScript ? -1 : 1;
   }
-  sortSubKey('keywords');
+  function array_unique(array) {
+    return array.filter(function (el, index, arr) {
+      return index == arr.indexOf(el);
+    });
+  }
+  sortSubKey('keywords', null, true);
   sortSubKey('homepage');
   sortSubKey('bugs', [ 'url', 'email' ]);
   sortSubKey('license', [ 'type', 'url' ]);
@@ -74,6 +82,7 @@ function sortPackageJson(packageJson) {
     'keywords',
     'homepage',
     'bugs',
+    'repository',
     'license',
     'author',
     'contributors',
@@ -90,7 +99,6 @@ function sortPackageJson(packageJson) {
     'bin',
     'man',
     'directories',
-    'repository',
     'scripts',
     'config',
     'pre-commit',
