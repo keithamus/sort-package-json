@@ -42,7 +42,7 @@ $ cat package.json
 }
 $ npm i -g sort-package-json
 $ sort-package-json
-Ok, your package.json is sorted
+/my-project/package.json is sorted!
 $ cat package.json
 {
   "name": "foo",
@@ -52,6 +52,12 @@ $ cat package.json
   ],
   "dependencies": {}
 }
+```
+
+`sort-package-json` also supports a single argument, telling it where it can find package.json file(s).
+
+```bash
+$ sort-package-json packages/*/package.json
 ```
 
 ### Install

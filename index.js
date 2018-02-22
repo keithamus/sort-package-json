@@ -124,13 +124,18 @@ function sortPackageJson(packageJson) {
 }
 module.exports = sortPackageJson;
 module.exports.sortPackageJson = sortPackageJson;
+
 if (require.main === module) {
   var fs = require('fs');
-  var packageJsonPath = process.cwd() + '/package.json';
-  var packageJson = fs.readFileSync(packageJsonPath, 'utf8');
-  var sorted = sortPackageJson(packageJson);
-  if (sorted !== packageJson) {
-    fs.writeFileSync(packageJsonPath, sorted, 'utf8');
-    console.log('Ok, your package.json is sorted');
-  }
+
+  var filesToProcess = process.argv[2] ? process.argv.slice(2) : [process.cwd() + '/package.json'];
+  
+  filesToProcess.forEach(function (filePath) {
+    var packageJson = fs.readFileSync(filePath, 'utf8');
+    var sorted = sortPackageJson(packageJson);
+    if (sorted !== packageJson) {
+        fs.writeFileSync(filePath, sorted, 'utf8');
+        console.log(filePath + ' is sorted!');
+    }
+  });
 }
