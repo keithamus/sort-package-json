@@ -62,6 +62,7 @@ function sortPackageJson(packageJson) {
   sortSubKey('babel');
   sortSubKey('eslintConfig');
   sortSubKey('jest');
+  sortSubKey('prettier');
   sortSubKey('dependencies');
   sortSubKey('devDependencies');
   sortSubKey('peerDependencies');
@@ -106,6 +107,7 @@ function sortPackageJson(packageJson) {
     'browser',
     'browserify',
     'babel',
+    'prettier',
     'eslintConfig',
     'eslintIgnore',
     'stylelint',
@@ -132,7 +134,7 @@ if (require.main === module) {
   var fs = require('fs');
 
   var filesToProcess = process.argv[2] ? process.argv.slice(2) : [process.cwd() + '/package.json'];
-  
+
   filesToProcess.forEach(function (filePath) {
     var packageJson = fs.readFileSync(filePath, 'utf8');
     var sorted = sortPackageJson(packageJson);
