@@ -107,6 +107,7 @@ function sortPackageJson(packageJson) {
     'browserify',
     'babel',
     'eslintConfig',
+    'eslintIgnore',
     'stylelint',
     'jest',
     'dependencies',
