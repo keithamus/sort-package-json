@@ -1,6 +1,4 @@
-
-
-Sort Package.json
+## Sort Package.json
 
 [![Build Status](https://travis-ci.org/keithamus/sort-package-json.svg)](https://travis-ci.org/keithamus/sort-package-json)
 
@@ -54,13 +52,21 @@ $ cat package.json
 }
 ```
 
-`sort-package-json` also supports a single argument, telling it where it can find package.json file(s).
+`sort-package-json` also supports arguments - so you can give it a bunch of package.json file(s) to sort.
 
 ```bash
 $ sort-package-json packages/*/package.json
+
+$ sort-package-json my-package/package.json other-package/package.json
 ```
 
-### Install
+### Run (with npm@5.2+)
+
+```sh
+npx sort-package-json
+```
+
+### Install Permanently
 
 #### API
 ```sh
