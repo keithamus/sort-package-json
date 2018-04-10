@@ -62,6 +62,7 @@ function sortPackageJson(packageJson) {
   sortSubKey('babel');
   sortSubKey('eslintConfig');
   sortSubKey('jest');
+  sortSubKey('xo');
   sortSubKey('prettier');
   sortSubKey('dependencies');
   sortSubKey('devDependencies');
@@ -107,6 +108,7 @@ function sortPackageJson(packageJson) {
     'browser',
     'browserify',
     'babel',
+    'xo',
     'prettier',
     'eslintConfig',
     'eslintIgnore',
