@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 var sortObjectKeys = require('sort-object-keys');
+var detectIndent = require('detect-indent');
 function sortPackageJson(packageJson) {
   var wasString = false;
   var endCharacters = '';
+  var indentLevel = 2;
   if (typeof packageJson === 'string') {
     wasString = true;
+    indentLevel = detectIndent(packageJson).indent;
     if (packageJson.substr(-1) === '\n') {
       endCharacters = '\n';
     }
@@ -127,7 +130,7 @@ function sortPackageJson(packageJson) {
     'preferGlobal',
     'publishConfig',
   ]);
-  return wasString ? JSON.stringify(packageJson, null, 2) + endCharacters : packageJson;
+  return wasString ? JSON.stringify(packageJson, null, indentLevel) + endCharacters : packageJson;
 }
 module.exports = sortPackageJson;
 module.exports.sortPackageJson = sortPackageJson;
