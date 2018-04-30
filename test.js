@@ -36,8 +36,11 @@ require('fs').readFile('./package.json', 'utf8', function (error, contents) {
     'test',
     'posttest',
     'watch',
-  ])
+  ]);
 
   assert.equal(sortPackageJson('{}\n'), '{}\n');
   assert.equal(sortPackageJson('{"foo":"bar"}\n'), '{"foo":"bar"}\n');
+
+  assert.equal(sortPackageJson('{\n  "foo": "bar"\n}\n'), '{\n  "foo": "bar"\n}\n');
+  assert.equal(sortPackageJson('{\n     "name": "foo",\n "version": "1.0.0"\n}'), '{\n     "name": "foo",\n     "version": "1.0.0"\n}');
 });
