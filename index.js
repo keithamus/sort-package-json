@@ -73,6 +73,7 @@ function sortPackageJson(packageJson) {
   sortSubKey('bundledDependencies');
   sortSubKey('bundleDependencies');
   sortSubKey('optionalDependencies');
+  sortSubKey('resolutions');
   sortSubKey('engines');
   sortSubKey('engineStrict');
   sortSubKey('os');
@@ -105,6 +106,7 @@ function sortPackageJson(packageJson) {
     'bin',
     'man',
     'directories',
+    'workspaces',
     'scripts',
     'config',
     'pre-commit',
@@ -123,6 +125,7 @@ function sortPackageJson(packageJson) {
     'bundledDependencies',
     'bundleDependencies',
     'optionalDependencies',
+    'resolutions',
     'engines',
     'engineStrict',
     'os',
