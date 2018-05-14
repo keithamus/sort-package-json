@@ -108,6 +108,7 @@ function sortPackageJson(packageJson) {
     'directories',
     'workspaces',
     'scripts',
+    'betterScripts',
     'config',
     'pre-commit',
     'browser',
