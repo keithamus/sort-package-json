@@ -11,6 +11,10 @@
   "bugs": {
     "url": "https://github.com/keithamus/sort-package-json/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/keithamus/sort-package-json.git"
+  },
   "license": "MIT",
   "author": "Keith Cirkel <npm@keithcirkel.co.uk> (http://keithcirkel.co.uk/)",
   "files": [
@@ -18,10 +22,6 @@
   ],
   "main": "index.js",
   "bin": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/keithamus/sort-package-json.git"
-  },
   "scripts": {
     "semantic-release": "travis-after-all && semantic-release pre && npm publish && semantic-release post",
     "test": "node test.js"
