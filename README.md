@@ -78,6 +78,15 @@ npm install --save sort-package-json
 npm install --global sort-package-json
 ```
 
+### Supported Libraries
+
+- [bowserify](http://browserify.org/)
+- [babel](https://babeljs.io/)
+- [eslint](https://eslint.org/)
+- [jest](https://jestjs.io/)
+- [xo](https://github.com/xojs/xo)
+- [prettier](https://prettier.io/)
+
 ### PFAQ: Potential Frequently Asked Questions
 
 #### How does it sort?
