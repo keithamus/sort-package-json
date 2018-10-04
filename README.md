@@ -84,7 +84,7 @@ npm install --global sort-package-json
 - [babel](https://babeljs.io/)
 - [eslint](https://eslint.org/)
 - [jest](https://jestjs.io/)
-- [ox](tbd)
+- [xo](https://github.com/xojs/xo)
 - [prettier](https://prettier.io/)
 
 ### PFAQ: Potential Frequently Asked Questions
