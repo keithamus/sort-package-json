@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "detect-indent": "^5.0.0",
-    "sort-object-keys": "^1.1.1"
+    "sort-object-keys": "^1.1.2"
   },
   "devDependencies": {
     "husky": "^1.1.1",
