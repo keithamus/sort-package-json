@@ -30,6 +30,7 @@ var sortOrder = [
   'workspaces',
   'scripts',
   'betterScripts',
+  'husky',
   'config',
   'pre-commit',
   'browser',
