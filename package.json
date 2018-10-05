@@ -26,20 +26,19 @@
     "semantic-release": "travis-after-all && semantic-release pre && npm publish && semantic-release post",
     "test": "node test.js"
   },
-  "config": {
-    "ghooks": {
-      "pre-commit": "npm t",
-      "commit-msg": "validate-commit-msg"
-    }
-  },
   "dependencies": {
     "detect-indent": "^5.0.0",
     "sort-object-keys": "^1.1.1"
   },
   "devDependencies": {
-    "ghooks": "^1.0.1",
-    "semantic-release": "^4.3.5",
-    "travis-after-all": "^1.4.4",
-    "validate-commit-msg": "^2.0.0"
+    "husky": "^1.1.1",
+    "semantic-release": "^15.9.17",
+    "validate-commit-msg": "^2.14.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm t",
+      "commit-msg": "validate-commit-msg"
+    }
   }
 }
