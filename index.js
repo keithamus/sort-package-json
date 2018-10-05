@@ -1,6 +1,61 @@
 #!/usr/bin/env node
 var sortObjectKeys = require('sort-object-keys');
 var detectIndent = require('detect-indent');
+
+var sortOrder = [
+  'name',
+  'version',
+  'private',
+  'description',
+  'keywords',
+  'homepage',
+  'bugs',
+  'repository',
+  'license',
+  'author',
+  'contributors',
+  'files',
+  'main',
+  'module',
+  'jsnext:main',
+  'types',
+  'typings',
+  'style',
+  'example',
+  'examplestyle',
+  'assets',
+  'bin',
+  'man',
+  'directories',
+  'workspaces',
+  'scripts',
+  'betterScripts',
+  'config',
+  'pre-commit',
+  'browser',
+  'browserify',
+  'babel',
+  'xo',
+  'prettier',
+  'eslintConfig',
+  'eslintIgnore',
+  'stylelint',
+  'jest',
+  'dependencies',
+  'devDependencies',
+  'peerDependencies',
+  'bundledDependencies',
+  'bundleDependencies',
+  'optionalDependencies',
+  'resolutions',
+  'engines',
+  'engineStrict',
+  'os',
+  'cpu',
+  'preferGlobal',
+  'publishConfig',
+];
+
 function sortPackageJson(packageJson) {
   var wasString = false;
   var endCharacters = '';
@@ -81,63 +136,12 @@ function sortPackageJson(packageJson) {
   sortSubKey('preferGlobal');
   sortSubKey('private');
   sortSubKey('publishConfig');
-  packageJson = sortObjectKeys(packageJson, [
-    'name',
-    'version',
-    'private',
-    'description',
-    'keywords',
-    'homepage',
-    'bugs',
-    'repository',
-    'license',
-    'author',
-    'contributors',
-    'files',
-    'main',
-    'module',
-    'jsnext:main',
-    'types',
-    'typings',
-    'style',
-    'example',
-    'examplestyle',
-    'assets',
-    'bin',
-    'man',
-    'directories',
-    'workspaces',
-    'scripts',
-    'betterScripts',
-    'config',
-    'pre-commit',
-    'browser',
-    'browserify',
-    'babel',
-    'xo',
-    'prettier',
-    'eslintConfig',
-    'eslintIgnore',
-    'stylelint',
-    'jest',
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'bundledDependencies',
-    'bundleDependencies',
-    'optionalDependencies',
-    'resolutions',
-    'engines',
-    'engineStrict',
-    'os',
-    'cpu',
-    'preferGlobal',
-    'publishConfig',
-  ]);
+  packageJson = sortObjectKeys(packageJson, sortOrder);
   return wasString ? JSON.stringify(packageJson, null, indentLevel) + endCharacters : packageJson;
 }
 module.exports = sortPackageJson;
 module.exports.sortPackageJson = sortPackageJson;
+module.exports.sortOrder = sortOrder;
 
 if (require.main === module) {
   var fs = require('fs');
