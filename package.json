@@ -23,7 +23,7 @@
   "main": "index.js",
   "bin": "index.js",
   "scripts": {
-    "semantic-release": "travis-after-all && semantic-release pre && npm publish && semantic-release post",
+    "semantic-release": "semantic-release",
     "test": "node test.js"
   },
   "husky": {
