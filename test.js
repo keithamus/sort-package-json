@@ -27,10 +27,12 @@ require('fs').readFile('./package.json', 'utf8', function (error, contents) {
       start: 'node server.js',
       posttest: 'abc',
       pretest: 'xyz',
+      'pre-fetch-info': 'foo'
     }
   }).scripts), [
     'postinstall',
     'multiply',
+    'pre-fetch-info',
     'start',
     'pretest',
     'test',
