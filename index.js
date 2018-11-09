@@ -89,8 +89,8 @@ function sortPackageJson(packageJson) {
    */
   function compareScriptKeys(a, b) {
     if (a === b) return 0;
-    var aScript = a.replace(/^(pre|post)(.)/, '$2');
-    var bScript = b.replace(/^(pre|post)(.)/, '$2');
+    var aScript = a.replace(/^(pre|post)([^-])/, '$2');
+    var bScript = b.replace(/^(pre|post)([^-])/, '$2');
     if (aScript === bScript) {
       // pre* is always smaller; post* is always bigger
       // Covers: pre* vs. *; pre* vs. post*; * vs. post*
