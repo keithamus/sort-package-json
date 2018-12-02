@@ -27,12 +27,16 @@ require('fs').readFile('./package.json', 'utf8', function (error, contents) {
       start: 'node server.js',
       posttest: 'abc',
       pretest: 'xyz',
+      prettier: 'prettier -l "**/*.js"',
+      prepare: 'npm run build',
       'pre-fetch-info': 'foo'
     }
   }).scripts), [
     'postinstall',
     'multiply',
     'pre-fetch-info',
+    'prepare',
+    'prettier',
     'start',
     'pretest',
     'test',

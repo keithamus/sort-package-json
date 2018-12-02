@@ -56,6 +56,10 @@ var sortOrder = [
   'preferGlobal',
   'publishConfig',
 ];
+var prefixedScriptBlacklist = [
+  'prepare',
+  'prettier',
+];
 
 function sortPackageJson(packageJson) {
   var wasString = false;
@@ -81,6 +85,12 @@ function sortPackageJson(packageJson) {
       packageJson[key] = sortObjectKeys(packageJson[key], sortList);
     }
   }
+  function toSortKey(script) {
+    if (prefixedScriptBlacklist.indexOf(script) >= 0) {
+      return script;
+    }
+    return script.replace(/^(pre|post)([^-])/, '$2');
+  }
   /*             b
    *       pre | * | post
    *   pre  0  | - |  -
@@ -89,8 +99,8 @@ function sortPackageJson(packageJson) {
    */
   function compareScriptKeys(a, b) {
     if (a === b) return 0;
-    var aScript = a.replace(/^(pre|post)([^-])/, '$2');
-    var bScript = b.replace(/^(pre|post)([^-])/, '$2');
+    var aScript = toSortKey(a);
+    var bScript = toSortKey(b);
     if (aScript === bScript) {
       // pre* is always smaller; post* is always bigger
       // Covers: pre* vs. *; pre* vs. post*; * vs. post*
