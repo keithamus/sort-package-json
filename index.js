@@ -56,6 +56,20 @@ var sortOrder = [
   'preferGlobal',
   'publishConfig',
 ];
+// See https://docs.npmjs.com/misc/scripts
+var defaultNpmScripts = [
+  'install',
+  'pack',
+  'prepare',
+  'publish',
+  'restart',
+  'shrinkwrap',
+  'start',
+  'stop',
+  'test',
+  'uninstall',
+  'version',
+];
 
 function sortPackageJson(packageJson) {
   var wasString = false;
@@ -69,6 +83,18 @@ function sortPackageJson(packageJson) {
     }
     packageJson = JSON.parse(packageJson);
   }
+
+  var prefixedScriptRegex = /^(pre|post)(.)/;
+  var prefixableScripts = defaultNpmScripts.slice();
+  if (typeof packageJson.scripts === 'object') {
+    Object.keys(packageJson.scripts).forEach(function (script) {
+      var prefixOmitted = script.replace(prefixedScriptRegex, '$2');
+      if (packageJson.scripts[prefixOmitted] && prefixableScripts.indexOf(prefixOmitted) < 0) {
+        prefixableScripts.push(prefixOmitted);
+      }
+    });
+  }
+
   function sortSubKey(key, sortList, unique) {
     if (Array.isArray(packageJson[key])) {
       packageJson[key] = packageJson[key].sort();
@@ -81,6 +107,13 @@ function sortPackageJson(packageJson) {
       packageJson[key] = sortObjectKeys(packageJson[key], sortList);
     }
   }
+  function toSortKey(script) {
+    var prefixOmitted = script.replace(prefixedScriptRegex, '$2');
+    if (prefixableScripts.indexOf(prefixOmitted) >= 0) {
+      return prefixOmitted;
+    }
+    return script;
+  }
   /*             b
    *       pre | * | post
    *   pre  0  | - |  -
@@ -89,12 +122,12 @@ function sortPackageJson(packageJson) {
    */
   function compareScriptKeys(a, b) {
     if (a === b) return 0;
-    var aScript = a.replace(/^(pre|post)([^-])/, '$2');
-    var bScript = b.replace(/^(pre|post)([^-])/, '$2');
+    var aScript = toSortKey(a);
+    var bScript = toSortKey(b);
     if (aScript === bScript) {
       // pre* is always smaller; post* is always bigger
       // Covers: pre* vs. *; pre* vs. post*; * vs. post*
-      if (a.indexOf('pre') === 0 || b.indexOf('post') === 0) return -1;
+      if (a === 'pre' + aScript || b === 'post' + bScript) return -1;
       // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
       return 1;
     }
