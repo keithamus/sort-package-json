@@ -56,9 +56,19 @@ var sortOrder = [
   'preferGlobal',
   'publishConfig',
 ];
-var prefixedScriptBlacklist = [
+// See https://docs.npmjs.com/misc/scripts
+var defaultNpmScripts = [
+  'install',
+  'pack',
   'prepare',
-  'prettier',
+  'publish',
+  'restart',
+  'shrinkwrap',
+  'start',
+  'stop',
+  'test',
+  'uninstall',
+  'version',
 ];
 
 function sortPackageJson(packageJson) {
@@ -73,6 +83,18 @@ function sortPackageJson(packageJson) {
     }
     packageJson = JSON.parse(packageJson);
   }
+
+  var prefixedScriptRegex = /^(pre|post)(.)/;
+  var prefixableScripts = defaultNpmScripts.slice();
+  if (typeof packageJson.scripts === 'object') {
+    Object.keys(packageJson.scripts).forEach(function (script) {
+      var prefixOmitted = script.replace(prefixedScriptRegex, '$2');
+      if (packageJson.scripts[prefixOmitted] && prefixableScripts.indexOf(prefixOmitted) < 0) {
+        prefixableScripts.push(prefixOmitted);
+      }
+    });
+  }
+
   function sortSubKey(key, sortList, unique) {
     if (Array.isArray(packageJson[key])) {
       packageJson[key] = packageJson[key].sort();
@@ -86,10 +108,11 @@ function sortPackageJson(packageJson) {
     }
   }
   function toSortKey(script) {
-    if (prefixedScriptBlacklist.indexOf(script) >= 0) {
-      return script;
+    var prefixOmitted = script.replace(prefixedScriptRegex, '$2');
+    if (prefixableScripts.indexOf(prefixOmitted) >= 0) {
+      return prefixOmitted;
     }
-    return script.replace(/^(pre|post)([^-])/, '$2');
+    return script;
   }
   /*             b
    *       pre | * | post
@@ -104,7 +127,7 @@ function sortPackageJson(packageJson) {
     if (aScript === bScript) {
       // pre* is always smaller; post* is always bigger
       // Covers: pre* vs. *; pre* vs. post*; * vs. post*
-      if (a.indexOf('pre') === 0 || b.indexOf('post') === 0) return -1;
+      if (a === 'pre' + aScript || b === 'post' + bScript) return -1;
       // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
       return 1;
     }
