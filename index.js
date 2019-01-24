@@ -15,6 +15,7 @@ var sortOrder = [
   'author',
   'contributors',
   'files',
+  'sideEffects',
   'main',
   'module',
   'jsnext:main',
@@ -32,10 +33,14 @@ var sortOrder = [
   'scripts',
   'betterScripts',
   'husky',
-  'config',
   'pre-commit',
+  'commitlint',
+  'lint-staged',
+  'config',
+  'nodemonConfig',
   'browserify',
   'babel',
+  'browserslist',
   'xo',
   'prettier',
   'eslintConfig',
@@ -148,8 +153,11 @@ function sortPackageJson(packageJson) {
   sortSubKey('directories', [ 'lib', 'bin', 'man', 'doc', 'example' ]);
   sortSubKey('repository', [ 'type', 'url' ]);
   sortSubKey('scripts', compareScriptKeys);
+  sortSubKey('betterScripts', compareScriptKeys);
+  sortSubKey('commitlint');
+  sortSubKey('lint-staged');
   sortSubKey('config');
-  sortSubKey('browser');
+  sortSubKey('nodemonConfig');
   sortSubKey('browserify');
   sortSubKey('babel');
   sortSubKey('eslintConfig');
