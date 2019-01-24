@@ -25,6 +25,18 @@ JSON.stringify(sortPackageJson({
 */
 ```
 
+### Install Permanently
+
+#### API
+```sh
+npm install --save sort-package-json
+```
+
+#### CLI
+```sh
+npm install --global sort-package-json
+```
+
 ### CLI Usage:
 
 ```bash
@@ -69,18 +81,6 @@ npx sort-package-json
 ### Visual Studio Code Extension
 
 <https://github.com/unional/vscode-sort-package-json>
-
-### Install Permanently
-
-#### API
-```sh
-npm install --save sort-package-json
-```
-
-#### CLI
-```sh
-npm install --global sort-package-json
-```
 
 ### Supported Libraries
 
