@@ -76,7 +76,8 @@ const defaultNpmScripts = [
   'version'
 ];
 
-function sortPackageJson(packageJson) {
+function sortPackageJson(packageJson, options = {}) {
+  const determinedSortOrder = options.sortOrder || sortOrder;
   let wasString = false;
   let endCharacters = '';
   let indentLevel = 2;
@@ -179,7 +180,7 @@ function sortPackageJson(packageJson) {
   sortSubKey('preferGlobal');
   sortSubKey('private');
   sortSubKey('publishConfig');
-  packageJson = sortObjectKeys(packageJson, sortOrder);
+  packageJson = sortObjectKeys(packageJson, determinedSortOrder);
   return wasString
     ? JSON.stringify(packageJson, null, indentLevel) + endCharacters
     : packageJson;

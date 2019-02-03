@@ -76,6 +76,24 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     ]
   );
 
+  // Custom sort order
+  assert.deepEqual(
+    Object.keys(
+      sortPackageJson(
+        {
+          scripts: {
+            name: 'my-package',
+            engines: '>=10'
+          }
+        },
+        {
+          sortOrder: ['engines', 'name']
+        }
+      ).scripts
+    ),
+    ['engines', 'name']
+  );
+
   assert.equal(sortPackageJson('{}\n'), '{}\n');
   assert.equal(sortPackageJson('{"foo":"bar"}\n'), '{"foo":"bar"}\n');
 
@@ -88,3 +106,4 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     '{\n     "name": "foo",\n     "version": "1.0.0"\n}'
   );
 });
+
