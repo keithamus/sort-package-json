@@ -83,6 +83,7 @@ const defaultNpmScripts = [
 function sortPackageJson(packageJson, options = {}) {
   const determinedSortOrder = options.sortOrder || sortOrder;
   let wasString = false;
+  let hasWindowsNewlines = false;
   let endCharacters = '';
   let indentLevel = 2;
   if (typeof packageJson === 'string') {
@@ -91,6 +92,8 @@ function sortPackageJson(packageJson, options = {}) {
     if (packageJson.substr(-1) === '\n') {
       endCharacters = '\n';
     }
+    const newlineMatch = packageJson.match(/(\r?\n)/);
+    hasWindowsNewlines = (newlineMatch && newlineMatch[0]) === '\r\n';
     packageJson = JSON.parse(packageJson);
   }
 
@@ -185,9 +188,14 @@ function sortPackageJson(packageJson, options = {}) {
   sortSubKey('private');
   sortSubKey('publishConfig');
   packageJson = sortObjectKeys(packageJson, determinedSortOrder);
-  return wasString
-    ? JSON.stringify(packageJson, null, indentLevel) + endCharacters
-    : packageJson;
+  if (wasString) {
+    let result = JSON.stringify(packageJson, null, indentLevel) + endCharacters;
+    if (hasWindowsNewlines) {
+      result = result.replace(/\n/g, '\r\n');
+    }
+    return result;
+  }
+  return packageJson;
 }
 module.exports = sortPackageJson;
 module.exports.sortPackageJson = sortPackageJson;

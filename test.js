@@ -94,7 +94,9 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     ['engines', 'name']
   );
 
+  assert.equal(sortPackageJson('{}'), '{}');
   assert.equal(sortPackageJson('{}\n'), '{}\n');
+  assert.equal(sortPackageJson('{}\r\n'), '{}\r\n');
   assert.equal(sortPackageJson('{"foo":"bar"}\n'), '{"foo":"bar"}\n');
 
   assert.equal(
@@ -104,6 +106,10 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
   assert.equal(
     sortPackageJson('{\n     "name": "foo",\n "version": "1.0.0"\n}'),
     '{\n     "name": "foo",\n     "version": "1.0.0"\n}'
+  );
+  assert.equal(
+    sortPackageJson('{\r\n  "foo": "bar"\r\n}\r\n'),
+    '{\r\n  "foo": "bar"\r\n}\r\n'
   );
 });
 
