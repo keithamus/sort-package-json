@@ -91,6 +91,25 @@ npx sort-package-json
 - [xo](https://github.com/xojs/xo)
 - [prettier](https://prettier.io/)
 
+### Automatically Sort
+
+The package.json file can be sorted automatically before commiting, install `husky` and `lint-staged` and add the following to the package.json file:
+```javascript
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "package.json": [
+      "sort-package-json",
+      "git add"
+    ]
+  }
+}
+```
+
 ### PFAQ: Potential Frequently Asked Questions
 
 #### How does it sort?
