@@ -82,6 +82,10 @@ npx sort-package-json
 
 <https://github.com/unional/vscode-sort-package-json>
 
+### ESLint Rule with Autofix
+
+<https://github.com/kellyselden/eslint-plugin-json-files#supported-rules>
+
 ### Supported Libraries
 
 - [bowserify](http://browserify.org/)
