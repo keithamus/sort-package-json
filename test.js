@@ -1,12 +1,18 @@
 const assert = require('assert');
-const sortPackageJson = require('./');
 const fs = require('fs');
+const newline = require('newline');
+const sortPackageJson = require('./');
 
 fs.readFile('./package.json', 'utf8', (error, contents) => {
   if (error) {
     console.error(error.stack || error);
     process.exit(1);
   }
+
+  // Enforce LF line-endings. Windows git users often set core.autocrlf
+  // to true, so the file may have CRLF line endings.
+  contents = newline.set(contents, "LF");
+
   const parsed = JSON.parse(contents);
   assert.deepEqual(
     typeof sortPackageJson(parsed),
