@@ -82,6 +82,10 @@ npx sort-package-json
 
 <https://github.com/unional/vscode-sort-package-json>
 
+### ESLint Rule with Autofix
+
+<https://github.com/kellyselden/eslint-plugin-json-files#supported-rules>
+
 ### Supported Libraries
 
 - [bowserify](http://browserify.org/)
@@ -90,6 +94,25 @@ npx sort-package-json
 - [jest](https://jestjs.io/)
 - [xo](https://github.com/xojs/xo)
 - [prettier](https://prettier.io/)
+
+### Automatically Sort
+
+The package.json file can be sorted automatically before commiting, install `husky` and `lint-staged` and add the following to the package.json file:
+```javascript
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "package.json": [
+      "sort-package-json",
+      "git add"
+    ]
+  }
+}
+```
 
 ### PFAQ: Potential Frequently Asked Questions
 
