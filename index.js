@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const sortObjectKeys = require('sort-object-keys');
 const detectIndent = require('detect-indent');
+const glob = require('glob');
 
 const sortOrder = [
   'name',
@@ -204,16 +205,19 @@ module.exports.sortOrder = sortOrder;
 if (require.main === module) {
   const fs = require('fs');
 
-  const filesToProcess = process.argv[2]
+  const paths = process.argv[2]
     ? process.argv.slice(2)
     : [`${process.cwd()}/package.json`];
 
-  filesToProcess.forEach(filePath => {
-    const packageJson = fs.readFileSync(filePath, 'utf8');
-    const sorted = sortPackageJson(packageJson);
-    if (sorted !== packageJson) {
-      fs.writeFileSync(filePath, sorted, 'utf8');
-      console.log(`${filePath} is sorted!`);
-    }
+  paths.forEach(path => {
+    const filesToProcess = glob.sync(path);
+    filesToProcess.forEach(filePath => {
+      const packageJson = fs.readFileSync(filePath, 'utf8');
+      const sorted = sortPackageJson(packageJson);
+      if (sorted !== packageJson) {
+        fs.writeFileSync(filePath, sorted, 'utf8');
+        console.log(`${filePath} is sorted!`);
+      }
+    });
   });
 }

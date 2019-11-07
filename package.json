@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "detect-indent": "^5.0.0",
+    "glob": "^7.1.6",
     "sort-object-keys": "^1.1.2"
   },
   "devDependencies": {
