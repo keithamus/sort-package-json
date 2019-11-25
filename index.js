@@ -17,6 +17,7 @@ const sortOrder = [
   'contributors',
   'files',
   'sideEffects',
+  'type',
   'main',
   'umd:main',
   'unpkg',
