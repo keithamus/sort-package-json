@@ -4,7 +4,6 @@ cache:
   directories:
     - /home/travis/.npm
 node_js:
-  - v6
   - v8
   - v10
   - stable
