@@ -51,6 +51,7 @@ const sortOrder = [
   'eslintConfig',
   'eslintIgnore',
   'stylelint',
+  'nyc',
   'jest',
   'dependencies',
   'devDependencies',
@@ -172,6 +173,7 @@ function sortPackageJson(packageJson, options = {}) {
   sortSubKey('browserify');
   sortSubKey('babel');
   sortSubKey('eslintConfig');
+  sortSubKey('nyc');
   sortSubKey('jest');
   sortSubKey('xo');
   sortSubKey('prettier');
