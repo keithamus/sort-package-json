@@ -88,6 +88,7 @@ npx sort-package-json
 
 ### Supported Libraries
 
+- [AVA](https://github.com/avajs/ava)
 - [bowserify](http://browserify.org/)
 - [babel](https://babeljs.io/)
 - [eslint](https://eslint.org/)
