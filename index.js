@@ -20,6 +20,7 @@ const sortOrder = [
   'type',
   'main',
   'umd:main',
+  'jsdelivr',
   'unpkg',
   'module',
   'source',
@@ -51,7 +52,9 @@ const sortOrder = [
   'eslintConfig',
   'eslintIgnore',
   'stylelint',
+  'ava',
   'jest',
+  'nyc',
   'dependencies',
   'devDependencies',
   'peerDependencies',
@@ -172,7 +175,9 @@ function sortPackageJson(packageJson, options = {}) {
   sortSubKey('browserify');
   sortSubKey('babel');
   sortSubKey('eslintConfig');
+  sortSubKey('ava');
   sortSubKey('jest');
+  sortSubKey('nyc');
   sortSubKey('xo');
   sortSubKey('prettier');
   sortSubKey('dependencies');
