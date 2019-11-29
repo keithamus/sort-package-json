@@ -38,11 +38,9 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
         keywords: ['thing'],
         name: 'foo',
         private: true
-      }),
-      null,
-      2
+      })
     ),
-    '{\n  "name": "foo",\n  "version": "1.0.0",\n  "private": true,\n  "keywords": [\n    "thing"\n  ],\n  "dependencies": {}\n}'
+    '{"name":"foo","version":"1.0.0","private":true,"keywords":["thing"],"dependencies":{}}'
   );
 
   assert.deepEqual(
