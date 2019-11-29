@@ -20,6 +20,7 @@ const sortOrder = [
   'type',
   'main',
   'umd:main',
+  'jsdelivr',
   'unpkg',
   'module',
   'source',
