@@ -28,12 +28,12 @@ JSON.stringify(sortPackageJson({
 ### Install Permanently
 
 #### API
-```sh
+```bash
 npm install --save sort-package-json
 ```
 
 #### CLI
-```sh
+```bash
 npm install --global sort-package-json
 ```
 
@@ -74,7 +74,7 @@ $ sort-package-json my-package/package.json other-package/package.json
 
 ### Run (with npm@5.2+)
 
-```sh
+```bash
 npx sort-package-json
 ```
 
@@ -88,7 +88,7 @@ npx sort-package-json
 
 ### Supported Libraries
 
-- [bowserify](http://browserify.org/)
+- [browserify](http://browserify.org/)
 - [babel](https://babeljs.io/)
 - [eslint](https://eslint.org/)
 - [jest](https://jestjs.io/)
@@ -97,8 +97,8 @@ npx sort-package-json
 
 ### Automatically Sort
 
-The package.json file can be sorted automatically before commiting, install `husky` and `lint-staged` and add the following to the package.json file:
-```javascript
+The package.json file can be sorted automatically before committing, install `husky` and `lint-staged` and add the following to the package.json file:
+```js
 {
   "husky": {
     "hooks": {
