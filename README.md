@@ -93,6 +93,7 @@ npx sort-package-json
 - [babel](https://babeljs.io/)
 - [eslint](https://eslint.org/)
 - [jest](https://jestjs.io/)
+- [Istanbul](https://istanbul.js.org/)
 - [xo](https://github.com/xojs/xo)
 - [prettier](https://prettier.io/)
 
