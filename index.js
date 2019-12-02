@@ -205,20 +205,53 @@ module.exports.sortOrder = sortOrder;
 
 if (require.main === module) {
   const fs = require('fs');
+  const isCheckFlag = argument => argument === '--check' || argument === '-c';
 
-  const paths = process.argv[2]
-    ? process.argv.slice(2)
-    : [`${process.cwd()}/package.json`];
+  const cliArguments = process.argv.slice(2);
+  const isCheck = cliArguments.some(isCheckFlag);
 
-  paths.forEach(path => {
-    const filesToProcess = glob.sync(path);
-    filesToProcess.forEach(filePath => {
-      const packageJson = fs.readFileSync(filePath, 'utf8');
-      const sorted = sortPackageJson(packageJson);
-      if (sorted !== packageJson) {
-        fs.writeFileSync(filePath, sorted, 'utf8');
-        console.log(`${filePath} is sorted!`);
+  const patterns = cliArguments.filter(argument => !isCheckFlag(argument));
+
+  if (!patterns.length) {
+    patterns[0] = 'package.json';
+  }
+
+  const files = patterns.reduce(
+    (files, pattern) => files.concat(glob.sync(pattern)), 
+    []
+  );
+
+  let notSortedFiles = 0;
+
+  files.forEach(file => {
+    const packageJson = fs.readFileSync(file, 'utf8');
+    const sorted = sortPackageJson(packageJson);
+
+    if (sorted !== packageJson) {
+      if (isCheck) {
+        notSortedFiles ++;
+        console.log(file);
+      } else {
+        fs.writeFileSync(file, sorted, 'utf8');
+        console.log(`${file} is sorted!`);
       }
-    });
+    }
   });
+
+  if (isCheck) {
+    if (notSortedFiles) {
+      console.log(
+        notSortedFiles === 1 ? 
+        `${notSortedFiles} file is not sorted.`:
+        `\n ${notSortedFiles} files are not sorted.`
+      );
+    } else {
+      console.log(
+        files.length === 1 ?
+        `file is sorted.`:
+        `all files are sorted.`
+      );
+    }
+    process.exit(notSortedFiles)
+  }
 }
