@@ -29,7 +29,7 @@ JSON.stringify(sortPackageJson({
 
 #### API
 ```bash
-npm install --save sort-package-json
+npm install --save-dev sort-package-json
 ```
 
 #### CLI
