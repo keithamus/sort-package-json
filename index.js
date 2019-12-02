@@ -12,6 +12,7 @@ const sortOrder = [
   'homepage',
   'bugs',
   'repository',
+  'funding',
   'license',
   'author',
   'contributors',
@@ -166,6 +167,7 @@ function sortPackageJson(packageJson, options = {}) {
   sortSubKey('man');
   sortSubKey('directories', ['lib', 'bin', 'man', 'doc', 'example']);
   sortSubKey('repository', ['type', 'url']);
+  sortSubKey('funding', ['type', 'url']);
   sortSubKey('scripts', compareScriptKeys);
   sortSubKey('betterScripts', compareScriptKeys);
   sortSubKey('commitlint');
