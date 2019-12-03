@@ -94,6 +94,7 @@ npx sort-package-json
 - [eslint](https://eslint.org/)
 - [jest](https://jestjs.io/)
 - [Istanbul](https://istanbul.js.org/)
+- [Mocha](https://mochajs.org/)
 - [xo](https://github.com/xojs/xo)
 - [prettier](https://prettier.io/)
 

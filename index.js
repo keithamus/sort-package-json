@@ -55,6 +55,7 @@ const sortOrder = [
   'stylelint',
   'ava',
   'jest',
+  'mocha',
   'nyc',
   'dependencies',
   'devDependencies',
@@ -179,6 +180,7 @@ function sortPackageJson(packageJson, options = {}) {
   sortSubKey('eslintConfig');
   sortSubKey('ava');
   sortSubKey('jest');
+  sortSubKey('mocha');
   sortSubKey('nyc');
   sortSubKey('xo');
   sortSubKey('prettier');
