@@ -125,43 +125,43 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
 
 // make sure `--check` not fixing file
 // support `-c` as well
-const orignal = fs.readFileSync('./fixtures/not-sorted-1/package.json', 'utf8');
+const orignal = fs.readFileSync('fixtures/not-sorted-1/package.json', 'utf8');
 execFile(
   'node', 
-  ['index.js', './fixtures/not-sorted-1/package.json','-c'], 
+  ['index.js', 'fixtures/not-sorted-1/package.json', '-c'], 
   (error, stdout, stderr) => {
     assert.notEqual(
       orignal, 
       sortPackageJson(orignal),
-      './fixtures/not-sorted-1/package.json should be a unsorted file.'
+      'fixtures/not-sorted-1/package.json should be a unsorted file.'
     );
     assert.equal(
       orignal, 
-      fs.readFileSync('./fixtures/not-sorted-1/package.json', 'utf8'),
+      fs.readFileSync('fixtures/not-sorted-1/package.json', 'utf8'),
       'file should not fixed when --check is enabled.'
     );
     assert.equal(error.code, 1, 'error.code should equals to unsorted file length');
     assert.equal(stderr, '');
-    assert.equal(stdout.trim(), './fixtures/not-sorted-1/package.json\n1 file is not sorted.');
+    assert.equal(stdout.trim(), 'fixtures/not-sorted-1/package.json\n1 file is not sorted.');
   }
 );
 
 
 execFile(
   'node', 
-  ['index.js', './fixtures/not-sorted-*/package.json','--check'], 
+  ['index.js', 'fixtures/not-sorted-*/package.json','--check'], 
   (error, stdout, stderr) => {
     assert.equal(error.code, 2);
     assert.equal(stderr, '');
-    assert.equal(stdout.includes('./fixtures/not-sorted-1/package.json'), true);
-    assert.equal(stdout.includes('./fixtures/not-sorted-2/package.json'), true);
+    assert.equal(stdout.includes('fixtures/not-sorted-1/package.json'), true);
+    assert.equal(stdout.includes('fixtures/not-sorted-2/package.json'), true);
     assert.equal(stdout.includes('2 files are not sorted.'), true);
   }
 );
 
 execFile(
   'node', 
-  ['index.js', './fixtures/sorted-1/package.json','--check'], 
+  ['index.js', 'fixtures/sorted-1/package.json','--check'], 
   (error, stdout, stderr) => {
     assert.equal(error, null);
     assert.equal(stderr, '');
@@ -171,7 +171,7 @@ execFile(
 
 execFile(
   'node', 
-  ['index.js', './fixtures/sorted-*/package.json','--check'], 
+  ['index.js', 'fixtures/sorted-*/package.json','--check'], 
   (error, stdout, stderr) => {
     assert.equal(error, null);
     assert.equal(stderr, '');
@@ -181,15 +181,15 @@ execFile(
 
 execFile(
   'node', 
-  ['index.js', './fixtures/*/package.json','--check'], 
+  ['index.js', 'fixtures/*/package.json','--check'], 
   (error, stdout, stderr) => {
     assert.equal(error.code, 3);
     assert.equal(stderr, '');
-    assert.equal(stdout.includes('./fixtures/sorted-1/package.json'), false);
-    assert.equal(stdout.includes('./fixtures/sorted-2/package.json'), false);
-    assert.equal(stdout.includes('./fixtures/not-sorted-1/package.json'), true);
-    assert.equal(stdout.includes('./fixtures/not-sorted-2/package.json'), true);
-    assert.equal(stdout.includes('./fixtures/another-not-sorted/package.json'), true);
+    assert.equal(stdout.includes('fixtures/sorted-1/package.json'), false);
+    assert.equal(stdout.includes('fixtures/sorted-2/package.json'), false);
+    assert.equal(stdout.includes('fixtures/not-sorted-1/package.json'), true);
+    assert.equal(stdout.includes('fixtures/not-sorted-2/package.json'), true);
+    assert.equal(stdout.includes('fixtures/another-not-sorted/package.json'), true);
     assert.equal(stdout.includes('3 files are not sorted.'), true);
   }
 );
