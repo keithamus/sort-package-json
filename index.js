@@ -19,6 +19,7 @@ const sortOrder = [
   'files',
   'sideEffects',
   'type',
+  'exports',
   'main',
   'umd:main',
   'jsdelivr',
@@ -164,6 +165,7 @@ function sortPackageJson(packageJson, options = {}) {
   sortSubKey('bugs', ['url', 'email']);
   sortSubKey('license', ['type', 'url']);
   sortSubKey('author', ['name', 'email', 'url']);
+  sortSubKey('exports');
   sortSubKey('bin');
   sortSubKey('man');
   sortSubKey('directories', ['lib', 'bin', 'man', 'doc', 'example']);
