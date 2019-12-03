@@ -74,7 +74,7 @@ $ sort-package-json my-package/package.json other-package/package.json
 
 #### `--check` 
 
-When you want to check if your files are sorted, you can run Cli with the --check flag (or -c). This will output a list of unsorted files, if any.
+When you want to check if your files are sorted, you can run Cli with the --check flag (or -c). This will output a list of not sorted files, if any.
 
 ```bash
 $ sort-package-json **/package.json --check
