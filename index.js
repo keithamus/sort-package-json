@@ -3,6 +3,14 @@ const sortObjectKeys = require('sort-object-keys');
 const detectIndent = require('detect-indent');
 const glob = require('glob');
 
+// field.field{string}: field name
+// field.sort{boolean|string[]|function}:
+//   false: disable field sorting
+//   true: sort field keys
+//   string[]: key order array
+//   function: key compare function
+// field.unique{boolean}: unique array values
+// field.sortScripts{boolean}: sort field as scripts
 const fields = [
   {field: 'name', sort: false},
   {field: 'version', sort: false},
@@ -38,8 +46,8 @@ const fields = [
   {field: 'man', sort: true},
   {field: 'directories', sort: ['lib', 'bin', 'man', 'doc', 'example']},
   {field: 'workspaces', sort: false},
-  {field: 'scripts', sortScript: true},
-  {field: 'betterScripts', sortScript: true},
+  {field: 'scripts', sortScripts: true},
+  {field: 'betterScripts', sortScripts: true},
   {field: 'husky', sort: false},
   {field: 'pre-commit', sort: false},
   {field: 'commitlint', sort: true},
@@ -125,7 +133,7 @@ function sortPackageJson(packageJson, options = {}) {
   function sortSubKey({
     field,
     sort,
-    sortScript,
+    sortScripts,
     unique
   }) {
     if (sort === false) {
@@ -142,7 +150,7 @@ function sortPackageJson(packageJson, options = {}) {
 
     if (typeof packageJson[field] === 'object') {
       let sortList
-      if (sortScript) {
+      if (sortScripts) {
         sortList = compareScriptKeys
       } else if (Array.isArray(sort)) {
         sortList = sort
