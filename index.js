@@ -117,16 +117,20 @@ function sortPackageJson(packageJson, options = {}) {
     });
   }
 
-  function sortSubKey(key, sortList, unique) {
-    if (Array.isArray(packageJson[key])) {
-      packageJson[key] = packageJson[key].sort();
+  function sortSubKey({
+    field,
+    sortList,
+    unique
+  }) {
+    if (Array.isArray(packageJson[field])) {
+      packageJson[field] = packageJson[field].sort();
       if (unique) {
-        packageJson[key] = array_unique(packageJson[key]);
+        packageJson[field] = array_unique(packageJson[field]);
       }
       return;
     }
-    if (typeof packageJson[key] === 'object') {
-      packageJson[key] = sortObjectKeys(packageJson[key], sortList);
+    if (typeof packageJson[field] === 'object') {
+      packageJson[field] = sortObjectKeys(packageJson[field], sortList);
     }
   }
   function toSortKey(script) {
@@ -158,44 +162,80 @@ function sortPackageJson(packageJson, options = {}) {
   function array_unique(array) {
     return array.filter((el, index, arr) => index == arr.indexOf(el));
   }
-  sortSubKey('keywords', null, true);
-  sortSubKey('homepage');
-  sortSubKey('bugs', ['url', 'email']);
-  sortSubKey('license', ['type', 'url']);
-  sortSubKey('author', ['name', 'email', 'url']);
-  sortSubKey('bin');
-  sortSubKey('man');
-  sortSubKey('directories', ['lib', 'bin', 'man', 'doc', 'example']);
-  sortSubKey('repository', ['type', 'url']);
-  sortSubKey('funding', ['type', 'url']);
-  sortSubKey('scripts', compareScriptKeys);
-  sortSubKey('betterScripts', compareScriptKeys);
-  sortSubKey('commitlint');
-  sortSubKey('lint-staged');
-  sortSubKey('config');
-  sortSubKey('nodemonConfig');
-  sortSubKey('browserify');
-  sortSubKey('babel');
-  sortSubKey('eslintConfig');
-  sortSubKey('ava');
-  sortSubKey('jest');
-  sortSubKey('nyc');
-  sortSubKey('xo');
-  sortSubKey('prettier');
-  sortSubKey('dependencies');
-  sortSubKey('devDependencies');
-  sortSubKey('peerDependencies');
-  sortSubKey('bundledDependencies');
-  sortSubKey('bundleDependencies');
-  sortSubKey('optionalDependencies');
-  sortSubKey('resolutions');
-  sortSubKey('engines');
-  sortSubKey('engineStrict');
-  sortSubKey('os');
-  sortSubKey('cpu');
-  sortSubKey('preferGlobal');
-  sortSubKey('private');
-  sortSubKey('publishConfig');
+
+  const sortFields = [
+    {
+      field: 'keywords',
+      sortList: null,
+      unique: true
+    },
+    'homepage',
+    {
+      field: 'bugs',
+      sortList: ['url', 'email']
+    },
+    {
+      field: 'license',
+      sortList: ['type', 'url']
+    },
+    {
+      field: 'author',
+      sortList: ['name', 'email', 'url']
+    },
+    'bin',
+    'man',
+    {
+      field: 'directories',
+      sortList: ['lib', 'bin', 'man', 'doc', 'example']
+    },
+    {
+      field: 'repository',
+      sortList: ['type', 'url']
+    },
+    {
+      field: 'funding',
+      sortList: ['type', 'url']
+    },
+    {
+      field: 'scripts',
+      sortList: compareScriptKeys
+    },
+    {
+      field: 'betterScripts',
+      sortList: compareScriptKeys
+    },
+    'commitlint',
+    'lint-staged',
+    'config',
+    'nodemonConfig',
+    'browserify',
+    'babel',
+    'eslintConfig',
+    'ava',
+    'jest',
+    'nyc',
+    'xo',
+    'prettier',
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+    'bundledDependencies',
+    'bundleDependencies',
+    'optionalDependencies',
+    'resolutions',
+    'engines',
+    'engineStrict',
+    'os',
+    'cpu',
+    'preferGlobal',
+    'private',
+    'publishConfig'
+  ].map(options => typeof options === 'string' ? {field: options} : options);
+
+  for (const sortOptions of sortFields) {
+    sortSubKey(sortOptions);
+  }
+
   packageJson = sortObjectKeys(packageJson, determinedSortOrder);
   if (wasString) {
     let result = JSON.stringify(packageJson, null, indentLevel) + endCharacters;
