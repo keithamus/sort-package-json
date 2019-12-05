@@ -3,76 +3,79 @@ const sortObjectKeys = require('sort-object-keys');
 const detectIndent = require('detect-indent');
 const glob = require('glob');
 
-const sortOrder = [
-  'name',
-  'version',
-  'private',
-  'description',
-  'keywords',
-  'homepage',
-  'bugs',
-  'repository',
-  'funding',
-  'license',
-  'author',
-  'contributors',
-  'files',
-  'sideEffects',
-  'type',
-  'exports',
-  'main',
-  'umd:main',
-  'jsdelivr',
-  'unpkg',
-  'module',
-  'source',
-  'jsnext:main',
-  'browser',
-  'types',
-  'typings',
-  'style',
-  'example',
-  'examplestyle',
-  'assets',
-  'bin',
-  'man',
-  'directories',
-  'workspaces',
-  'scripts',
-  'betterScripts',
-  'husky',
-  'pre-commit',
-  'commitlint',
-  'lint-staged',
-  'config',
-  'nodemonConfig',
-  'browserify',
-  'babel',
-  'browserslist',
-  'xo',
-  'prettier',
-  'eslintConfig',
-  'eslintIgnore',
-  'stylelint',
-  'ava',
-  'jest',
-  'mocha',
-  'nyc',
-  'dependencies',
-  'devDependencies',
-  'peerDependencies',
-  'bundledDependencies',
-  'bundleDependencies',
-  'optionalDependencies',
-  'flat',
-  'resolutions',
-  'engines',
-  'engineStrict',
-  'os',
-  'cpu',
-  'preferGlobal',
-  'publishConfig'
+const fields = [
+  {field: 'name', sort: false},
+  {field: 'version', sort: false},
+  {field: 'private', sort: true},
+  {field: 'description', sort: false},
+  {field: 'keywords', unique: true},
+  {field: 'homepage', sort: true},
+  {field: 'bugs', sort: ['url', 'email']},
+  {field: 'repository', sort: ['type', 'url']},
+  {field: 'funding', sort: ['type', 'url']},
+  {field: 'license', sort: ['type', 'url']},
+  {field: 'author', sort: ['name', 'email', 'url']},
+  {field: 'contributors', sort: false},
+  {field: 'files', sort: false},
+  {field: 'sideEffects', sort: false},
+  {field: 'type', sort: false},
+  {field: 'exports', sort: true},
+  {field: 'main', sort: false},
+  {field: 'umd:main', sort: false},
+  {field: 'jsdelivr', sort: false},
+  {field: 'unpkg', sort: false},
+  {field: 'module', sort: false},
+  {field: 'source', sort: false},
+  {field: 'jsnext:main', sort: false},
+  {field: 'browser', sort: false},
+  {field: 'types', sort: false},
+  {field: 'typings', sort: false},
+  {field: 'style', sort: false},
+  {field: 'example', sort: false},
+  {field: 'examplestyle', sort: false},
+  {field: 'assets', sort: false},
+  {field: 'bin', sort: true},
+  {field: 'man', sort: true},
+  {field: 'directories', sort: ['lib', 'bin', 'man', 'doc', 'example']},
+  {field: 'workspaces', sort: false},
+  {field: 'scripts', sortScript: true},
+  {field: 'betterScripts', sortScript: true},
+  {field: 'husky', sort: false},
+  {field: 'pre-commit', sort: false},
+  {field: 'commitlint', sort: true},
+  {field: 'lint-staged', sort: true},
+  {field: 'config', sort: true},
+  {field: 'nodemonConfig', sort: true},
+  {field: 'browserify', sort: true},
+  {field: 'babel', sort: true},
+  {field: 'browserslist', sort: false},
+  {field: 'xo', sort: true},
+  {field: 'prettier', sort: true},
+  {field: 'eslintConfig', sort: true},
+  {field: 'eslintIgnore', sort: false},
+  {field: 'stylelint', sort: false},
+  {field: 'ava', sort: true},
+  {field: 'jest', sort: true},
+  {field: 'mocha', sort: true},
+  {field: 'nyc', sort: true},
+  {field: 'dependencies', sort: true},
+  {field: 'devDependencies', sort: true},
+  {field: 'peerDependencies', sort: true},
+  {field: 'bundledDependencies', sort: true},
+  {field: 'bundleDependencies', sort: true},
+  {field: 'optionalDependencies', sort: true},
+  {field: 'flat', sort: false},
+  {field: 'resolutions', sort: true},
+  {field: 'engines', sort: true},
+  {field: 'engineStrict', sort: true},
+  {field: 'os', sort: true},
+  {field: 'cpu', sort: true},
+  {field: 'preferGlobal', sort: true},
+  {field: 'publishConfig', sort: true},
 ];
+
+const sortOrder = fields.map(({field}) => field);
+
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = [
   'install',
@@ -121,9 +124,14 @@ function sortPackageJson(packageJson, options = {}) {
 
   function sortSubKey({
     field,
-    sortList,
+    sort,
+    sortScript,
     unique
   }) {
+    if (sort === false) {
+      return
+    }
+
     if (Array.isArray(packageJson[field])) {
       packageJson[field] = packageJson[field].sort();
       if (unique) {
@@ -131,7 +139,14 @@ function sortPackageJson(packageJson, options = {}) {
       }
       return;
     }
+
     if (typeof packageJson[field] === 'object') {
+      let sortList
+      if (sortScript) {
+        sortList = compareScriptKeys
+      } else if (Array.isArray(sort)) {
+        sortList = sort
+      }
       packageJson[field] = sortObjectKeys(packageJson[field], sortList);
     }
   }
@@ -165,78 +180,8 @@ function sortPackageJson(packageJson, options = {}) {
     return array.filter((el, index, arr) => index == arr.indexOf(el));
   }
 
-  const sortFields = [
-    {
-      field: 'keywords',
-      unique: true
-    },
-    'homepage',
-    {
-      field: 'bugs',
-      sortList: ['url', 'email']
-    },
-    {
-      field: 'license',
-      sortList: ['type', 'url']
-    },
-    {
-      field: 'author',
-      sortList: ['name', 'email', 'url']
-    },
-    'exports',
-    'bin',
-    'man',
-    {
-      field: 'directories',
-      sortList: ['lib', 'bin', 'man', 'doc', 'example']
-    },
-    {
-      field: 'repository',
-      sortList: ['type', 'url']
-    },
-    {
-      field: 'funding',
-      sortList: ['type', 'url']
-    },
-    {
-      field: 'scripts',
-      sortList: compareScriptKeys
-    },
-    {
-      field: 'betterScripts',
-      sortList: compareScriptKeys
-    },
-    'commitlint',
-    'lint-staged',
-    'config',
-    'nodemonConfig',
-    'browserify',
-    'babel',
-    'eslintConfig',
-    'ava',
-    'jest',
-    'mocha',
-    'nyc',
-    'xo',
-    'prettier',
-    'dependencies',
-    'devDependencies',
-    'peerDependencies',
-    'bundledDependencies',
-    'bundleDependencies',
-    'optionalDependencies',
-    'resolutions',
-    'engines',
-    'engineStrict',
-    'os',
-    'cpu',
-    'preferGlobal',
-    'private',
-    'publishConfig'
-  ].map(options => typeof options === 'string' ? {field: options} : options);
-
-  for (const sortOptions of sortFields) {
-    sortSubKey(sortOptions);
+  for (const options of fields) {
+    sortSubKey(options);
   }
 
   packageJson = sortObjectKeys(packageJson, determinedSortOrder);
