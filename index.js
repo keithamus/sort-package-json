@@ -17,9 +17,7 @@ function sortArrayOrObject(comparator) {
 
 function sortObject(comparator) {
   return onObject(function(field) {
-    return sortObjectKeys(
-      typeof comparator === 'function' ? comparator(field) : comparator,
-    )(field)
+    return sortObjectKeys(comparator)(field)
   })
 }
 
@@ -31,7 +29,9 @@ const sortScripts = scripts => {
       prefixableScripts.push(prefixOmitted)
     }
   })
-  return compareScriptKeys(toSortKey(prefixableScripts))
+  return sortObjectKeys(compareScriptKeys(toSortKey(prefixableScripts)))(
+    scripts,
+  )
 }
 
 // field.key{string}: field name
@@ -74,8 +74,8 @@ const fields = [
     over: sortObject(['lib', 'bin', 'man', 'doc', 'example']),
   },
   { key: 'workspaces' },
-  { key: 'scripts', over: sortObject(sortScripts) },
-  { key: 'betterScripts', over: sortObject(sortScripts) },
+  { key: 'scripts', over: sortScripts },
+  { key: 'betterScripts', over: sortScripts },
   { key: 'husky' },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject() },
