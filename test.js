@@ -228,7 +228,6 @@ for (const field of [
 }
 
 testField('keywords', [
-  { value: ['foo', 'bar'], expect: ['bar', 'foo'] },
   {
     value: ['foo', 'foo'],
     expect: ['foo'],

@@ -3,6 +3,9 @@ const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const glob = require('glob')
 
+const sort = xs => xs.slice().sort()
+const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
+
 function sortArrayOrObject(comparator) {
   return function(field) {
     if (Array.isArray(field)) return sortArray()(field)
@@ -47,7 +50,7 @@ const fields = [
   { key: 'version' },
   { key: 'private' },
   { key: 'description' },
-  { key: 'keywords', over: sortArray(true) },
+  { key: 'keywords', over: uniq },
   { key: 'homepage' },
   { key: 'bugs', over: sortObject(['url', 'email']) },
   { key: 'repository', over: sortObject(['type', 'url']) },
@@ -207,9 +210,6 @@ function compareScriptKeys(sortKeyFn) {
     return aScript < bScript ? -1 : 1
   }
 }
-
-const sort = xs => xs.slice().sort()
-const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
 
 function sortPackageJson(jsonIsh, options = {}) {
   const determinedSortOrder = options.sortOrder || sortOrder
