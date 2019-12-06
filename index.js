@@ -141,6 +141,23 @@ function parseJSON(jsonIsh) {
   }
 }
 
+function stringifyJSON({
+  wasString,
+  hasWindowsNewlines,
+  endCharacters,
+  indentLevel,
+  packageJson,
+}) {
+  if (wasString) {
+    let result = JSON.stringify(packageJson, null, indentLevel) + endCharacters
+    if (hasWindowsNewlines) {
+      result = result.replace(/\n/g, '\r\n')
+    }
+    return result
+  }
+  return packageJson
+}
+
 const prefixedScriptRegex = /^(pre|post)(.)/
 function toSortKey(prefixable) {
   return function(script) {
@@ -194,7 +211,7 @@ function sortSubKey(object, { key, comparator = [], unique } = {}) {
 
 function sortPackageJson(jsonIsh, options = {}) {
   const determinedSortOrder = options.sortOrder || sortOrder
-  let {
+  const {
     wasString,
     hasWindowsNewlines,
     endCharacters,
@@ -206,15 +223,13 @@ function sortPackageJson(jsonIsh, options = {}) {
     if (options.sortSubKey) sortSubKey(packageJson, options)
   }
 
-  packageJson = sortObjectKeys(packageJson, determinedSortOrder)
-  if (wasString) {
-    let result = JSON.stringify(packageJson, null, indentLevel) + endCharacters
-    if (hasWindowsNewlines) {
-      result = result.replace(/\n/g, '\r\n')
-    }
-    return result
-  }
-  return packageJson
+  return stringifyJSON({
+    wasString,
+    hasWindowsNewlines,
+    endCharacters,
+    indentLevel,
+    packageJson: sortObjectKeys(packageJson, determinedSortOrder),
+  })
 }
 
 module.exports = sortPackageJson
