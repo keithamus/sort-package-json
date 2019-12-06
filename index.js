@@ -100,6 +100,10 @@ const defaultNpmScripts = [
   'version',
 ]
 
+function arrayUnique(array) {
+  return array.filter((el, index, arr) => index === arr.indexOf(el))
+}
+
 function sortPackageJson(packageJson, options = {}) {
   const determinedSortOrder = options.sortOrder || sortOrder
   let wasString = false
@@ -180,10 +184,6 @@ function sortPackageJson(packageJson, options = {}) {
     return aScript < bScript ? -1 : 1
   }
 
-  function arrayUnique(array) {
-    return array.filter((el, index, arr) => index === arr.indexOf(el))
-  }
-
   for (const options of fields) {
     sortSubKey(options)
   }
@@ -198,6 +198,7 @@ function sortPackageJson(packageJson, options = {}) {
   }
   return packageJson
 }
+
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
 module.exports.sortOrder = sortOrder
