@@ -136,7 +136,6 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
 
 // simple subKey sorting test
 for (const field of [
-  'private',
   'homepage',
   'exports',
   'bin',
