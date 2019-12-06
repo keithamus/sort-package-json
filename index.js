@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-const sortObjectKeys = require('sort-object-keys')
+const _sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const glob = require('glob')
+const sortObjectKeys = comp => x => _sortObjectKeys(x, comp)
 
 const sort = xs => xs.slice().sort()
 const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
@@ -17,9 +18,8 @@ function sortObject(comparator) {
   return function(field) {
     if (typeof field !== 'object') return field
     return sortObjectKeys(
-      field,
       typeof comparator === 'function' ? comparator(field) : comparator,
-    )
+    )(field)
   }
 }
 
@@ -203,7 +203,6 @@ function compareScriptKeys(sortKeyFn) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
-  const determinedSortOrder = options.sortOrder || sortOrder
   const {
     wasString,
     hasWindowsNewlines,
@@ -212,7 +211,7 @@ function sortPackageJson(jsonIsh, options = {}) {
     packageJson,
   } = parseJSON(jsonIsh)
 
-  const newJson = sortObjectKeys(packageJson, determinedSortOrder)
+  const newJson = sortObjectKeys(options.sortOrder || sortOrder)(packageJson)
 
   for (const { key, over } of fields) {
     if (over && newJson[key]) newJson[key] = over(newJson[key])
