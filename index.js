@@ -7,18 +7,13 @@ const sortObjectKeys = comp => x => _sortObjectKeys(x, comp)
 const sort = xs => xs.slice().sort()
 const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
 const onObject = fn => x => (typeof x === 'object' ? fn(x) : x)
+const sortObject = comparator => onObject(sortObjectKeys(comparator))
 
 function sortArrayOrObject(comparator) {
   return function(field) {
     if (Array.isArray(field)) return sort(field)
     return sortObject(comparator)(field)
   }
-}
-
-function sortObject(comparator) {
-  return onObject(function(field) {
-    return sortObjectKeys(comparator)(field)
-  })
 }
 
 const sortScripts = scripts => {
