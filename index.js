@@ -222,7 +222,7 @@ function sortPackageJson(jsonIsh, options = {}) {
   } = parseJSON(jsonIsh)
 
   for (const { key, over } of fields) {
-    if (over) packageJson[key] = over(packageJson[key])
+    if (over && packageJson[key]) packageJson[key] = over(packageJson[key])
   }
 
   return stringifyJSON({
