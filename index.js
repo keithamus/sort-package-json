@@ -3,19 +3,20 @@ const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const glob = require('glob')
 
-function sortSubKey(object, { key, comparator = [], unique } = {}) {
-  if (Array.isArray(object[key])) {
-    object[key] = sort(object[key])
-    if (unique) object[key] = uniq(object[key])
-    return
-  }
+function sortSubKey(comparator, unique) {
+  return function(object, key) {
+    if (Array.isArray(object[key])) {
+      object[key] = sort(object[key])
+      if (unique) object[key] = uniq(object[key])
+      return
+    }
 
-  if (typeof comparator === 'function') {
-    comparator = comparator(object)
-  }
-
-  if (typeof object[key] === 'object') {
-    object[key] = sortObjectKeys(object[key], comparator)
+    if (typeof object[key] === 'object') {
+      object[key] = sortObjectKeys(
+        object[key],
+        typeof comparator === 'function' ? comparator(object) : comparator,
+      )
+    }
   }
 }
 
@@ -43,20 +44,20 @@ const sortScripts = object => {
 const fields = [
   { key: 'name' },
   { key: 'version' },
-  { key: 'private', sortSubKey },
+  { key: 'private', sortSubKey: sortSubKey() },
   { key: 'description' },
-  { key: 'keywords', sortSubKey, unique: true },
-  { key: 'homepage', sortSubKey },
-  { key: 'bugs', sortSubKey, sortList: ['url', 'email'] },
-  { key: 'repository', sortSubKey, sortList: ['type', 'url'] },
-  { key: 'funding', sortSubKey, sortList: ['type', 'url'] },
-  { key: 'license', sortSubKey, sortList: ['type', 'url'] },
-  { key: 'author', sortSubKey, sortList: ['name', 'email', 'url'] },
+  { key: 'keywords', sortSubKey: sortSubKey([], true) },
+  { key: 'homepage', sortSubKey: sortSubKey() },
+  { key: 'bugs', sortSubKey: sortSubKey(['url', 'email']) },
+  { key: 'repository', sortSubKey: sortSubKey(['type', 'url']) },
+  { key: 'funding', sortSubKey: sortSubKey(['type', 'url']) },
+  { key: 'license', sortSubKey: sortSubKey(['type', 'url']) },
+  { key: 'author', sortSubKey: sortSubKey(['name', 'email', 'url']) },
   { key: 'contributors' },
   { key: 'files' },
   { key: 'sideEffects' },
   { key: 'type' },
-  { key: 'exports', sortSubKey },
+  { key: 'exports', sortSubKey: sortSubKey() },
   { key: 'main' },
   { key: 'umd:main' },
   { key: 'jsdelivr' },
@@ -221,7 +222,7 @@ function sortPackageJson(jsonIsh, options = {}) {
   } = parseJSON(jsonIsh)
 
   for (const options of fields) {
-    if (options.sortSubKey) options.sortSubKey(packageJson, options)
+    if (options.sortSubKey) options.sortSubKey(packageJson, options.key)
   }
 
   return stringifyJSON({
