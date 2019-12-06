@@ -212,8 +212,10 @@ function sortPackageJson(jsonIsh, options = {}) {
     packageJson,
   } = parseJSON(jsonIsh)
 
+  const newJson = sortObjectKeys(packageJson, determinedSortOrder)
+
   for (const { key, over } of fields) {
-    if (over && packageJson[key]) packageJson[key] = over(packageJson[key])
+    if (over && newJson[key]) newJson[key] = over(newJson[key])
   }
 
   return stringifyJSON({
@@ -221,7 +223,7 @@ function sortPackageJson(jsonIsh, options = {}) {
     hasWindowsNewlines,
     endCharacters,
     indentLevel,
-    packageJson: sortObjectKeys(packageJson, determinedSortOrder),
+    packageJson: newJson,
   })
 }
 
