@@ -26,6 +26,7 @@
   "bin": "index.js",
   "scripts": {
     "semantic-release": "semantic-release",
+    "sort-package-json": "node index.js package.json --check",
     "test": "node test.js"
   },
   "husky": {
