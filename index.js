@@ -4,18 +4,13 @@ const detectIndent = require('detect-indent')
 const glob = require('glob')
 const sortObjectKeys = comp => x => _sortObjectKeys(x, comp)
 
-const sort = xs => xs.slice().sort()
 const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
 const onObject = fn => x => (typeof x === 'object' ? fn(x) : x)
 const sortObjectBy = comparator => onObject(sortObjectKeys(comparator))
 const sortObject = onObject(sortObjectKeys())
-
-function sortArrayOrObject(comparator) {
-  return function(field) {
-    if (Array.isArray(field)) return sort(field)
-    return sortObjectBy(comparator)(field)
-  }
-}
+const sortURLObject = sortObjectBy(['type', 'url'])
+const sortAuthorObject = sortObjectBy(['name', 'email', 'url'])
+const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
 
 const sortScripts = scripts => {
   const prefixableScripts = defaultNpmScripts
@@ -40,11 +35,10 @@ const fields = [
   { key: 'keywords', over: uniq },
   { key: 'homepage' },
   { key: 'bugs', over: sortObjectBy(['url', 'email']) },
-  { key: 'repository', over: sortObjectBy(['type', 'url']) },
-  { key: 'funding', over: sortObjectBy(['type', 'url']) },
-  { key: 'license', over: sortObjectBy(['type', 'url']) },
-  { key: 'author', over: sortArrayOrObject(['name', 'email', 'url']) },
-  { key: 'contributors', over: sortArrayOrObject(['name', 'email', 'url']) },
+  { key: 'repository', over: sortURLObject },
+  { key: 'funding', over: sortURLObject },
+  { key: 'license', over: sortURLObject },
+  { key: 'author', over: sortAuthorObject },
   { key: 'files' },
   { key: 'sideEffects' },
   { key: 'type' },
@@ -65,10 +59,7 @@ const fields = [
   { key: 'assets' },
   { key: 'bin', over: sortObject },
   { key: 'man', over: sortObject },
-  {
-    key: 'directories',
-    over: sortObjectBy(['lib', 'bin', 'man', 'doc', 'example']),
-  },
+  { key: 'directories', over: sortDirectories },
   { key: 'workspaces' },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
