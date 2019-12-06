@@ -12,6 +12,21 @@ const sortURLObject = sortObjectBy(['type', 'url'])
 const sortAuthorObject = sortObjectBy(['name', 'email', 'url'])
 const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
 
+// See https://docs.npmjs.com/misc/scripts
+const defaultNpmScripts = [
+  'install',
+  'pack',
+  'prepare',
+  'publish',
+  'restart',
+  'shrinkwrap',
+  'start',
+  'stop',
+  'test',
+  'uninstall',
+  'version',
+]
+
 const sortScripts = scripts => {
   const prefixableScripts = defaultNpmScripts
   Object.keys(scripts).forEach(script => {
@@ -98,21 +113,6 @@ const fields = [
 ]
 
 const sortOrder = fields.map(({ key }) => key)
-
-// See https://docs.npmjs.com/misc/scripts
-const defaultNpmScripts = [
-  'install',
-  'pack',
-  'prepare',
-  'publish',
-  'restart',
-  'shrinkwrap',
-  'start',
-  'stop',
-  'test',
-  'uninstall',
-  'version',
-]
 
 function parseJSON(jsonIsh) {
   let wasString = false
