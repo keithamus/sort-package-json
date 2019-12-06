@@ -106,17 +106,21 @@ function sortPackageJson(packageJson, options = {}) {
   }
 
   const prefixedScriptRegex = /^(pre|post)(.)/;
-  const prefixableScripts = defaultNpmScripts.slice();
-  if (typeof packageJson.scripts === 'object') {
-    Object.keys(packageJson.scripts).forEach(script => {
-      const prefixOmitted = script.replace(prefixedScriptRegex, '$2');
-      if (
-        packageJson.scripts[prefixOmitted] &&
-        !prefixableScripts.includes(prefixOmitted)
-      ) {
-        prefixableScripts.push(prefixOmitted);
-      }
-    });
+  function getPrefixableScripts(key) {
+    const scripts = packageJson[key]
+    const prefixableScripts = defaultNpmScripts.slice();
+    if (typeof scripts === 'object') {
+      Object.keys(scripts).forEach(script => {
+        const prefixOmitted = script.replace(prefixedScriptRegex, '$2');
+        if (
+          scripts[prefixOmitted] &&
+          !prefixableScripts.includes(prefixOmitted)
+        ) {
+          prefixableScripts.push(prefixOmitted);
+        }
+      });
+    }
+    return prefixableScripts
   }
 
   function sortSubKey(key, sortList, unique) {
@@ -131,7 +135,7 @@ function sortPackageJson(packageJson, options = {}) {
       packageJson[key] = sortObjectKeys(packageJson[key], sortList);
     }
   }
-  function toSortKey(script) {
+  function toSortKey(prefixableScripts, script) {
     const prefixOmitted = script.replace(prefixedScriptRegex, '$2');
     if (prefixableScripts.includes(prefixOmitted)) {
       return prefixOmitted;
@@ -144,18 +148,23 @@ function sortPackageJson(packageJson, options = {}) {
    * a  *   +  | 0 |  -
    *   post +  | + |  0
    */
-  function compareScriptKeys(a, b) {
-    if (a === b) return 0;
-    const aScript = toSortKey(a);
-    const bScript = toSortKey(b);
-    if (aScript === bScript) {
-      // pre* is always smaller; post* is always bigger
-      // Covers: pre* vs. *; pre* vs. post*; * vs. post*
-      if (a === `pre${aScript}` || b === `post${bScript}`) return -1;
-      // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
-      return 1;
+  function getCompareScriptKeys(key) {
+    const prefixableScripts = getPrefixableScripts(key);
+
+    return (a, b) => {
+      if (a === b) return 0;
+      const aScript = toSortKey(prefixableScripts, a);
+      const bScript = toSortKey(prefixableScripts, b);
+      if (aScript === bScript) {
+        // pre* is always smaller; post* is always bigger
+        // Covers: pre* vs. *; pre* vs. post*; * vs. post*
+        if (a === `pre${aScript}` || b === `post${bScript}`) return -1;
+        // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
+        return 1;
+      }
+      return aScript < bScript ? -1 : 1;
+
     }
-    return aScript < bScript ? -1 : 1;
   }
   function array_unique(array) {
     return array.filter((el, index, arr) => index == arr.indexOf(el));
@@ -171,8 +180,8 @@ function sortPackageJson(packageJson, options = {}) {
   sortSubKey('directories', ['lib', 'bin', 'man', 'doc', 'example']);
   sortSubKey('repository', ['type', 'url']);
   sortSubKey('funding', ['type', 'url']);
-  sortSubKey('scripts', compareScriptKeys);
-  sortSubKey('betterScripts', compareScriptKeys);
+  sortSubKey('scripts', getCompareScriptKeys('scripts'));
+  sortSubKey('betterScripts', getCompareScriptKeys('betterScripts'));
   sortSubKey('commitlint');
   sortSubKey('lint-staged');
   sortSubKey('config');
@@ -228,7 +237,7 @@ if (require.main === module) {
   }
 
   const files = patterns.reduce(
-    (files, pattern) => files.concat(glob.sync(pattern)), 
+    (files, pattern) => files.concat(glob.sync(pattern)),
     []
   );
 
@@ -252,7 +261,7 @@ if (require.main === module) {
   if (isCheck) {
     if (notSortedFiles) {
       console.log(
-        notSortedFiles === 1 ? 
+        notSortedFiles === 1 ?
         `${notSortedFiles} file is not sorted.`:
         `\n ${notSortedFiles} files are not sorted.`
       );

@@ -336,76 +336,42 @@ testField('directories', [
   }
 ]);
 
-testField('scripts', [
-  {
-    value: {
-      test: 'node test.js',
-      multiply: '2 * 3', // between p(ostinstall) and install
-      watch: 'watch things',
-      prewatch: 'echo "about to watch"',
-      postinstall: 'echo "Installed"',
-      start: 'node server.js',
-      posttest: 'abc',
-      pretest: 'xyz',
-      postprettier: 'echo "so pretty"',
-      preprettier: 'echo "not pretty"',
-      prettier: 'prettier -l "**/*.js"',
-      prepare: 'npm run build',
-      'pre-fetch-info': 'foo'
-    },
-    expect: [
-      'postinstall',
-      'multiply',
-      'pre-fetch-info',
-      'prepare',
-      'preprettier',
-      'prettier',
-      'postprettier',
-      'start',
-      'pretest',
-      'test',
-      'posttest',
-      'prewatch',
-      'watch'
-    ]
-  }
-]);
-
-testField('betterScripts', [
-  {
-    value: {
-      test: 'node test.js',
-      multiply: '2 * 3', // between p(ostinstall) and install
-      watch: 'watch things',
-      prewatch: 'echo "about to watch"',
-      postinstall: 'echo "Installed"',
-      start: 'node server.js',
-      posttest: 'abc',
-      pretest: 'xyz',
-      postprettier: 'echo "so pretty"',
-      preprettier: 'echo "not pretty"',
-      prettier: 'prettier -l "**/*.js"',
-      prepare: 'npm run build',
-      'pre-fetch-info': 'foo'
-    },
-    expect: [
-      'postinstall',
-      'multiply',
-      'postprettier',
-      'pre-fetch-info',
-      'prepare',
-      'preprettier',
-      'prettier',
-      'prewatch',
-      'start',
-      'pretest',
-      'test',
-      'posttest',
-      'watch'
-    ]
-  }
-]);
-
+for (const field of ['scripts', 'betterScripts']) {
+  testField(field, [
+    {
+      value: {
+        test: 'node test.js',
+        multiply: '2 * 3', // between p(ostinstall) and install
+        watch: 'watch things',
+        prewatch: 'echo "about to watch"',
+        postinstall: 'echo "Installed"',
+        start: 'node server.js',
+        posttest: 'abc',
+        pretest: 'xyz',
+        postprettier: 'echo "so pretty"',
+        preprettier: 'echo "not pretty"',
+        prettier: 'prettier -l "**/*.js"',
+        prepare: 'npm run build',
+        'pre-fetch-info': 'foo'
+      },
+      expect: [
+        'postinstall',
+        'multiply',
+        'pre-fetch-info',
+        'prepare',
+        'preprettier',
+        'prettier',
+        'postprettier',
+        'start',
+        'pretest',
+        'test',
+        'posttest',
+        'prewatch',
+        'watch'
+      ]
+    }
+  ]);
+}
 // dependencies
 for (const field of [
   'dependencies',
