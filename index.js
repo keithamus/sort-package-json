@@ -3,22 +3,29 @@ const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const glob = require('glob')
 
-function sortSubKey(comparator, unique) {
-  return function(field, object) {
-    if (Array.isArray(field)) {
-      field = sort(field)
-      if (unique) field = uniq(field)
-      return field
-    }
+function sortArrayOrObject(comparator) {
+  return function(field) {
+    if (Array.isArray(field)) return sortArray()(field)
+    return sortObject(comparator)(field)
+  }
+}
 
-    if (typeof field === 'object') {
-      return sortObjectKeys(
-        field,
-        typeof comparator === 'function' ? comparator(field) : comparator,
-      )
-    }
-
+function sortArray(unique) {
+  return function(field) {
+    if (!Array.isArray(field)) return field
+    field = sort(field)
+    if (unique) field = uniq(field)
     return field
+  }
+}
+
+function sortObject(comparator) {
+  return function(field) {
+    if (typeof field !== 'object') return field
+    return sortObjectKeys(
+      field,
+      typeof comparator === 'function' ? comparator(field) : comparator,
+    )
   }
 }
 
@@ -38,20 +45,20 @@ const sortScripts = scripts => {
 const fields = [
   { key: 'name' },
   { key: 'version' },
-  { key: 'private', over: sortSubKey() },
+  { key: 'private' },
   { key: 'description' },
-  { key: 'keywords', over: sortSubKey([], true) },
-  { key: 'homepage', over: sortSubKey() },
-  { key: 'bugs', over: sortSubKey(['url', 'email']) },
-  { key: 'repository', over: sortSubKey(['type', 'url']) },
-  { key: 'funding', over: sortSubKey(['type', 'url']) },
-  { key: 'license', over: sortSubKey(['type', 'url']) },
-  { key: 'author', over: sortSubKey(['name', 'email', 'url']) },
-  { key: 'contributors' },
+  { key: 'keywords', over: sortArray(true) },
+  { key: 'homepage' },
+  { key: 'bugs', over: sortObject(['url', 'email']) },
+  { key: 'repository', over: sortObject(['type', 'url']) },
+  { key: 'funding', over: sortObject(['type', 'url']) },
+  { key: 'license', over: sortObject(['type', 'url']) },
+  { key: 'author', over: sortArrayOrObject(['name', 'email', 'url']) },
+  { key: 'contributors', over: sortArrayOrObject(['name', 'email', 'url']) },
   { key: 'files' },
   { key: 'sideEffects' },
   { key: 'type' },
-  { key: 'exports', over: sortSubKey() },
+  { key: 'exports', over: sortObject() },
   { key: 'main' },
   { key: 'umd:main' },
   { key: 'jsdelivr' },
@@ -66,48 +73,47 @@ const fields = [
   { key: 'example' },
   { key: 'examplestyle' },
   { key: 'assets' },
-  { key: 'bin', over: sortSubKey() },
-  { key: 'man', over: sortSubKey() },
+  { key: 'bin', over: sortObject() },
+  { key: 'man', over: sortObject() },
   {
     key: 'directories',
-    over: sortSubKey(),
-    sortList: ['lib', 'bin', 'man', 'doc', 'example'],
+    over: sortObject(['lib', 'bin', 'man', 'doc', 'example']),
   },
   { key: 'workspaces' },
-  { key: 'scripts', over: sortSubKey(sortScripts) },
-  { key: 'betterScripts', over: sortSubKey(sortScripts) },
+  { key: 'scripts', over: sortObject(sortScripts) },
+  { key: 'betterScripts', over: sortObject(sortScripts) },
   { key: 'husky' },
   { key: 'pre-commit' },
-  { key: 'commitlint', over: sortSubKey() },
-  { key: 'lint-staged', over: sortSubKey() },
-  { key: 'config', over: sortSubKey() },
-  { key: 'nodemonConfig', over: sortSubKey() },
-  { key: 'browserify', over: sortSubKey() },
-  { key: 'babel', over: sortSubKey() },
+  { key: 'commitlint', over: sortObject() },
+  { key: 'lint-staged', over: sortObject() },
+  { key: 'config', over: sortObject() },
+  { key: 'nodemonConfig', over: sortObject() },
+  { key: 'browserify', over: sortObject() },
+  { key: 'babel', over: sortObject() },
   { key: 'browserslist' },
-  { key: 'xo', over: sortSubKey() },
-  { key: 'prettier', over: sortSubKey() },
-  { key: 'eslintConfig', over: sortSubKey() },
+  { key: 'xo', over: sortObject() },
+  { key: 'prettier', over: sortObject() },
+  { key: 'eslintConfig', over: sortObject() },
   { key: 'eslintIgnore' },
   { key: 'stylelint' },
-  { key: 'ava', over: sortSubKey() },
-  { key: 'jest', over: sortSubKey() },
-  { key: 'mocha', over: sortSubKey() },
-  { key: 'nyc', over: sortSubKey() },
-  { key: 'dependencies', over: sortSubKey() },
-  { key: 'devDependencies', over: sortSubKey() },
-  { key: 'peerDependencies', over: sortSubKey() },
-  { key: 'bundledDependencies', over: sortSubKey() },
-  { key: 'bundleDependencies', over: sortSubKey() },
-  { key: 'optionalDependencies', over: sortSubKey() },
+  { key: 'ava', over: sortObject() },
+  { key: 'jest', over: sortObject() },
+  { key: 'mocha', over: sortObject() },
+  { key: 'nyc', over: sortObject() },
+  { key: 'dependencies', over: sortObject() },
+  { key: 'devDependencies', over: sortObject() },
+  { key: 'peerDependencies', over: sortObject() },
+  { key: 'bundledDependencies', over: sortObject() },
+  { key: 'bundleDependencies', over: sortObject() },
+  { key: 'optionalDependencies', over: sortObject() },
   { key: 'flat' },
-  { key: 'resolutions', over: sortSubKey() },
-  { key: 'engines', over: sortSubKey() },
-  { key: 'engineStrict', over: sortSubKey() },
-  { key: 'os', over: sortSubKey() },
-  { key: 'cpu', over: sortSubKey() },
-  { key: 'preferGlobal', over: sortSubKey() },
-  { key: 'publishConfig', over: sortSubKey() },
+  { key: 'resolutions', over: sortObject() },
+  { key: 'engines', over: sortObject() },
+  { key: 'engineStrict', over: sortObject() },
+  { key: 'os', over: sortObject() },
+  { key: 'cpu', over: sortObject() },
+  { key: 'preferGlobal', over: sortObject() },
+  { key: 'publishConfig', over: sortObject() },
 ]
 
 const sortOrder = fields.map(({ key }) => key)
