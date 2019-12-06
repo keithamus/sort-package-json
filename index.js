@@ -22,17 +22,15 @@ function sortSubKey(comparator, unique) {
 
 const sortScripts = object => {
   const prefixableScripts = defaultNpmScripts
-  if (typeof object.scripts === 'object') {
-    Object.keys(object.scripts).forEach(script => {
-      const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
-      if (
-        object.scripts[prefixOmitted] &&
-        !prefixableScripts.includes(prefixOmitted)
-      ) {
-        prefixableScripts.push(prefixOmitted)
-      }
-    })
-  }
+  Object.keys(object.scripts).forEach(script => {
+    const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
+    if (
+      object.scripts[prefixOmitted] &&
+      !prefixableScripts.includes(prefixOmitted)
+    ) {
+      prefixableScripts.push(prefixOmitted)
+    }
+  })
   return compareScriptKeys(toSortKey(prefixableScripts))
 }
 
