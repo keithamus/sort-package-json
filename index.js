@@ -104,12 +104,12 @@ function arrayUnique(array) {
   return array.filter((el, index, arr) => index === arr.indexOf(el))
 }
 
-function sortPackageJson(packageJson, options = {}) {
-  const determinedSortOrder = options.sortOrder || sortOrder
+function parseJSON(jsonIsh) {
   let wasString = false
   let hasWindowsNewlines = false
   let endCharacters = ''
   let indentLevel = 2
+  let packageJson = jsonIsh
   if (typeof packageJson === 'string') {
     wasString = true
     indentLevel = detectIndent(packageJson).indent
@@ -120,6 +120,24 @@ function sortPackageJson(packageJson, options = {}) {
     hasWindowsNewlines = (newlineMatch && newlineMatch[0]) === '\r\n'
     packageJson = JSON.parse(packageJson)
   }
+  return {
+    wasString,
+    hasWindowsNewlines,
+    endCharacters,
+    indentLevel,
+    packageJson,
+  }
+}
+
+function sortPackageJson(jsonIsh, options = {}) {
+  const determinedSortOrder = options.sortOrder || sortOrder
+  let {
+    wasString,
+    hasWindowsNewlines,
+    endCharacters,
+    indentLevel,
+    packageJson,
+  } = parseJSON(jsonIsh)
 
   const prefixedScriptRegex = /^(pre|post)(.)/
   const prefixableScripts = defaultNpmScripts.slice()
