@@ -162,6 +162,39 @@ function compareScriptKeys(sortKeyFn) {
   }
 }
 
+function sortSubKey(
+  object,
+  { key, comparator = [], sortScripts, unique } = {},
+) {
+  if (Array.isArray(object[key])) {
+    object[key] = object[key].sort()
+    if (unique) {
+      object[key] = arrayUnique(object[key])
+    }
+    return
+  }
+
+  if (sortScripts) {
+    const prefixableScripts = defaultNpmScripts
+    if (typeof object.scripts === 'object') {
+      Object.keys(object.scripts).forEach(script => {
+        const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
+        if (
+          object.scripts[prefixOmitted] &&
+          !prefixableScripts.includes(prefixOmitted)
+        ) {
+          prefixableScripts.push(prefixOmitted)
+        }
+      })
+    }
+    comparator = compareScriptKeys(toSortKey(prefixableScripts))
+  }
+
+  if (typeof object[key] === 'object') {
+    object[key] = sortObjectKeys(object[key], comparator)
+  }
+}
+
 function sortPackageJson(jsonIsh, options = {}) {
   const determinedSortOrder = options.sortOrder || sortOrder
   let {
@@ -172,40 +205,8 @@ function sortPackageJson(jsonIsh, options = {}) {
     packageJson,
   } = parseJSON(jsonIsh)
 
-  const prefixableScripts = defaultNpmScripts
-  if (typeof packageJson.scripts === 'object') {
-    Object.keys(packageJson.scripts).forEach(script => {
-      const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
-      if (
-        packageJson.scripts[prefixOmitted] &&
-        !prefixableScripts.includes(prefixOmitted)
-      ) {
-        prefixableScripts.push(prefixOmitted)
-      }
-    })
-  }
-
-  function sortSubKey({ key, sortList, sortScripts, unique }) {
-    if (Array.isArray(packageJson[key])) {
-      packageJson[key] = packageJson[key].sort()
-      if (unique) {
-        packageJson[key] = arrayUnique(packageJson[key])
-      }
-      return
-    }
-
-    if (typeof packageJson[key] === 'object') {
-      packageJson[key] = sortObjectKeys(
-        packageJson[key],
-        sortScripts
-          ? compareScriptKeys(toSortKey(prefixableScripts))
-          : comparator,
-      )
-    }
-  }
-
   for (const options of fields) {
-    if (options.sortSubKey) sortSubKey(options)
+    if (options.sortSubKey) sortSubKey(packageJson, options)
   }
 
   packageJson = sortObjectKeys(packageJson, determinedSortOrder)
