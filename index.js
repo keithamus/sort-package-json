@@ -185,17 +185,7 @@ function sortPackageJson(jsonIsh, options = {}) {
     })
   }
 
-  function sortSubKey({
-    key,
-    sortSubKey = false,
-    sortList,
-    sortScripts,
-    unique,
-  }) {
-    if (!sortSubKey) {
-      return
-    }
-
+  function sortSubKey({ key, sortList, sortScripts, unique }) {
     if (Array.isArray(packageJson[key])) {
       packageJson[key] = packageJson[key].sort()
       if (unique) {
@@ -209,13 +199,13 @@ function sortPackageJson(jsonIsh, options = {}) {
         packageJson[key],
         sortScripts
           ? compareScriptKeys(toSortKey(prefixableScripts))
-          : sortList,
+          : comparator,
       )
     }
   }
 
   for (const options of fields) {
-    sortSubKey(options)
+    if (options.sortSubKey) sortSubKey(options)
   }
 
   packageJson = sortObjectKeys(packageJson, determinedSortOrder)
