@@ -4,82 +4,79 @@ const detectIndent = require('detect-indent');
 const glob = require('glob');
 
 // field.key{string}: field name
-// field.sort{boolean|string[]|function}:
-//   false: disable field sorting
-//   true: sort field keys
-//   string[]: key order array
-//   function: key compare function
+// field.sortSubKey{boolean}: sort field subKey
+// field.sortList{string[]}: key order array
 // field.unique{boolean}: unique array values
 // field.sortScripts{boolean}: sort field as scripts
 const fields = [
-  {key: 'name', sort: false},
-  {key: 'version', sort: false},
-  {key: 'private', sort: true},
-  {key: 'description', sort: false},
-  {key: 'keywords', unique: true},
-  {key: 'homepage', sort: true},
-  {key: 'bugs', sort: ['url', 'email']},
-  {key: 'repository', sort: ['type', 'url']},
-  {key: 'funding', sort: ['type', 'url']},
-  {key: 'license', sort: ['type', 'url']},
-  {key: 'author', sort: ['name', 'email', 'url']},
-  {key: 'contributors', sort: false},
-  {key: 'files', sort: false},
-  {key: 'sideEffects', sort: false},
-  {key: 'type', sort: false},
-  {key: 'exports', sort: true},
-  {key: 'main', sort: false},
-  {key: 'umd:main', sort: false},
-  {key: 'jsdelivr', sort: false},
-  {key: 'unpkg', sort: false},
-  {key: 'module', sort: false},
-  {key: 'source', sort: false},
-  {key: 'jsnext:main', sort: false},
-  {key: 'browser', sort: false},
-  {key: 'types', sort: false},
-  {key: 'typings', sort: false},
-  {key: 'style', sort: false},
-  {key: 'example', sort: false},
-  {key: 'examplestyle', sort: false},
-  {key: 'assets', sort: false},
-  {key: 'bin', sort: true},
-  {key: 'man', sort: true},
-  {key: 'directories', sort: ['lib', 'bin', 'man', 'doc', 'example']},
-  {key: 'workspaces', sort: false},
-  {key: 'scripts', sortScripts: true},
-  {key: 'betterScripts', sortScripts: true},
-  {key: 'husky', sort: false},
-  {key: 'pre-commit', sort: false},
-  {key: 'commitlint', sort: true},
-  {key: 'lint-staged', sort: true},
-  {key: 'config', sort: true},
-  {key: 'nodemonConfig', sort: true},
-  {key: 'browserify', sort: true},
-  {key: 'babel', sort: true},
-  {key: 'browserslist', sort: false},
-  {key: 'xo', sort: true},
-  {key: 'prettier', sort: true},
-  {key: 'eslintConfig', sort: true},
-  {key: 'eslintIgnore', sort: false},
-  {key: 'stylelint', sort: false},
-  {key: 'ava', sort: true},
-  {key: 'jest', sort: true},
-  {key: 'mocha', sort: true},
-  {key: 'nyc', sort: true},
-  {key: 'dependencies', sort: true},
-  {key: 'devDependencies', sort: true},
-  {key: 'peerDependencies', sort: true},
-  {key: 'bundledDependencies', sort: true},
-  {key: 'bundleDependencies', sort: true},
-  {key: 'optionalDependencies', sort: true},
-  {key: 'flat', sort: false},
-  {key: 'resolutions', sort: true},
-  {key: 'engines', sort: true},
-  {key: 'engineStrict', sort: true},
-  {key: 'os', sort: true},
-  {key: 'cpu', sort: true},
-  {key: 'preferGlobal', sort: true},
-  {key: 'publishConfig', sort: true},
+  {key: 'name', sortSubKey: false},
+  {key: 'version', sortSubKey: false},
+  {key: 'private', sortSubKey: true},
+  {key: 'description', sortSubKey: false},
+  {key: 'keywords', sortSubKey: true, unique: true},
+  {key: 'homepage', sortSubKey: true},
+  {key: 'bugs', sortSubKey: true, sortList: ['url', 'email']},
+  {key: 'repository', sortSubKey: true, sortList: ['type', 'url']},
+  {key: 'funding', sortSubKey: true, sortList: ['type', 'url']},
+  {key: 'license', sortSubKey: true, sortList: ['type', 'url']},
+  {key: 'author', sortSubKey: true, sortList: ['name', 'email', 'url']},
+  {key: 'contributors', sortSubKey: false},
+  {key: 'files', sortSubKey: false},
+  {key: 'sideEffects', sortSubKey: false},
+  {key: 'type', sortSubKey: false},
+  {key: 'exports', sortSubKey: true},
+  {key: 'main', sortSubKey: false},
+  {key: 'umd:main', sortSubKey: false},
+  {key: 'jsdelivr', sortSubKey: false},
+  {key: 'unpkg', sortSubKey: false},
+  {key: 'module', sortSubKey: false},
+  {key: 'source', sortSubKey: false},
+  {key: 'jsnext:main', sortSubKey: false},
+  {key: 'browser', sortSubKey: false},
+  {key: 'types', sortSubKey: false},
+  {key: 'typings', sortSubKey: false},
+  {key: 'style', sortSubKey: false},
+  {key: 'example', sortSubKey: false},
+  {key: 'examplestyle', sortSubKey: false},
+  {key: 'assets', sortSubKey: false},
+  {key: 'bin', sortSubKey: true},
+  {key: 'man', sortSubKey: true},
+  {key: 'directories', sortSubKey: true, sortList: ['lib', 'bin', 'man', 'doc', 'example']},
+  {key: 'workspaces', sortSubKey: false},
+  {key: 'scripts', sortSubKey: true, sortScripts: true},
+  {key: 'betterScripts', sortSubKey: true, sortScripts: true},
+  {key: 'husky', sortSubKey: false},
+  {key: 'pre-commit', sortSubKey: false},
+  {key: 'commitlint', sortSubKey: true},
+  {key: 'lint-staged', sortSubKey: true},
+  {key: 'config', sortSubKey: true},
+  {key: 'nodemonConfig', sortSubKey: true},
+  {key: 'browserify', sortSubKey: true},
+  {key: 'babel', sortSubKey: true},
+  {key: 'browserslist', sortSubKey: false},
+  {key: 'xo', sortSubKey: true},
+  {key: 'prettier', sortSubKey: true},
+  {key: 'eslintConfig', sortSubKey: true},
+  {key: 'eslintIgnore', sortSubKey: false},
+  {key: 'stylelint', sortSubKey: false},
+  {key: 'ava', sortSubKey: true},
+  {key: 'jest', sortSubKey: true},
+  {key: 'mocha', sortSubKey: true},
+  {key: 'nyc', sortSubKey: true},
+  {key: 'dependencies', sortSubKey: true},
+  {key: 'devDependencies', sortSubKey: true},
+  {key: 'peerDependencies', sortSubKey: true},
+  {key: 'bundledDependencies', sortSubKey: true},
+  {key: 'bundleDependencies', sortSubKey: true},
+  {key: 'optionalDependencies', sortSubKey: true},
+  {key: 'flat', sortSubKey: false},
+  {key: 'resolutions', sortSubKey: true},
+  {key: 'engines', sortSubKey: true},
+  {key: 'engineStrict', sortSubKey: true},
+  {key: 'os', sortSubKey: true},
+  {key: 'cpu', sortSubKey: true},
+  {key: 'preferGlobal', sortSubKey: true},
+  {key: 'publishConfig', sortSubKey: true},
 ];
 
 const sortOrder = fields.map(({key}) => key);
@@ -132,11 +129,12 @@ function sortPackageJson(packageJson, options = {}) {
 
   function sortSubKey({
     key,
-    sort,
+    sortSubKey,
+    sortList,
     sortScripts,
     unique
   }) {
-    if (sort === false) {
+    if (!sortSubKey) {
       return
     }
 
@@ -149,13 +147,10 @@ function sortPackageJson(packageJson, options = {}) {
     }
 
     if (typeof packageJson[key] === 'object') {
-      let sortList
-      if (sortScripts) {
-        sortList = compareScriptKeys
-      } else if (Array.isArray(sort)) {
-        sortList = sort
-      }
-      packageJson[key] = sortObjectKeys(packageJson[key], sortList);
+      packageJson[key] = sortObjectKeys(
+        packageJson[key],
+        sortScripts ? compareScriptKeys : sortList
+      );
     }
   }
   function toSortKey(script) {
