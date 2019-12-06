@@ -129,6 +129,39 @@ function parseJSON(jsonIsh) {
   }
 }
 
+const prefixedScriptRegex = /^(pre|post)(.)/
+function toSortKey(prefixable) {
+  return function(script) {
+    const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
+    if (prefixable.includes(prefixOmitted)) {
+      return prefixOmitted
+    }
+    return script
+  }
+}
+
+/*             b
+ *       pre | * | post
+ *   pre  0  | - |  -
+ * a  *   +  | 0 |  -
+ *   post +  | + |  0
+ */
+function compareScriptKeys(sortKeyFn) {
+  return function(a, b) {
+    if (a === b) return 0
+    const aScript = sortKeyFn(a)
+    const bScript = sortKeyFn(b)
+    if (aScript === bScript) {
+      // pre* is always smaller; post* is always bigger
+      // Covers: pre* vs. *; pre* vs. post*; * vs. post*
+      if (a === `pre${aScript}` || b === `post${bScript}`) return -1
+      // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
+      return 1
+    }
+    return aScript < bScript ? -1 : 1
+  }
+}
+
 function sortPackageJson(jsonIsh, options = {}) {
   const determinedSortOrder = options.sortOrder || sortOrder
   let {
@@ -139,8 +172,7 @@ function sortPackageJson(jsonIsh, options = {}) {
     packageJson,
   } = parseJSON(jsonIsh)
 
-  const prefixedScriptRegex = /^(pre|post)(.)/
-  const prefixableScripts = defaultNpmScripts.slice()
+  const prefixableScripts = defaultNpmScripts
   if (typeof packageJson.scripts === 'object') {
     Object.keys(packageJson.scripts).forEach(script => {
       const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
@@ -169,37 +201,11 @@ function sortPackageJson(jsonIsh, options = {}) {
     if (typeof packageJson[key] === 'object') {
       packageJson[key] = sortObjectKeys(
         packageJson[key],
-        sortScripts ? compareScriptKeys : sortList,
+        sortScripts
+          ? compareScriptKeys(toSortKey(prefixableScripts))
+          : sortList,
       )
     }
-  }
-
-  function toSortKey(script) {
-    const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
-    if (prefixableScripts.includes(prefixOmitted)) {
-      return prefixOmitted
-    }
-    return script
-  }
-
-  /*             b
-   *       pre | * | post
-   *   pre  0  | - |  -
-   * a  *   +  | 0 |  -
-   *   post +  | + |  0
-   */
-  function compareScriptKeys(a, b) {
-    if (a === b) return 0
-    const aScript = toSortKey(a)
-    const bScript = toSortKey(b)
-    if (aScript === bScript) {
-      // pre* is always smaller; post* is always bigger
-      // Covers: pre* vs. *; pre* vs. post*; * vs. post*
-      if (a === `pre${aScript}` || b === `post${bScript}`) return -1
-      // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
-      return 1
-    }
-    return aScript < bScript ? -1 : 1
   }
 
   for (const options of fields) {
