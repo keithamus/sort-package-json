@@ -162,15 +162,21 @@ function compareScriptKeys(sortKeyFn) {
   }
 }
 
+function sortKeys(object, key) {
+  object[key] = object[key].sort()
+}
+
+function uniqueKeys(object, key) {
+  object[key] = arrayUnique(object[key])
+}
+
 function sortSubKey(
   object,
   { key, comparator = [], sortScripts, unique } = {},
 ) {
   if (Array.isArray(object[key])) {
-    object[key] = object[key].sort()
-    if (unique) {
-      object[key] = arrayUnique(object[key])
-    }
+    sortKeys(object, key)
+    if (unique) uniqueKeys(object, key)
     return
   }
 
