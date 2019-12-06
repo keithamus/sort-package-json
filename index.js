@@ -100,10 +100,6 @@ const defaultNpmScripts = [
   'version',
 ]
 
-function arrayUnique(array) {
-  return array.filter((el, index, arr) => index === arr.indexOf(el))
-}
-
 function parseJSON(jsonIsh) {
   let wasString = false
   let hasWindowsNewlines = false
@@ -162,21 +158,16 @@ function compareScriptKeys(sortKeyFn) {
   }
 }
 
-function sortKeys(object, key) {
-  object[key] = object[key].sort()
-}
-
-function uniqueKeys(object, key) {
-  object[key] = arrayUnique(object[key])
-}
+const sort = xs => xs.slice().sort()
+const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
 
 function sortSubKey(
   object,
   { key, comparator = [], sortScripts, unique } = {},
 ) {
   if (Array.isArray(object[key])) {
-    sortKeys(object, key)
-    if (unique) uniqueKeys(object, key)
+    object[key] = sort(object[key])
+    if (unique) object[key] = uniq(object[key])
     return
   }
 
