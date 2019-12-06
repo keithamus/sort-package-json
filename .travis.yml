@@ -7,6 +7,9 @@ node_js:
   - v8
   - v10
   - stable
+script:
+  - npm run sort-package-json
+  - npm run test
 after_success:
   - npm run semantic-release
 env:
