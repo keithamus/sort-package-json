@@ -162,11 +162,6 @@ for (const field of [
 ]) {
   testField(field, [
     {
-      value: ['foo', 'bar'],
-      expect: ['bar', 'foo'],
-      message: `Should sort \`${field}\` field.`,
-    },
-    {
       value: {
         foo: 'foo',
         bar: 'bar',
