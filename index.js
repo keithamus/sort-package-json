@@ -4,19 +4,21 @@ const detectIndent = require('detect-indent')
 const glob = require('glob')
 
 function sortSubKey(comparator, unique) {
-  return function(object, key) {
-    if (Array.isArray(object[key])) {
-      object[key] = sort(object[key])
-      if (unique) object[key] = uniq(object[key])
-      return
+  return function(field, object) {
+    if (Array.isArray(field)) {
+      field = sort(field)
+      if (unique) field = uniq(field)
+      return field
     }
 
-    if (typeof object[key] === 'object') {
-      object[key] = sortObjectKeys(
-        object[key],
+    if (typeof field === 'object') {
+      return sortObjectKeys(
+        field,
         typeof comparator === 'function' ? comparator(object) : comparator,
       )
     }
+
+    return field
   }
 }
 
@@ -216,8 +218,8 @@ function sortPackageJson(jsonIsh, options = {}) {
     packageJson,
   } = parseJSON(jsonIsh)
 
-  for (const options of fields) {
-    if (options.over) options.over(packageJson, options.key)
+  for (const { key, over } of fields) {
+    if (over) packageJson[key] = over(packageJson[key], packageJson)
   }
 
   return stringifyJSON({
