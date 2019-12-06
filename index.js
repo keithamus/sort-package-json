@@ -14,7 +14,7 @@ function sortSubKey(comparator, unique) {
     if (typeof field === 'object') {
       return sortObjectKeys(
         field,
-        typeof comparator === 'function' ? comparator(object) : comparator,
+        typeof comparator === 'function' ? comparator(field) : comparator,
       )
     }
 
@@ -22,14 +22,11 @@ function sortSubKey(comparator, unique) {
   }
 }
 
-const sortScripts = object => {
+const sortScripts = scripts => {
   const prefixableScripts = defaultNpmScripts
-  Object.keys(object.scripts).forEach(script => {
+  Object.keys(scripts).forEach(script => {
     const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
-    if (
-      object.scripts[prefixOmitted] &&
-      !prefixableScripts.includes(prefixOmitted)
-    ) {
+    if (scripts[prefixOmitted] && !prefixableScripts.includes(prefixOmitted)) {
       prefixableScripts.push(prefixOmitted)
     }
   })
@@ -219,7 +216,7 @@ function sortPackageJson(jsonIsh, options = {}) {
   } = parseJSON(jsonIsh)
 
   for (const { key, over } of fields) {
-    if (over) packageJson[key] = over(packageJson[key], packageJson)
+    if (over) packageJson[key] = over(packageJson[key])
   }
 
   return stringifyJSON({
