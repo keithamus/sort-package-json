@@ -3,11 +3,27 @@ const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const glob = require('glob')
 
+const sortScripts = object => {
+  const prefixableScripts = defaultNpmScripts
+  if (typeof object.scripts === 'object') {
+    Object.keys(object.scripts).forEach(script => {
+      const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
+      if (
+        object.scripts[prefixOmitted] &&
+        !prefixableScripts.includes(prefixOmitted)
+      ) {
+        prefixableScripts.push(prefixOmitted)
+      }
+    })
+  }
+  return compareScriptKeys(toSortKey(prefixableScripts))
+}
+
 // field.key{string}: field name
 // field.sortSubKey{boolean}: sort field subKey
 // field.sortList{string[]}: key order array
 // field.unique{boolean}: unique array values
-// field.sortScripts{boolean}: sort field as scripts
+// field.comparator{function}: provide a custom sorter function
 const fields = [
   { key: 'name' },
   { key: 'version' },
@@ -47,8 +63,8 @@ const fields = [
     sortList: ['lib', 'bin', 'man', 'doc', 'example'],
   },
   { key: 'workspaces' },
-  { key: 'scripts', sortSubKey: true, sortScripts: true },
-  { key: 'betterScripts', sortSubKey: true, sortScripts: true },
+  { key: 'scripts', sortSubKey: true, comparator: sortScripts },
+  { key: 'betterScripts', sortSubKey: true, comparator: sortScripts },
   { key: 'husky' },
   { key: 'pre-commit' },
   { key: 'commitlint', sortSubKey: true },
@@ -160,33 +176,16 @@ function compareScriptKeys(sortKeyFn) {
 
 const sort = xs => xs.slice().sort()
 const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
-const sortScriptsObject = object => {
-  const prefixableScripts = defaultNpmScripts
-  if (typeof object.scripts === 'object') {
-    Object.keys(object.scripts).forEach(script => {
-      const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
-      if (
-        object.scripts[prefixOmitted] &&
-        !prefixableScripts.includes(prefixOmitted)
-      ) {
-        prefixableScripts.push(prefixOmitted)
-      }
-    })
-  }
-  return compareScriptKeys(toSortKey(prefixableScripts))
-}
-
-function sortSubKey(
-  object,
-  { key, comparator = [], sortScripts, unique } = {},
-) {
+function sortSubKey(object, { key, comparator = [], unique } = {}) {
   if (Array.isArray(object[key])) {
     object[key] = sort(object[key])
     if (unique) object[key] = uniq(object[key])
     return
   }
 
-  if (sortScripts) comparator = sortScriptsObject(object)
+  if (typeof comparator === 'function') {
+    comparator = comparator(object)
+  }
 
   if (typeof object[key] === 'object') {
     object[key] = sortObjectKeys(object[key], comparator)
