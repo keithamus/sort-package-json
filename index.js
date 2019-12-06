@@ -8,17 +8,8 @@ const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
 
 function sortArrayOrObject(comparator) {
   return function(field) {
-    if (Array.isArray(field)) return sortArray()(field)
+    if (Array.isArray(field)) return sort(field)
     return sortObject(comparator)(field)
-  }
-}
-
-function sortArray(unique) {
-  return function(field) {
-    if (!Array.isArray(field)) return field
-    field = sort(field)
-    if (unique) field = uniq(field)
-    return field
   }
 }
 
