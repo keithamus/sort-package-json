@@ -160,6 +160,21 @@ function compareScriptKeys(sortKeyFn) {
 
 const sort = xs => xs.slice().sort()
 const uniq = xs => xs.filter((x, i) => i === xs.indexOf(x))
+const sortScriptsObject = object => {
+  const prefixableScripts = defaultNpmScripts
+  if (typeof object.scripts === 'object') {
+    Object.keys(object.scripts).forEach(script => {
+      const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
+      if (
+        object.scripts[prefixOmitted] &&
+        !prefixableScripts.includes(prefixOmitted)
+      ) {
+        prefixableScripts.push(prefixOmitted)
+      }
+    })
+  }
+  return compareScriptKeys(toSortKey(prefixableScripts))
+}
 
 function sortSubKey(
   object,
@@ -171,21 +186,7 @@ function sortSubKey(
     return
   }
 
-  if (sortScripts) {
-    const prefixableScripts = defaultNpmScripts
-    if (typeof object.scripts === 'object') {
-      Object.keys(object.scripts).forEach(script => {
-        const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
-        if (
-          object.scripts[prefixOmitted] &&
-          !prefixableScripts.includes(prefixOmitted)
-        ) {
-          prefixableScripts.push(prefixOmitted)
-        }
-      })
-    }
-    comparator = compareScriptKeys(toSortKey(prefixableScripts))
-  }
+  if (sortScripts) comparator = sortScriptsObject(object)
 
   if (typeof object[key] === 'object') {
     object[key] = sortObjectKeys(object[key], comparator)
