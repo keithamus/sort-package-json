@@ -179,6 +179,8 @@ for (const field of [
   'description',
   'contributors',
   'sideEffects',
+  'files',
+  'keywords',
   'type',
   'main',
   'umd:main',
