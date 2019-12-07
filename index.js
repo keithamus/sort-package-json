@@ -31,7 +31,7 @@ const defaultNpmScripts = [
 ]
 
 const sortScripts = scripts => {
-  const prefixableScripts = defaultNpmScripts
+  const prefixableScripts = defaultNpmScripts.slice()
   Object.keys(scripts).forEach(script => {
     const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
     if (scripts[prefixOmitted] && !prefixableScripts.includes(prefixOmitted)) {
