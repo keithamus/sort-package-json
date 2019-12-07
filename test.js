@@ -178,7 +178,6 @@ for (const field of [
   'version',
   'description',
   'contributors',
-  'files',
   'sideEffects',
   'type',
   'main',
@@ -225,6 +224,14 @@ testField('keywords', [
     value: ['foo', 'foo'],
     expect: ['foo'],
     message: 'keywords should be unique.',
+  },
+])
+
+testField('files', [
+  {
+    value: ['foo', 'foo'],
+    expect: ['foo'],
+    message: 'files should be unique.',
   },
 ])
 

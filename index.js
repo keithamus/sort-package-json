@@ -54,7 +54,7 @@ const fields = [
   { key: 'funding', over: sortURLObject },
   { key: 'license', over: sortURLObject },
   { key: 'author', over: sortAuthorObject },
-  { key: 'files' },
+  { key: 'files', over: uniq },
   { key: 'sideEffects' },
   { key: 'type' },
   { key: 'exports', over: sortObject },
