@@ -178,7 +178,7 @@ function compareScriptKeys(sortKeyFn) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
-  editStringJSON(jsonIsh, json => {
+  return editStringJSON(jsonIsh, json => {
     const newJson = sortObjectKeys(options.sortOrder || sortOrder)(packageJson)
 
     for (const { key, over } of fields) {
