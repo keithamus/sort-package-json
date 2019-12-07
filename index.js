@@ -6,7 +6,9 @@ const sortObjectKeys = comp => x => _sortObjectKeys(x, comp)
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
-const onObject = fn => x => (typeof x === 'object' ? fn(x) : x)
+const isPlainObject = x =>
+  x && Object.prototype.toString.call(x) === '[object Object]'
+const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
 const sortObjectBy = comparator => onObject(sortObjectKeys(comparator))
 const sortObject = onObject(sortObjectKeys())
 const sortURLObject = sortObjectBy(['type', 'url'])

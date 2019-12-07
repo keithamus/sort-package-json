@@ -134,7 +134,7 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
 
 // fields tests
 
-// simple subKey sorting test
+// fields sort as object
 for (const field of [
   'exports',
   'bin',
@@ -161,6 +161,11 @@ for (const field of [
   'publishConfig',
 ]) {
   testField(field, [
+    {
+      value: ['foo', 'bar'],
+      expect: ['foo', 'bar'],
+      message: `Should ignore \`${field}\` field that is not plain object.`,
+    },
     {
       value: {
         foo: 'foo',
