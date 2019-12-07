@@ -139,7 +139,7 @@ function editStringJSON(jsonIsh, over) {
       result = result.replace(/\n/g, '\r\n')
     }
     return result
-  } else {  
+  } else {
     return over(json)
   }
 }
@@ -179,7 +179,7 @@ function compareScriptKeys(sortKeyFn) {
 
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(jsonIsh, json => {
-    const newJson = sortObjectKeys(options.sortOrder || sortOrder)(packageJson)
+    const newJson = sortObjectKeys(options.sortOrder || sortOrder)(json)
 
     for (const { key, over } of fields) {
       if (over && newJson[key]) newJson[key] = over(newJson[key])
