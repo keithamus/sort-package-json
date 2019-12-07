@@ -117,46 +117,31 @@ const fields = [
 
 const sortOrder = fields.map(({ key }) => key)
 
-function parseJSON(jsonIsh) {
+function editStringJSON(jsonIsh, over) {
   let wasString = false
   let hasWindowsNewlines = false
   let endCharacters = ''
   let indentLevel = 2
-  let packageJson = jsonIsh
-  if (typeof packageJson === 'string') {
+  let json = jsonIsh
+  if (typeof json === 'string') {
     wasString = true
-    indentLevel = detectIndent(packageJson).indent
-    if (packageJson.substr(-1) === '\n') {
+    indentLevel = detectIndent(json).indent
+    if (json.substr(-1) === '\n') {
       endCharacters = '\n'
     }
-    const newlineMatch = packageJson.match(/(\r?\n)/)
+    const newlineMatch = json.match(/(\r?\n)/)
     hasWindowsNewlines = (newlineMatch && newlineMatch[0]) === '\r\n'
-    packageJson = JSON.parse(packageJson)
+    json = JSON.parse(json)
   }
-  return {
-    wasString,
-    hasWindowsNewlines,
-    endCharacters,
-    indentLevel,
-    packageJson,
-  }
-}
-
-function stringifyJSON({
-  wasString,
-  hasWindowsNewlines,
-  endCharacters,
-  indentLevel,
-  packageJson,
-}) {
   if (wasString) {
-    let result = JSON.stringify(packageJson, null, indentLevel) + endCharacters
+    let result = JSON.stringify(over(json), null, indentLevel) + endCharacters
     if (hasWindowsNewlines) {
       result = result.replace(/\n/g, '\r\n')
     }
     return result
+  } else {  
+    return over(json)
   }
-  return packageJson
 }
 
 const prefixedScriptRegex = /^(pre|post)(.)/
@@ -193,26 +178,14 @@ function compareScriptKeys(sortKeyFn) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
-  const {
-    wasString,
-    hasWindowsNewlines,
-    endCharacters,
-    indentLevel,
-    packageJson,
-  } = parseJSON(jsonIsh)
+  editStringJSON(jsonIsh, json => {
+    const newJson = sortObjectKeys(options.sortOrder || sortOrder)(packageJson)
 
-  const newJson = sortObjectKeys(options.sortOrder || sortOrder)(packageJson)
+    for (const { key, over } of fields) {
+      if (over && newJson[key]) newJson[key] = over(newJson[key])
+    }
 
-  for (const { key, over } of fields) {
-    if (over && newJson[key]) newJson[key] = over(newJson[key])
-  }
-
-  return stringifyJSON({
-    wasString,
-    hasWindowsNewlines,
-    endCharacters,
-    indentLevel,
-    packageJson: newJson,
+    return newJson
   })
 }
 
