@@ -117,31 +117,22 @@ const fields = [
 
 const sortOrder = fields.map(({ key }) => key)
 
-function editStringJSON(jsonIsh, over) {
-  let wasString = false
-  let hasWindowsNewlines = false
-  let endCharacters = ''
-  let indentLevel = 2
-  let json = jsonIsh
+function editStringJSON(json, over) {
   if (typeof json === 'string') {
-    wasString = true
-    indentLevel = detectIndent(json).indent
-    if (json.substr(-1) === '\n') {
-      endCharacters = '\n'
-    }
+    const indentLevel = detectIndent(json).indent
+    const endCharacters = json.slice(-1) === '\n' ? '\n' : ''
     const newlineMatch = json.match(/(\r?\n)/)
-    hasWindowsNewlines = (newlineMatch && newlineMatch[0]) === '\r\n'
+    const hasWindowsNewlines = (newlineMatch && newlineMatch[0]) === '\r\n'
     json = JSON.parse(json)
-  }
-  if (wasString) {
+
     let result = JSON.stringify(over(json), null, indentLevel) + endCharacters
     if (hasWindowsNewlines) {
       result = result.replace(/\n/g, '\r\n')
     }
     return result
-  } else {
-    return over(json)
   }
+
+  return over(json)
 }
 
 const prefixedScriptRegex = /^(pre|post)(.)/
