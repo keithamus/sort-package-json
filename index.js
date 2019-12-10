@@ -30,19 +30,36 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const sortScripts = scripts => {
+const scriptsSortOrder = scripts => {
   const scriptNames = Object.keys(scripts)
-  const scriptCompareKeys = scriptNames.reduce((keys, script) => {
-    const omitted = script.replace(/^(?:pre|post)/, '')
-    keys[script] =
-      defaultNpmScripts.has(omitted) || scriptNames.includes(omitted)
-        ? omitted
-        : script
-    return keys
-  }, {})
+  const prefixableScripts = new Set()
 
-  return sortObjectKeys(compareScriptKeys(scriptCompareKeys))(scripts)
+  const scriptCompareKeys = scriptNames
+    .map(script => {
+      const omitted = script.replace(/^(?:pre|post)/, '')
+      if (defaultNpmScripts.has(omitted) || scriptNames.includes(omitted)) {
+        prefixableScripts.add(omitted)
+        return omitted
+      }
+      return script
+    })
+    .sort()
+
+  const sortOrder = scriptCompareKeys
+    .reduce(
+      (sortOrder, key) =>
+        sortOrder.concat(
+          prefixableScripts.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+        ),
+      [],
+    )
+    // TODO: Remove next line when/if this PR gets merged: https://github.com/keithamus/sort-object-keys/pull/11
+    // extra keys only effect tests
+    .filter(key => scriptNames.includes(key))
+
+  return sortOrder
 }
+const sortScripts = scripts => sortObjectBy(scriptsSortOrder(scripts))(scripts)
 
 // field.key{string}: field name
 // field.over{function}: sort field subKey
@@ -134,28 +151,6 @@ function editStringJSON(json, over) {
   }
 
   return over(json)
-}
-
-/*             b
- *       pre | * | post
- *   pre  0  | - |  -
- * a  *   +  | 0 |  -
- *   post +  | + |  0
- */
-function compareScriptKeys(keys) {
-  return function(a, b) {
-    if (a === b) return 0
-    const aScript = keys[a]
-    const bScript = keys[b]
-    if (aScript === bScript) {
-      // pre* is always smaller; post* is always bigger
-      // Covers: pre* vs. *; pre* vs. post*; * vs. post*
-      if (a === `pre${aScript}` || b === `post${bScript}`) return -1
-      // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
-      return 1
-    }
-    return aScript < bScript ? -1 : 1
-  }
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
