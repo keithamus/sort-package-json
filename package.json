@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "detect-indent": "^6.0.0",
+    "detect-newline": "3.1.0",
     "glob": "^7.1.6",
     "sort-object-keys": "^1.1.2"
   },
