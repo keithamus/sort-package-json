@@ -31,32 +31,31 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const scriptsSortOrder = scripts => {
-  const scriptNames = Object.keys(scripts)
-  const prefixableScripts = new Set()
+const sortScripts = scripts => {
+  const names = Object.keys(scripts)
+  const prefixable = new Set()
 
-  const scriptCompareKeys = scriptNames
-    .map(script => {
-      const omitted = script.replace(/^(?:pre|post)/, '')
-      if (defaultNpmScripts.has(omitted) || scriptNames.includes(omitted)) {
-        prefixableScripts.add(omitted)
+  const keys = names
+    .map(name => {
+      const omitted = name.replace(/^(?:pre|post)/, '')
+      if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
+        prefixable.add(omitted)
         return omitted
       }
-      return script
+      return name
     })
     .sort()
 
-  const sortOrder = scriptCompareKeys.reduce(
-    (sortOrder, key) =>
-      sortOrder.concat(
-        prefixableScripts.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+  const order = keys.reduce(
+    (order, key) =>
+      order.concat(
+        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
       ),
     [],
   )
 
-  return sortOrder
+  return sortObjectBy(order)(scripts)
 }
-const sortScripts = scripts => sortObjectBy(scriptsSortOrder(scripts))(scripts)
 
 // field.key{string}: field name
 // field.over{function}: sort field subKey
