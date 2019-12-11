@@ -46,17 +46,13 @@ const scriptsSortOrder = scripts => {
     })
     .sort()
 
-  const sortOrder = scriptCompareKeys
-    .reduce(
-      (sortOrder, key) =>
-        sortOrder.concat(
-          prefixableScripts.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-        ),
-      [],
-    )
-    // TODO: Remove next line when/if this PR gets merged: https://github.com/keithamus/sort-object-keys/pull/11
-    // extra keys only effect tests
-    .filter(key => scriptNames.includes(key))
+  const sortOrder = scriptCompareKeys.reduce(
+    (sortOrder, key) =>
+      sortOrder.concat(
+        prefixableScripts.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+      ),
+    [],
+  )
 
   return sortOrder
 }
