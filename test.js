@@ -130,6 +130,10 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     sortPackageJson('{\r\n  "foo": "bar"\r\n}\r\n'),
     '{\r\n  "foo": "bar"\r\n}\r\n',
   )
+  assert.strictEqual(
+    sortPackageJson('{\r\n  "foo": "bar"\n}\n'),
+    '{\n  "foo": "bar"\n}\n',
+  )
 })
 
 // fields tests

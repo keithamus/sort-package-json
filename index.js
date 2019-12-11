@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const _sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
+const detectNewline = require('detect-newline').graceful
 const glob = require('glob')
 const sortObjectKeys = comp => x => _sortObjectKeys(x, comp)
 
@@ -137,15 +138,14 @@ const sortOrder = fields.map(({ key }) => key)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
-    const indentLevel = detectIndent(json).indent
+    const { indent } = detectIndent(json)
     const endCharacters = json.slice(-1) === '\n' ? '\n' : ''
-    const newlineMatch = json.match(/(\r?\n)/)
-    const hasWindowsNewlines = (newlineMatch && newlineMatch[0]) === '\r\n'
+    const newline = detectNewline(json)
     json = JSON.parse(json)
 
-    let result = JSON.stringify(over(json), null, indentLevel) + endCharacters
-    if (hasWindowsNewlines) {
-      result = result.replace(/\n/g, '\r\n')
+    let result = JSON.stringify(over(json), null, indent) + endCharacters
+    if (newline === '\r\n') {
+      result = result.replace(/\n/g, newline)
     }
     return result
   }
