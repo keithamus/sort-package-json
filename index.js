@@ -17,7 +17,7 @@ const sortAuthorObject = sortObjectBy(['name', 'email', 'url'])
 const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
 
 // See https://docs.npmjs.com/misc/scripts
-const defaultNpmScripts = [
+const defaultNpmScripts = new Set([
   'install',
   'pack',
   'prepare',
@@ -29,19 +29,32 @@ const defaultNpmScripts = [
   'test',
   'uninstall',
   'version',
-]
+])
 
 const sortScripts = scripts => {
-  const prefixableScripts = defaultNpmScripts.slice()
-  Object.keys(scripts).forEach(script => {
-    const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
-    if (scripts[prefixOmitted] && !prefixableScripts.includes(prefixOmitted)) {
-      prefixableScripts.push(prefixOmitted)
-    }
-  })
-  return sortObjectKeys(compareScriptKeys(toSortKey(prefixableScripts)))(
-    scripts,
+  const names = Object.keys(scripts)
+  const prefixable = new Set()
+
+  const keys = names
+    .map(name => {
+      const omitted = name.replace(/^(?:pre|post)/, '')
+      if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
+        prefixable.add(omitted)
+        return omitted
+      }
+      return name
+    })
+    .sort()
+
+  const order = keys.reduce(
+    (order, key) =>
+      order.concat(
+        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+      ),
+    [],
   )
+
+  return sortObjectBy(order)(scripts)
 }
 
 // field.key{string}: field name
@@ -133,39 +146,6 @@ function editStringJSON(json, over) {
   }
 
   return over(json)
-}
-
-const prefixedScriptRegex = /^(pre|post)(.)/
-function toSortKey(prefixable) {
-  return function(script) {
-    const prefixOmitted = script.replace(prefixedScriptRegex, '$2')
-    if (prefixable.includes(prefixOmitted)) {
-      return prefixOmitted
-    }
-    return script
-  }
-}
-
-/*             b
- *       pre | * | post
- *   pre  0  | - |  -
- * a  *   +  | 0 |  -
- *   post +  | + |  0
- */
-function compareScriptKeys(sortKeyFn) {
-  return function(a, b) {
-    if (a === b) return 0
-    const aScript = sortKeyFn(a)
-    const bScript = sortKeyFn(b)
-    if (aScript === bScript) {
-      // pre* is always smaller; post* is always bigger
-      // Covers: pre* vs. *; pre* vs. post*; * vs. post*
-      if (a === `pre${aScript}` || b === `post${bScript}`) return -1
-      // The rest is bigger: * vs. *pre; *post vs. *pre; *post vs. *
-      return 1
-    }
-    return aScript < bScript ? -1 : 1
-  }
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
