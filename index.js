@@ -2,7 +2,7 @@
 const _sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
-const glob = require('glob')
+const globby = require('globby')
 const sortObjectKeys = comp => x => _sortObjectKeys(x, comp)
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
@@ -177,10 +177,12 @@ if (require.main === module) {
     patterns[0] = 'package.json'
   }
 
-  const files = patterns.reduce(
-    (files, pattern) => files.concat(glob.sync(pattern)),
-    [],
-  )
+  const files = globby.sync(patterns)
+
+  if (files.length === 0) {
+    console.log('No matching files.')
+    process.exit(1)
+  }
 
   let notSortedFiles = 0
 
@@ -200,15 +202,18 @@ if (require.main === module) {
   })
 
   if (isCheck) {
+    console.log()
     if (notSortedFiles) {
       console.log(
         notSortedFiles === 1
-          ? `${notSortedFiles} file is not sorted.`
-          : `\n ${notSortedFiles} files are not sorted.`,
+          ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
+          : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
       )
     } else {
       console.log(
-        files.length === 1 ? `file is sorted.` : `all files are sorted.`,
+        files.length === 1
+          ? `${files.length} matched file is sorted.`
+          : `${files.length} matched files are sorted.`,
       )
     }
     process.exit(notSortedFiles)

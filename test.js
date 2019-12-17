@@ -440,7 +440,7 @@ execFile(
     assert.strictEqual(stderr, '')
     assert.strictEqual(
       stdout.trim(),
-      'fixtures/not-sorted-1/package.json\n1 file is not sorted.',
+      'fixtures/not-sorted-1/package.json\n\n1 of 1 matched file is not sorted.',
     )
   },
 )
@@ -459,7 +459,10 @@ execFile(
       stdout.includes('fixtures/not-sorted-2/package.json'),
       true,
     )
-    assert.strictEqual(stdout.includes('2 files are not sorted.'), true)
+    assert.strictEqual(
+      stdout.includes('2 of 2 matched files are not sorted.'),
+      true,
+    )
   },
 )
 
@@ -469,7 +472,7 @@ execFile(
   (error, stdout, stderr) => {
     assert.strictEqual(error, null)
     assert.strictEqual(stderr, '')
-    assert.strictEqual(stdout.trim(), 'file is sorted.')
+    assert.strictEqual(stdout.trim(), '1 matched file is sorted.')
   },
 )
 
@@ -479,7 +482,7 @@ execFile(
   (error, stdout, stderr) => {
     assert.strictEqual(error, null)
     assert.strictEqual(stderr, '')
-    assert.strictEqual(stdout.trim(), 'all files are sorted.')
+    assert.strictEqual(stdout.trim(), '2 matched files are sorted.')
   },
 )
 
@@ -503,6 +506,38 @@ execFile(
       stdout.includes('fixtures/another-not-sorted/package.json'),
       true,
     )
-    assert.strictEqual(stdout.includes('3 files are not sorted.'), true)
+    assert.strictEqual(
+      stdout.includes('3 of 5 matched files are not sorted.'),
+      true,
+    )
+  },
+)
+
+execFile(
+  'node',
+  ['index.js', 'NONE_EXISTS_FILE', '--check'],
+  (error, stdout, stderr) => {
+    assert.strictEqual(error.code, 1)
+    assert.strictEqual(stderr, '')
+    assert.strictEqual(stdout.trim(), 'No matching files.')
+  },
+)
+
+// should not list twice
+execFile(
+  'node',
+  [
+    'index.js',
+    'fixtures/not-sorted-1/package.json',
+    'fixtures/not-sorted-1/**/package.json',
+    '--check',
+  ],
+  (error, stdout, stderr) => {
+    assert.strictEqual(error.code, 1)
+    assert.strictEqual(stderr, '')
+    assert.strictEqual(
+      stdout.includes('1 of 1 matched file is not sorted.'),
+      true,
+    )
   },
 )
