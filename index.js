@@ -94,7 +94,6 @@ const fields = [
   { key: 'directories', over: sortDirectories },
   { key: 'workspaces' },
   { key: 'scripts', over: sortScripts },
-  { key: 'betterScripts', over: sortScripts },
   { key: 'husky' },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
