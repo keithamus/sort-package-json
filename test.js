@@ -186,7 +186,6 @@ for (const field of [
   'name',
   'version',
   'description',
-  'contributors',
   'sideEffects',
   'files',
   'keywords',
@@ -308,6 +307,29 @@ testField('author', [
     expect: ['name', 'email', 'url', UNKNOWN],
   },
 ])
+
+// contributors
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson({
+      contributors: [
+        {
+          [UNKNOWN]: UNKNOWN,
+          url: 'http://keithcirkel.co.uk/',
+          name: 'Keith Cirkel',
+          email: 'npm@keithcirkel.co.uk',
+        },
+      ],
+    }).contributors[0],
+  ),
+  ['name', 'email', 'url', UNKNOWN],
+)
+assert.deepStrictEqual(
+  sortPackageJson({
+    contributors: ['foo', 'bar', ['foo', 'bar']],
+  }).contributors,
+  ['foo', 'bar', ['foo', 'bar']],
+)
 
 testField('directories', [
   {
