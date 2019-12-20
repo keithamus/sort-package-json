@@ -73,9 +73,7 @@ const fields = [
   { key: 'author', over: sortPeopleObject },
   {
     key: 'contributors',
-    over: onArray(contributors =>
-      contributors.map(contributor => sortPeopleObject(contributor)),
-    ),
+    over: onArray(contributors => contributors.map(sortPeopleObject)),
   },
   { key: 'files', over: uniq },
   { key: 'sideEffects' },
