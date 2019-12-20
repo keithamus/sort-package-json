@@ -150,7 +150,15 @@ function editStringJSON(json, over) {
 
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(jsonIsh, json => {
-    const newJson = sortObjectKeys(options.sortOrder || sortOrder)(json)
+    const keys = Object.keys(json)
+    const privateKeys = keys.filter(key => key[0] === '_')
+    const publicKeys = keys.filter(key => key[0] !== '_')
+
+    const newJson = sortObjectKeys([
+      ...(options.sortOrder || sortOrder),
+      ...publicKeys.sort(),
+      ...privateKeys.sort(),
+    ])(json)
 
     for (const { key, over } of fields) {
       if (over && newJson[key]) newJson[key] = over(newJson[key])
