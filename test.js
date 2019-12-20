@@ -94,6 +94,26 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     ['z', 'a', 'name'],
   )
 
+  // defaultSortOrder still applied, when using custom sortOrder
+  assert.deepStrictEqual(
+    Object.keys(
+      sortPackageJson(
+        {
+          b: 'b',
+          a: 'a',
+          z: 'z',
+          version: '1.0.0',
+          name: 'foo',
+          private: true,
+        },
+        {
+          sortOrder: ['z', 'private'],
+        },
+      ),
+    ),
+    ['z', 'private', 'name', 'version', 'a', 'b'],
+  )
+
   // Custom sort order should not effect field sorting
   assert.deepStrictEqual(
     Object.keys(

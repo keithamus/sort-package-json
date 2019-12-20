@@ -129,7 +129,7 @@ const fields = [
   { key: 'publishConfig', over: sortObject },
 ]
 
-const sortOrder = fields.map(({ key }) => key)
+const defaultSortOrder = fields.map(({ key }) => key)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -149,8 +149,12 @@ function editStringJSON(json, over) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
+  const sortOrder = options.sortOrder
+    ? [...options.sortOrder, ...defaultSortOrder]
+    : defaultSortOrder
+
   return editStringJSON(jsonIsh, json => {
-    const newJson = sortObjectKeys(options.sortOrder || sortOrder)(json)
+    const newJson = sortObjectKeys(sortOrder)(json)
 
     for (const { key, over } of fields) {
       if (over && newJson[key]) newJson[key] = over(newJson[key])
@@ -162,7 +166,7 @@ function sortPackageJson(jsonIsh, options = {}) {
 
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
-module.exports.sortOrder = sortOrder
+module.exports.sortOrder = defaultSortOrder
 
 if (require.main === module) {
   const fs = require('fs')
