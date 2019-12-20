@@ -148,11 +148,19 @@ function editStringJSON(json, over) {
   return over(json)
 }
 
+const isPrivateKey = key => key[0] === '_'
+const partition = (array, predicate) =>
+  array.reduce(
+    (result, value) => {
+      result[predicate(value) ? 0 : 1].push(value)
+      return result
+    },
+    [[], []],
+  )
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(jsonIsh, json => {
     const keys = Object.keys(json)
-    const privateKeys = keys.filter(key => key[0] === '_')
-    const publicKeys = keys.filter(key => key[0] !== '_')
+    const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
 
     const newJson = sortObjectKeys([
       ...(options.sortOrder || sortOrder),
