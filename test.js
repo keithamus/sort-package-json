@@ -413,22 +413,25 @@ for (const field of [
   ])
 }
 
+// CLI should be executable
+fs.accessSync('./cli.js', fs.constants.X_OK)
+
 // CLI `--check` flag tests
 
 // make sure `--check` not fixing file
 // support `-c` as well
-const orignal = fs.readFileSync('fixtures/not-sorted-1/package.json', 'utf8')
+const original = fs.readFileSync('fixtures/not-sorted-1/package.json', 'utf8')
 execFile(
   'node',
-  ['index.js', 'fixtures/not-sorted-1/package.json', '-c'],
+  ['cli.js', 'fixtures/not-sorted-1/package.json', '-c'],
   (error, stdout, stderr) => {
     assert.notStrictEqual(
-      orignal,
-      sortPackageJson(orignal),
+      original,
+      sortPackageJson(original),
       'fixtures/not-sorted-1/package.json should be a unsorted file.',
     )
     assert.strictEqual(
-      orignal,
+      original,
       fs.readFileSync('fixtures/not-sorted-1/package.json', 'utf8'),
       'file should not fixed when --check is enabled.',
     )
@@ -447,7 +450,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'fixtures/not-sorted-*/package.json', '--check'],
+  ['cli.js', 'fixtures/not-sorted-*/package.json', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error.code, 2)
     assert.strictEqual(stderr, '')
@@ -468,7 +471,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'fixtures/sorted-1/package.json', '--check'],
+  ['cli.js', 'fixtures/sorted-1/package.json', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error, null)
     assert.strictEqual(stderr, '')
@@ -478,7 +481,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'fixtures/sorted-*/package.json', '--check'],
+  ['cli.js', 'fixtures/sorted-*/package.json', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error, null)
     assert.strictEqual(stderr, '')
@@ -488,7 +491,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'fixtures/*/package.json', '--check'],
+  ['cli.js', 'fixtures/*/package.json', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error.code, 3)
     assert.strictEqual(stderr, '')
@@ -515,7 +518,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'NONE_EXISTS_FILE', '--check'],
+  ['cli.js', 'NONE_EXISTS_FILE', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error.code, 1)
     assert.strictEqual(stderr, '')
@@ -527,7 +530,7 @@ execFile(
 execFile(
   'node',
   [
-    'index.js',
+    'cli.js',
     'fixtures/not-sorted-1/package.json',
     'fixtures/not-sorted-1/**/package.json',
     '--check',

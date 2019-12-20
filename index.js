@@ -1,8 +1,7 @@
-#!/usr/bin/env node
 const _sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
-const globby = require('globby')
+
 const sortObjectKeys = comp => x => _sortObjectKeys(x, comp)
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
@@ -163,59 +162,3 @@ function sortPackageJson(jsonIsh, options = {}) {
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
 module.exports.sortOrder = sortOrder
-
-if (require.main === module) {
-  const fs = require('fs')
-  const isCheckFlag = argument => argument === '--check' || argument === '-c'
-
-  const cliArguments = process.argv.slice(2)
-  const isCheck = cliArguments.some(isCheckFlag)
-
-  const patterns = cliArguments.filter(argument => !isCheckFlag(argument))
-
-  if (!patterns.length) {
-    patterns[0] = 'package.json'
-  }
-
-  const files = globby.sync(patterns)
-
-  if (files.length === 0) {
-    console.log('No matching files.')
-    process.exit(1)
-  }
-
-  let notSortedFiles = 0
-
-  files.forEach(file => {
-    const packageJson = fs.readFileSync(file, 'utf8')
-    const sorted = sortPackageJson(packageJson)
-
-    if (sorted !== packageJson) {
-      if (isCheck) {
-        notSortedFiles++
-        console.log(file)
-      } else {
-        fs.writeFileSync(file, sorted, 'utf8')
-        console.log(`${file} is sorted!`)
-      }
-    }
-  })
-
-  if (isCheck) {
-    console.log()
-    if (notSortedFiles) {
-      console.log(
-        notSortedFiles === 1
-          ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
-          : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
-      )
-    } else {
-      console.log(
-        files.length === 1
-          ? `${files.length} matched file is sorted.`
-          : `${files.length} matched files are sorted.`,
-      )
-    }
-    process.exit(notSortedFiles)
-  }
-}

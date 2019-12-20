@@ -19,15 +19,16 @@
   "author": "Keith Cirkel <npm@keithcirkel.co.uk> (http://keithcirkel.co.uk/)",
   "files": [
     "index.js",
-    "index.d.ts"
+    "index.d.ts",
+    "cli.js"
   ],
   "main": "index.js",
   "types": "index.d.ts",
-  "bin": "index.js",
+  "bin": "cli.js",
   "scripts": {
     "lint": "eslint .",
     "semantic-release": "semantic-release",
-    "sort-package-json": "node index.js package.json --check",
+    "sort-package-json": "node cli.js package.json --check",
     "test": "node test.js"
   },
   "husky": {
