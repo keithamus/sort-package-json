@@ -134,6 +134,19 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     sortPackageJson('{\r\n  "foo": "bar"\n}\n'),
     '{\n  "foo": "bar"\n}\n',
   )
+
+  const array = ['foo', 'bar']
+  const string = JSON.stringify(array)
+  assert.strictEqual(
+    sortPackageJson(array),
+    array,
+    'should not sort object that is not plain object',
+  )
+  assert.strictEqual(
+    sortPackageJson(string),
+    string,
+    'should not sort object that is not plain object',
+  )
 })
 
 // fields tests
