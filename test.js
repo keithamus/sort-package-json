@@ -6,9 +6,9 @@ const { execFile } = require('child_process')
 
 const UNKNOWN = 'UNKNOWN_KEY_OR_VALUE'
 function testField(name, tests, options) {
-  for (const { value, expect, message } of tests) {
+  for (const { value, expect, message, property } of tests) {
     const packageJson = {
-      [name]: value,
+      [name]: property ? { [property]: value } : value,
     }
     const input = JSON.stringify(packageJson, null, 2)
     const sorted = sortPackageJson(packageJson, options)
@@ -28,12 +28,10 @@ ${output}
 Message:
 ${message || defaultMessage}
 `
+    const object = property ? sorted[name][property] : sorted[name]
+    const actual = Array.isArray(value) ? object : Object.keys(object)
 
-    if (Array.isArray(value)) {
-      assert.deepStrictEqual(sorted[name], expect, detail)
-    } else if (value && typeof value === 'object') {
-      assert.deepStrictEqual(Object.keys(sorted[name]), expect, detail)
-    }
+    assert.deepStrictEqual(actual, expect, detail)
   }
 }
 
@@ -206,7 +204,6 @@ for (const field of [
   'examplestyle',
   'assets',
   'workspaces',
-  'husky',
   'pre-commit',
   'browserslist',
   'eslintIgnore',
@@ -229,6 +226,18 @@ for (const field of [
     },
   ])
 }
+
+testField('husky', [
+  {
+    value: {
+      'commit-msg': '',
+      [UNKNOWN]: UNKNOWN,
+      'pre-commit': '',
+    },
+    property: 'hooks',
+    expect: ['pre-commit', 'commit-msg', UNKNOWN],
+  },
+])
 
 testField('keywords', [
   {

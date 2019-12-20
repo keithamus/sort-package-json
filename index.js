@@ -15,6 +15,38 @@ const sortObject = onObject(sortObjectKeys())
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortAuthorObject = sortObjectBy(['name', 'email', 'url'])
 const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
+const sortProperty = (property, over) => object =>
+  Object.assign(object, { [property]: over(object[property]) })
+
+const sortGitHooks = sortObjectBy(
+  // https://git-scm.com/docs/githooks
+  [
+    'applypatch-msg',
+    'pre-applypatch',
+    'post-applypatch',
+    'pre-commit',
+    'pre-merge-commit',
+    'prepare-commit-msg',
+    'commit-msg',
+    'post-commit',
+    'pre-rebase',
+    'post-checkout',
+    'post-merge',
+    'pre-push',
+    'pre-receive',
+    'update',
+    'post-receive',
+    'post-update',
+    'push-to-checkout',
+    'pre-auto-gc',
+    'post-rewrite',
+    'rebase',
+    'sendemail-validate',
+    'fsmonitor-watchman',
+    'p4-pre-submit',
+    'post-index-change',
+  ],
+)
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -95,7 +127,7 @@ const fields = [
   { key: 'workspaces' },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
-  { key: 'husky' },
+  { key: 'husky', over: sortProperty('hooks', sortGitHooks) },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
   { key: 'lint-staged', over: sortObject },
