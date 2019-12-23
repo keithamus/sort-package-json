@@ -79,6 +79,10 @@ npm install --save-dev sort-package-json
 
 ### Usage
 
+```js
+sortPackageJson(jsonIsh, options?)
+```
+
 Pass a JSON string, return a new sorted JSON string.
 Pass a JSON object, return a new sorted JSON object.
 
@@ -118,8 +122,27 @@ console.log(sortPackageJson(packageJsonObject))
   }
 }
 */
-
 ```
+
+#### options.sortOrder
+
+custom sortOrder
+
+```js
+console.log(sortPackageJson(packageJsonObject, {
+  sortOrder: ['version', 'name', 'dependencies'],
+}))
+/* => object:
+{
+  version: '1.0.0',
+  name: 'my-awesome-project',
+  dependencies: {
+    'sort-object-keys': '1.0.0',
+    'sort-package-json': '1.0.0'
+  }
+}
+```
+
 
 ## Related tools
 
