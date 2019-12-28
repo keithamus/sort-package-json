@@ -93,6 +93,17 @@ const fields = [
   { key: 'man', over: sortObject },
   { key: 'directories', over: sortDirectories },
   { key: 'workspaces' },
+  // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
+  {
+    key: 'binary',
+    over: sortObjectBy([
+      'module_name',
+      'module_path',
+      'remote_path',
+      'package_name',
+      'host',
+    ]),
+  },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
   { key: 'husky' },

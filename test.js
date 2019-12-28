@@ -230,6 +230,29 @@ for (const field of [
   ])
 }
 
+testField('binary', [
+  {
+    value: {
+      [UNKNOWN]: UNKNOWN,
+      module_name: 'node_addon_example',
+      module_path:
+        './lib/binding/{configuration}/{node_abi}-{platform}-{arch}/',
+      remote_path: './{module_name}/v{version}/{configuration}/',
+      package_name:
+        '{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz',
+      host: 'https://node-pre-gyp-tests.s3-us-west-1.amazonaws.com',
+    },
+    expect: [
+      'module_name',
+      'module_path',
+      'remote_path',
+      'package_name',
+      'host',
+      UNKNOWN,
+    ],
+  },
+])
+
 testField('keywords', [
   {
     value: ['foo', 'foo'],
