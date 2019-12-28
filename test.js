@@ -134,6 +134,19 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     sortPackageJson('{\r\n  "foo": "bar"\n}\n'),
     '{\n  "foo": "bar"\n}\n',
   )
+
+  const array = ['foo', 'bar']
+  const string = JSON.stringify(array)
+  assert.strictEqual(
+    sortPackageJson(array),
+    array,
+    'should not sort object that is not plain object',
+  )
+  assert.strictEqual(
+    sortPackageJson(string),
+    string,
+    'should not sort object that is not plain object',
+  )
 })
 
 // fields with '_' prefix should alway at bottom
@@ -202,7 +215,6 @@ for (const field of [
   'name',
   'version',
   'description',
-  'contributors',
   'sideEffects',
   'files',
   'keywords',
@@ -245,6 +257,29 @@ for (const field of [
     },
   ])
 }
+
+testField('binary', [
+  {
+    value: {
+      [UNKNOWN]: UNKNOWN,
+      module_name: 'node_addon_example',
+      module_path:
+        './lib/binding/{configuration}/{node_abi}-{platform}-{arch}/',
+      remote_path: './{module_name}/v{version}/{configuration}/',
+      package_name:
+        '{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz',
+      host: 'https://node-pre-gyp-tests.s3-us-west-1.amazonaws.com',
+    },
+    expect: [
+      'module_name',
+      'module_path',
+      'remote_path',
+      'package_name',
+      'host',
+      UNKNOWN,
+    ],
+  },
+])
 
 testField('keywords', [
   {
@@ -324,6 +359,29 @@ testField('author', [
     expect: ['name', 'email', 'url', UNKNOWN],
   },
 ])
+
+// contributors
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson({
+      contributors: [
+        {
+          [UNKNOWN]: UNKNOWN,
+          url: 'http://keithcirkel.co.uk/',
+          name: 'Keith Cirkel',
+          email: 'npm@keithcirkel.co.uk',
+        },
+      ],
+    }).contributors[0],
+  ),
+  ['name', 'email', 'url', UNKNOWN],
+)
+assert.deepStrictEqual(
+  sortPackageJson({
+    contributors: ['foo', 'bar', ['foo', 'bar']],
+  }).contributors,
+  ['foo', 'bar', ['foo', 'bar']],
+)
 
 testField('directories', [
   {
