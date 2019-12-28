@@ -8,7 +8,7 @@ const UNKNOWN = 'UNKNOWN_KEY_OR_VALUE'
 function testField(name, tests, options) {
   for (const { value, expect, message, property } of tests) {
     const packageJson = {
-      [name]: property ? { [property]: value } : value,
+      [name]: value,
     }
     const input = JSON.stringify(packageJson, null, 2)
     const sorted = sortPackageJson(packageJson, options)
@@ -241,12 +241,14 @@ for (const field of [
 
 testField('husky', [
   {
-    value: {
-      'commit-msg': '',
-      [UNKNOWN]: UNKNOWN,
-      'pre-commit': '',
-    },
     property: 'hooks',
+    value: {
+      hooks: {
+        'commit-msg': '',
+        [UNKNOWN]: UNKNOWN,
+        'pre-commit': '',
+      },
+    },
     expect: ['pre-commit', 'commit-msg', UNKNOWN],
   },
 ])
