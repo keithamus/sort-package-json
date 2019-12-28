@@ -4,6 +4,12 @@
 
 ## CLI
 
+### Run via npx (npm@5.2+ required)
+
+```bash
+npx sort-package-json
+```
+
 ### Install
 
 ```bash
@@ -24,7 +30,7 @@ $ cat package.json
   "name": "my-awesome-project"
 }
 
-$ sort-package-json
+$ npx sort-package-json
 package.json is sorted!
 
 cat package.json
@@ -61,12 +67,6 @@ $ sort-package-json "**/package.json" --check
 # bar/package.json
 
 # 2 of 5 matched files are not sorted.
-```
-
-### Run with npx (npm@5.2+ required)
-
-```bash
-npx sort-package-json
 ```
 
 ## API
