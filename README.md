@@ -158,8 +158,8 @@ console.log(sortPackageJson(packageJsonObject, {
 - [Istanbul](https://istanbul.js.org/)
 - [Jest](https://jestjs.io/)
 - [Mocha](https://mochajs.org/)
-- [Prettier](https://prettier.io/)
 - [node-pre-gyp](https://github.com/mapbox/node-pre-gyp/)
+- [Prettier](https://prettier.io/)
 - [xojs](https://github.com/xojs/xo)
 
 ## Automatically Sort
