@@ -163,9 +163,15 @@ function editStringJSON(json, over) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
-  const sortOrder = options.sortOrder
-    ? [...options.sortOrder, ...defaultSortOrder]
-    : defaultSortOrder
+  let sortOrder = defaultSortOrder
+
+  if (options.sortOrder) {
+    if (Array.isArray(options.sortOrder)) {
+      sortOrder = [...options.sortOrder, ...defaultSortOrder]
+    } else {
+      sortOrder = options.sortOrder
+    }
+  }
 
   return editStringJSON(
     jsonIsh,
