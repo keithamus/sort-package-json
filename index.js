@@ -3,6 +3,7 @@ const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
 const globby = require('globby')
+const gitHooks = require('git-hooks-list')
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
@@ -16,36 +17,7 @@ const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
 const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
 const sortProperty = (property, over) => object =>
   Object.assign(object, { [property]: over(object[property]) })
-
-const sortGitHooks = sortObjectBy(
-  // https://git-scm.com/docs/githooks
-  [
-    'applypatch-msg',
-    'pre-applypatch',
-    'post-applypatch',
-    'pre-commit',
-    'pre-merge-commit',
-    'prepare-commit-msg',
-    'commit-msg',
-    'post-commit',
-    'pre-rebase',
-    'post-checkout',
-    'post-merge',
-    'pre-push',
-    'pre-receive',
-    'update',
-    'post-receive',
-    'post-update',
-    'push-to-checkout',
-    'pre-auto-gc',
-    'post-rewrite',
-    'rebase',
-    'sendemail-validate',
-    'fsmonitor-watchman',
-    'p4-pre-submit',
-    'post-index-change',
-  ],
-)
+const sortGitHooks = sortObjectBy(gitHooks)
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
