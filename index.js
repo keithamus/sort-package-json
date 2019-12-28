@@ -1,18 +1,16 @@
-const _sortObjectKeys = require('sort-object-keys')
+const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
-
-const sortObjectKeys = comp => x => _sortObjectKeys(x, comp)
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
 const isPlainObject = x =>
   x && Object.prototype.toString.call(x) === '[object Object]'
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
-const sortObjectBy = comparator => onObject(sortObjectKeys(comparator))
-const sortObject = onObject(sortObjectKeys())
+const sortObjectBy = comparator => onObject(x => sortObjectKeys(x, comparator))
+const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
-const sortAuthorObject = sortObjectBy(['name', 'email', 'url'])
+const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
 const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
 
 // See https://docs.npmjs.com/misc/scripts
@@ -69,7 +67,11 @@ const fields = [
   { key: 'repository', over: sortURLObject },
   { key: 'funding', over: sortURLObject },
   { key: 'license', over: sortURLObject },
-  { key: 'author', over: sortAuthorObject },
+  { key: 'author', over: sortPeopleObject },
+  {
+    key: 'contributors',
+    over: onArray(contributors => contributors.map(sortPeopleObject)),
+  },
   { key: 'files', over: uniq },
   { key: 'sideEffects' },
   { key: 'type' },
@@ -92,6 +94,17 @@ const fields = [
   { key: 'man', over: sortObject },
   { key: 'directories', over: sortDirectories },
   { key: 'workspaces' },
+  // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
+  {
+    key: 'binary',
+    over: sortObjectBy([
+      'module_name',
+      'module_path',
+      'remote_path',
+      'package_name',
+      'host',
+    ]),
+  },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
   { key: 'husky' },
@@ -148,15 +161,18 @@ function editStringJSON(json, over) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
-  return editStringJSON(jsonIsh, json => {
-    const newJson = sortObjectKeys(options.sortOrder || sortOrder)(json)
+  return editStringJSON(
+    jsonIsh,
+    onObject(json => {
+      const newJson = sortObjectKeys(json, options.sortOrder || sortOrder)
 
-    for (const { key, over } of fields) {
-      if (over && newJson[key]) newJson[key] = over(newJson[key])
-    }
+      for (const { key, over } of fields) {
+        if (over && newJson[key]) newJson[key] = over(newJson[key])
+      }
 
-    return newJson
-  })
+      return newJson
+    }),
+  )
 }
 
 module.exports = sortPackageJson
