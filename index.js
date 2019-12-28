@@ -12,7 +12,7 @@ const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
 const sortObjectBy = comparator => onObject(x => sortObjectKeys(x, comparator))
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
-const sortAuthorObject = sortObjectBy(['name', 'email', 'url'])
+const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
 const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
 
 // See https://docs.npmjs.com/misc/scripts
@@ -69,7 +69,11 @@ const fields = [
   { key: 'repository', over: sortURLObject },
   { key: 'funding', over: sortURLObject },
   { key: 'license', over: sortURLObject },
-  { key: 'author', over: sortAuthorObject },
+  { key: 'author', over: sortPeopleObject },
+  {
+    key: 'contributors',
+    over: onArray(contributors => contributors.map(sortPeopleObject)),
+  },
   { key: 'files', over: uniq },
   { key: 'sideEffects' },
   { key: 'type' },
