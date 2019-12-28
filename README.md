@@ -113,6 +113,7 @@ npx sort-package-json
 - [jest](https://jestjs.io/)
 - [Istanbul](https://istanbul.js.org/)
 - [Mocha](https://mochajs.org/)
+- [node-pre-gyp](https://github.com/mapbox/node-pre-gyp/)
 - [xo](https://github.com/xojs/xo)
 - [prettier](https://prettier.io/)
 
