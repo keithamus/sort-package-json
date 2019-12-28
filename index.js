@@ -13,7 +13,14 @@ const sortObjectBy = comparator => onObject(x => sortObjectKeys(x, comparator))
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
-const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
+const sortDirectories = sortObjectBy([
+  'lib',
+  'bin',
+  'man',
+  'doc',
+  'example',
+  'test',
+])
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
