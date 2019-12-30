@@ -192,7 +192,7 @@ function sortPackageJson(jsonIsh, options = {}) {
           ...sortOrder,
           ...defaultSortOrder,
           ...publicKeys.sort(),
-          ...privateKeys.sort()
+          ...privateKeys.sort(),
         ]
       }
 
