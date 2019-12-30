@@ -373,11 +373,12 @@ testField('directories', [
       [UNKNOWN]: UNKNOWN,
       example: 'example',
       man: 'man',
+      test: 'test',
       doc: 'doc',
       bin: 'bin',
       lib: 'lib',
     },
-    expect: ['lib', 'bin', 'man', 'doc', 'example', UNKNOWN],
+    expect: ['lib', 'bin', 'man', 'doc', 'example', 'test', UNKNOWN],
   },
 ])
 
