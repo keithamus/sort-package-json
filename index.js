@@ -6,6 +6,7 @@ const globby = require('globby')
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
+const sortArray = onArray(array => [...array].sort())
 const isPlainObject = x =>
   x && Object.prototype.toString.call(x) === '[object Object]'
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
@@ -13,7 +14,14 @@ const sortObjectBy = comparator => onObject(x => sortObjectKeys(x, comparator))
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
-const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
+const sortDirectories = sortObjectBy([
+  'lib',
+  'bin',
+  'man',
+  'doc',
+  'example',
+  'test',
+])
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -130,8 +138,8 @@ const fields = [
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
   { key: 'peerDependencies', over: sortObject },
-  { key: 'bundledDependencies', over: sortObject },
-  { key: 'bundleDependencies', over: sortObject },
+  { key: 'bundledDependencies', over: sortArray },
+  { key: 'bundleDependencies', over: sortArray },
   { key: 'optionalDependencies', over: sortObject },
   { key: 'flat' },
   { key: 'resolutions', over: sortObject },
@@ -162,6 +170,15 @@ function editStringJSON(json, over) {
   return over(json)
 }
 
+const isPrivateKey = key => key[0] === '_'
+const partition = (array, predicate) =>
+  array.reduce(
+    (result, value) => {
+      result[predicate(value) ? 0 : 1].push(value)
+      return result
+    },
+    [[], []],
+  )
 function sortPackageJson(jsonIsh, options = {}) {
   let sortOrder = defaultSortOrder
 
@@ -176,6 +193,14 @@ function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
     onObject(json => {
+      let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
+
+      if (Array.isArray(sortOrder)) {
+        const keys = Object.keys(json)
+        const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
+        sortOrder = [...sortOrder, ...publicKeys.sort(), ...privateKeys.sort()]
+      }
+
       const newJson = sortObjectKeys(json, sortOrder)
 
       for (const { key, over } of fields) {

@@ -169,6 +169,22 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
   )
 })
 
+// fields with '_' prefix should alway at bottom
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson({
+      _foo: '_foo',
+      foo: 'foo',
+      version: '1.0.0',
+      name: 'sort-package-json',
+      bar: 'bar',
+      _id: 'sort-package-json@1.0.0',
+      _bar: '_bar',
+    }),
+  ),
+  ['name', 'version', 'bar', 'foo', '_bar', '_foo', '_id'],
+)
+
 // fields tests
 
 // fields sort as object
@@ -393,11 +409,12 @@ testField('directories', [
       [UNKNOWN]: UNKNOWN,
       example: 'example',
       man: 'man',
+      test: 'test',
       doc: 'doc',
       bin: 'bin',
       lib: 'lib',
     },
-    expect: ['lib', 'bin', 'man', 'doc', 'example', UNKNOWN],
+    expect: ['lib', 'bin', 'man', 'doc', 'example', 'test', UNKNOWN],
   },
 ])
 
@@ -476,17 +493,39 @@ for (const field of [
   'dependencies',
   'devDependencies',
   'peerDependencies',
-  'bundledDependencies',
-  'bundleDependencies',
   'optionalDependencies',
 ]) {
   testField(field, [
     {
       value: {
-        'sort-object-keys': '^1.1.2',
-        glob: '^7.1.6',
+        z: '2.0.0',
+        a: '1.0.0',
       },
-      expect: ['glob', 'sort-object-keys'],
+      expect: ['a', 'z'],
+    },
+    {
+      value: ['z', 'a'],
+      expect: ['z', 'a'],
+      message: `Should not sort array type of ${field} field.`,
+    },
+  ])
+}
+
+// bundledDependencies
+for (const field of ['bundledDependencies', 'bundleDependencies']) {
+  testField(field, [
+    {
+      value: ['z', 'a'],
+      expect: ['a', 'z'],
+    },
+    // should ignore object
+    {
+      value: {
+        z: '2.0.0',
+        a: '1.0.0',
+      },
+      expect: ['z', 'a'],
+      message: `Should not sort object type of ${field} field.`,
     },
   ])
 }
