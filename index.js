@@ -151,7 +151,7 @@ const fields = [
   { key: 'publishConfig', over: sortObject },
 ]
 
-const sortOrder = fields.map(({ key }) => key)
+const defaultSortOrder = fields.map(({ key }) => key)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -170,11 +170,28 @@ function editStringJSON(json, over) {
   return over(json)
 }
 
+const isPrivateKey = key => key[0] === '_'
+const partition = (array, predicate) =>
+  array.reduce(
+    (result, value) => {
+      result[predicate(value) ? 0 : 1].push(value)
+      return result
+    },
+    [[], []],
+  )
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
     onObject(json => {
-      const newJson = sortObjectKeys(json, options.sortOrder || sortOrder)
+      let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
+
+      if (Array.isArray(sortOrder)) {
+        const keys = Object.keys(json)
+        const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
+        sortOrder = [...sortOrder, ...publicKeys.sort(), ...privateKeys.sort()]
+      }
+
+      const newJson = sortObjectKeys(json, sortOrder)
 
       for (const { key, over } of fields) {
         if (over && newJson[key]) newJson[key] = over(newJson[key])
@@ -187,7 +204,7 @@ function sortPackageJson(jsonIsh, options = {}) {
 
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
-module.exports.sortOrder = sortOrder
+module.exports.sortOrder = defaultSortOrder
 
 if (require.main === module) {
   const fs = require('fs')
