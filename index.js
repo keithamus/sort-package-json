@@ -188,7 +188,12 @@ function sortPackageJson(jsonIsh, options = {}) {
       if (Array.isArray(sortOrder)) {
         const keys = Object.keys(json)
         const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
-        sortOrder = [...sortOrder, ...defaultSortOrder, ...publicKeys.sort(), ...privateKeys.sort()]
+        sortOrder = [
+          ...sortOrder,
+          ...defaultSortOrder,
+          ...publicKeys.sort(),
+          ...privateKeys.sort()
+        ]
       }
 
       const newJson = sortObjectKeys(json, sortOrder)
