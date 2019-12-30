@@ -180,16 +180,6 @@ const partition = (array, predicate) =>
     [[], []],
   )
 function sortPackageJson(jsonIsh, options = {}) {
-  let sortOrder = defaultSortOrder
-
-  if (options.sortOrder) {
-    if (Array.isArray(options.sortOrder)) {
-      sortOrder = [...options.sortOrder, ...defaultSortOrder]
-    } else {
-      sortOrder = options.sortOrder
-    }
-  }
-
   return editStringJSON(
     jsonIsh,
     onObject(json => {
