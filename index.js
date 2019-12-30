@@ -3,6 +3,7 @@ const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
 const globby = require('globby')
+const gitHooks = require('git-hooks-list')
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
@@ -22,6 +23,9 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
+const sortProperty = (property, over) => object =>
+  Object.assign(object, { [property]: over(object[property]) })
+const sortGitHooks = sortObjectBy(gitHooks)
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -117,7 +121,7 @@ const fields = [
   },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
-  { key: 'husky' },
+  { key: 'husky', over: sortProperty('hooks', sortGitHooks) },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
   { key: 'lint-staged', over: sortObject },
