@@ -6,6 +6,7 @@ const globby = require('globby')
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
+const sortArray = onArray(array => [...array].sort())
 const isPlainObject = x =>
   x && Object.prototype.toString.call(x) === '[object Object]'
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
@@ -130,8 +131,8 @@ const fields = [
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
   { key: 'peerDependencies', over: sortObject },
-  { key: 'bundledDependencies', over: sortObject },
-  { key: 'bundleDependencies', over: sortObject },
+  { key: 'bundledDependencies', over: sortArray },
+  { key: 'bundleDependencies', over: sortArray },
   { key: 'optionalDependencies', over: sortObject },
   { key: 'flat' },
   { key: 'resolutions', over: sortObject },

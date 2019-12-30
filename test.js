@@ -456,17 +456,39 @@ for (const field of [
   'dependencies',
   'devDependencies',
   'peerDependencies',
-  'bundledDependencies',
-  'bundleDependencies',
   'optionalDependencies',
 ]) {
   testField(field, [
     {
       value: {
-        'sort-object-keys': '^1.1.2',
-        glob: '^7.1.6',
+        z: '2.0.0',
+        a: '1.0.0',
       },
-      expect: ['glob', 'sort-object-keys'],
+      expect: ['a', 'z'],
+    },
+    {
+      value: ['z', 'a'],
+      expect: ['z', 'a'],
+      message: `Should not sort array type of ${field} field.`,
+    },
+  ])
+}
+
+// bundledDependencies
+for (const field of ['bundledDependencies', 'bundleDependencies']) {
+  testField(field, [
+    {
+      value: ['z', 'a'],
+      expect: ['a', 'z'],
+    },
+    // should ignore object
+    {
+      value: {
+        z: '2.0.0',
+        a: '1.0.0',
+      },
+      expect: ['z', 'a'],
+      message: `Should not sort object type of ${field} field.`,
     },
   ])
 }
