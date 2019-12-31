@@ -6,7 +6,7 @@ const { execFile } = require('child_process')
 
 const UNKNOWN = 'UNKNOWN_KEY_OR_VALUE'
 function testField(name, tests, options) {
-  for (const { value, expect, message } of tests) {
+  for (const { value, expect, message, property } of tests) {
     const packageJson = {
       [name]: value,
     }
@@ -28,12 +28,10 @@ ${output}
 Message:
 ${message || defaultMessage}
 `
+    const object = property ? sorted[name][property] : sorted[name]
+    const actual = Array.isArray(value) ? object : Object.keys(object)
 
-    if (Array.isArray(value)) {
-      assert.deepStrictEqual(sorted[name], expect, detail)
-    } else if (value && typeof value === 'object') {
-      assert.deepStrictEqual(Object.keys(sorted[name]), expect, detail)
-    }
+    assert.deepStrictEqual(actual, expect, detail)
   }
 }
 
@@ -94,6 +92,26 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     ['z', 'a', 'name'],
   )
 
+  // defaultSortOrder still applied, when using custom sortOrder
+  assert.deepStrictEqual(
+    Object.keys(
+      sortPackageJson(
+        {
+          b: 'b',
+          a: 'a',
+          z: 'z',
+          version: '1.0.0',
+          name: 'foo',
+          private: true,
+        },
+        {
+          sortOrder: ['z', 'private'],
+        },
+      ),
+    ),
+    ['z', 'private', 'name', 'version', 'a', 'b'],
+  )
+
   // Custom sort order should not effect field sorting
   assert.deepStrictEqual(
     Object.keys(
@@ -148,6 +166,22 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
     'should not sort object that is not plain object',
   )
 })
+
+// fields with '_' prefix should alway at bottom
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson({
+      _foo: '_foo',
+      foo: 'foo',
+      version: '1.0.0',
+      name: 'sort-package-json',
+      bar: 'bar',
+      _id: 'sort-package-json@1.0.0',
+      _bar: '_bar',
+    }),
+  ),
+  ['name', 'version', 'bar', 'foo', '_bar', '_foo', '_id'],
+)
 
 // fields tests
 
@@ -216,7 +250,6 @@ for (const field of [
   'assets',
   'man',
   'workspaces',
-  'husky',
   'pre-commit',
   'browserslist',
   'eslintIgnore',
@@ -241,6 +274,20 @@ for (const field of [
     },
   ])
 }
+
+testField('husky', [
+  {
+    property: 'hooks',
+    value: {
+      hooks: {
+        'commit-msg': '',
+        [UNKNOWN]: UNKNOWN,
+        'pre-commit': '',
+      },
+    },
+    expect: ['pre-commit', 'commit-msg', UNKNOWN],
+  },
+])
 
 testField('binary', [
   {
@@ -373,11 +420,12 @@ testField('directories', [
       [UNKNOWN]: UNKNOWN,
       example: 'example',
       man: 'man',
+      test: 'test',
       doc: 'doc',
       bin: 'bin',
       lib: 'lib',
     },
-    expect: ['lib', 'bin', 'man', 'doc', 'example', UNKNOWN],
+    expect: ['lib', 'bin', 'man', 'doc', 'example', 'test', UNKNOWN],
   },
 ])
 
@@ -456,17 +504,39 @@ for (const field of [
   'dependencies',
   'devDependencies',
   'peerDependencies',
-  'bundledDependencies',
-  'bundleDependencies',
   'optionalDependencies',
 ]) {
   testField(field, [
     {
       value: {
-        'sort-object-keys': '^1.1.2',
-        glob: '^7.1.6',
+        z: '2.0.0',
+        a: '1.0.0',
       },
-      expect: ['glob', 'sort-object-keys'],
+      expect: ['a', 'z'],
+    },
+    {
+      value: ['z', 'a'],
+      expect: ['z', 'a'],
+      message: `Should not sort array type of ${field} field.`,
+    },
+  ])
+}
+
+// bundledDependencies
+for (const field of ['bundledDependencies', 'bundleDependencies']) {
+  testField(field, [
+    {
+      value: ['z', 'a'],
+      expect: ['a', 'z'],
+    },
+    // should ignore object
+    {
+      value: {
+        z: '2.0.0',
+        a: '1.0.0',
+      },
+      expect: ['z', 'a'],
+      message: `Should not sort object type of ${field} field.`,
     },
   ])
 }

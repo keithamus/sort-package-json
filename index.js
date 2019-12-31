@@ -3,9 +3,11 @@ const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
 const globby = require('globby')
+const gitHooks = require('git-hooks-list')
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
+const sortArray = onArray(array => [...array].sort())
 const isPlainObject = x =>
   x && Object.prototype.toString.call(x) === '[object Object]'
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
@@ -13,7 +15,17 @@ const sortObjectBy = comparator => onObject(x => sortObjectKeys(x, comparator))
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
-const sortDirectories = sortObjectBy(['lib', 'bin', 'man', 'doc', 'example'])
+const sortDirectories = sortObjectBy([
+  'lib',
+  'bin',
+  'man',
+  'doc',
+  'example',
+  'test',
+])
+const sortProperty = (property, over) => object =>
+  Object.assign(object, { [property]: over(object[property]) })
+const sortGitHooks = sortObjectBy(gitHooks)
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -109,7 +121,7 @@ const fields = [
   },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
-  { key: 'husky' },
+  { key: 'husky', over: sortProperty('hooks', sortGitHooks) },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
   { key: 'lint-staged', over: sortObject },
@@ -130,8 +142,8 @@ const fields = [
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
   { key: 'peerDependencies', over: sortObject },
-  { key: 'bundledDependencies', over: sortObject },
-  { key: 'bundleDependencies', over: sortObject },
+  { key: 'bundledDependencies', over: sortArray },
+  { key: 'bundleDependencies', over: sortArray },
   { key: 'optionalDependencies', over: sortObject },
   { key: 'flat' },
   { key: 'resolutions', over: sortObject },
@@ -143,7 +155,7 @@ const fields = [
   { key: 'publishConfig', over: sortObject },
 ]
 
-const sortOrder = fields.map(({ key }) => key)
+const defaultSortOrder = fields.map(({ key }) => key)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -162,11 +174,33 @@ function editStringJSON(json, over) {
   return over(json)
 }
 
+const isPrivateKey = key => key[0] === '_'
+const partition = (array, predicate) =>
+  array.reduce(
+    (result, value) => {
+      result[predicate(value) ? 0 : 1].push(value)
+      return result
+    },
+    [[], []],
+  )
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
     onObject(json => {
-      const newJson = sortObjectKeys(json, options.sortOrder || sortOrder)
+      let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
+
+      if (Array.isArray(sortOrder)) {
+        const keys = Object.keys(json)
+        const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
+        sortOrder = [
+          ...sortOrder,
+          ...defaultSortOrder,
+          ...publicKeys.sort(),
+          ...privateKeys.sort(),
+        ]
+      }
+
+      const newJson = sortObjectKeys(json, sortOrder)
 
       for (const { key, over } of fields) {
         if (over && newJson[key]) newJson[key] = over(newJson[key])
@@ -179,7 +213,7 @@ function sortPackageJson(jsonIsh, options = {}) {
 
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
-module.exports.sortOrder = sortOrder
+module.exports.sortOrder = defaultSortOrder
 
 if (require.main === module) {
   const fs = require('fs')
