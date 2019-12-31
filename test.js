@@ -155,7 +155,6 @@ fs.readFile('./package.json', 'utf8', (error, contents) => {
 for (const field of [
   'exports',
   'bin',
-  'man',
   'commitlint',
   'lint-staged',
   'config',
@@ -172,8 +171,6 @@ for (const field of [
   'resolutions',
   'engines',
   'engineStrict',
-  'os',
-  'cpu',
   'preferGlobal',
   'publishConfig',
 ]) {
@@ -217,6 +214,7 @@ for (const field of [
   'example',
   'examplestyle',
   'assets',
+  'man',
   'workspaces',
   'husky',
   'pre-commit',
@@ -224,6 +222,8 @@ for (const field of [
   'eslintIgnore',
   'stylelint',
   'flat',
+  'os',
+  'cpu',
 ]) {
   testField(field, [
     {

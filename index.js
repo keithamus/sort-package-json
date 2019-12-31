@@ -93,7 +93,7 @@ const fields = [
   { key: 'examplestyle' },
   { key: 'assets' },
   { key: 'bin', over: sortObject },
-  { key: 'man', over: sortObject },
+  { key: 'man' },
   { key: 'directories', over: sortDirectories },
   { key: 'workspaces' },
   // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
@@ -137,8 +137,8 @@ const fields = [
   { key: 'resolutions', over: sortObject },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
-  { key: 'os', over: sortObject },
-  { key: 'cpu', over: sortObject },
+  { key: 'os' },
+  { key: 'cpu' },
   { key: 'preferGlobal', over: sortObject },
   { key: 'publishConfig', over: sortObject },
 ]
