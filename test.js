@@ -203,7 +203,6 @@ for (const field of [
   'jest',
   'mocha',
   'nyc',
-  'resolutions',
   'engines',
   'engineStrict',
   'os',
@@ -499,8 +498,9 @@ testField('betterScripts', [
   },
 ])
 
-// dependencies
+// `resolutions` and `dependencies`
 for (const field of [
+  'resolutions',
   'dependencies',
   'devDependencies',
   'peerDependencies',
