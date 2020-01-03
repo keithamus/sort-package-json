@@ -26,6 +26,20 @@ const sortDirectories = sortObjectBy([
 const sortProperty = (property, over) => object =>
   Object.assign(object, { [property]: over(object[property]) })
 const sortGitHooks = sortObjectBy(gitHooks)
+const sortESLintConfig = sortObjectBy([
+  'env',
+  'parser',
+  'parserOptions',
+  'settings',
+  'plugins',
+  'extends',
+  'rules',
+  'overrides',
+  'globals',
+  'processor',
+  'noInlineConfig',
+  'reportUnusedDisableDirectives',
+])
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -132,7 +146,7 @@ const fields = [
   { key: 'browserslist' },
   { key: 'xo', over: sortObject },
   { key: 'prettier', over: sortObject },
-  { key: 'eslintConfig', over: sortObject },
+  { key: 'eslintConfig', over: sortESLintConfig },
   { key: 'eslintIgnore' },
   { key: 'stylelint' },
   { key: 'ava', over: sortObject },
