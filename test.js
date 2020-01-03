@@ -197,7 +197,6 @@ for (const field of [
   'babel',
   'xo',
   'prettier',
-  'eslintConfig',
   'ava',
   'jest',
   'mocha',
@@ -285,6 +284,19 @@ testField('husky', [
       },
     },
     expect: ['pre-commit', 'commit-msg', UNKNOWN],
+  },
+])
+
+testField('eslintConfig', [
+  {
+    value: {
+      overrides: [],
+      extends: ['standard', 'plugin:prettier/recommended', 'prettier/standard'],
+      [UNKNOWN]: UNKNOWN,
+      rules: {},
+      plugins: ['prettier'],
+    },
+    expect: ['plugins', 'extends', 'rules', 'overrides', UNKNOWN],
   },
 ])
 
