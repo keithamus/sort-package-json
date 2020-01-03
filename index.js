@@ -26,6 +26,7 @@ const sortDirectories = sortObjectBy([
 const sortProperty = (property, over) => object =>
   Object.assign(object, { [property]: over(object[property]) })
 const sortGitHooks = sortObjectBy(gitHooks)
+const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -68,10 +69,17 @@ const sortScripts = scripts => {
   return sortObjectBy(order)(scripts)
 }
 
+// fields marked `vscode` is for `Visual Studio Code extension manifest` only
+// Supported fields:
+// publisher, displayName, categories, galleryBanner, preview, contributes,
+// activationEvents, badges, markdown, qna, extensionPack,
+// extensionDependencies, icon
+
 // field.key{string}: field name
 // field.over{function}: sort field subKey
 const fields = [
   { key: 'name' },
+  /* vscode */ { key: 'displayName' },
   { key: 'version' },
   { key: 'private' },
   { key: 'description' },
@@ -86,6 +94,7 @@ const fields = [
     key: 'contributors',
     over: onArray(contributors => contributors.map(sortPeopleObject)),
   },
+  /* vscode */ { key: 'publisher' },
   { key: 'files', over: uniq },
   { key: 'sideEffects' },
   { key: 'type' },
@@ -145,6 +154,8 @@ const fields = [
   { key: 'bundledDependencies', over: sortArray },
   { key: 'bundleDependencies', over: sortArray },
   { key: 'optionalDependencies', over: sortObject },
+  /* vscode */ { key: 'extensionPack', over: sortArray },
+  /* vscode */ { key: 'extensionDependencies', over: sortArray },
   { key: 'flat' },
   { key: 'resolutions', over: sortObject },
   { key: 'engines', over: sortObject },
@@ -153,6 +164,18 @@ const fields = [
   { key: 'cpu', over: sortObject },
   { key: 'preferGlobal', over: sortObject },
   { key: 'publishConfig', over: sortObject },
+  /* vscode */ { key: 'galleryBanner', over: sortObject },
+  /* vscode */ { key: 'categories', over: uniq },
+  /* vscode */ { key: 'preview' },
+  /* vscode */ { key: 'contributes', over: sortObject },
+  /* vscode */ { key: 'activationEvents' },
+  /* vscode */ {
+    key: 'badges',
+    over: onArray(badge => badge.map(sortVSCodeBadgeObject)),
+  },
+  /* vscode */ { key: 'markdown' },
+  /* vscode */ { key: 'qna' },
+  /* vscode */ { key: 'icon' },
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
