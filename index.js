@@ -166,15 +166,17 @@ const fields = [
   { key: 'cpu', over: sortObject },
   { key: 'preferGlobal', over: sortObject },
   { key: 'publishConfig', over: sortObject },
-  /* vscode */ { key: 'galleryBanner', over: sortObject },
   /* vscode */ { key: 'preview' },
+  /* vscode */ { key: 'markdown' },
+
+  // not decided
+  /* vscode */ { key: 'galleryBanner', over: sortObject },
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents' },
   /* vscode */ {
     key: 'badges',
     over: onArray(badge => badge.map(sortVSCodeBadgeObject)),
   },
-  /* vscode */ { key: 'markdown' },
   /* vscode */ { key: 'icon' },
 ]
 
