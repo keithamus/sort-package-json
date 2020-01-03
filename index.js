@@ -69,7 +69,7 @@ const sortScripts = scripts => {
   return sortObjectBy(order)(scripts)
 }
 
-// fields marked `vscode` is for `Visual Studio Code extension manifest` only
+// fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // Supported fields:
 // publisher, displayName, categories, galleryBanner, preview, contributes,
 // activationEvents, badges, markdown, qna, extensionPack,
