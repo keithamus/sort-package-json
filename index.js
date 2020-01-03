@@ -89,6 +89,7 @@ const fields = [
   { key: 'bugs', over: sortObjectBy(['url', 'email']) },
   { key: 'repository', over: sortURLObject },
   { key: 'funding', over: sortURLObject },
+  /* vscode */ { key: 'qna' },
   { key: 'license', over: sortURLObject },
   { key: 'author', over: sortPeopleObject },
   {
@@ -174,7 +175,6 @@ const fields = [
     over: onArray(badge => badge.map(sortVSCodeBadgeObject)),
   },
   /* vscode */ { key: 'markdown' },
-  /* vscode */ { key: 'qna' },
   /* vscode */ { key: 'icon' },
 ]
 
