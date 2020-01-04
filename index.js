@@ -26,6 +26,20 @@ const sortDirectories = sortObjectBy([
 const sortProperty = (property, over) => object =>
   Object.assign(object, { [property]: over(object[property]) })
 const sortGitHooks = sortObjectBy(gitHooks)
+const sortESLintConfig = sortObjectBy([
+  'env',
+  'parser',
+  'parserOptions',
+  'settings',
+  'plugins',
+  'extends',
+  'rules',
+  'overrides',
+  'globals',
+  'processor',
+  'noInlineConfig',
+  'reportUnusedDisableDirectives',
+])
 const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 
 // See https://docs.npmjs.com/misc/scripts
@@ -116,7 +130,7 @@ const fields = [
   { key: 'examplestyle' },
   { key: 'assets' },
   { key: 'bin', over: sortObject },
-  { key: 'man', over: sortObject },
+  { key: 'man' },
   { key: 'directories', over: sortDirectories },
   { key: 'workspaces' },
   // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
@@ -143,27 +157,27 @@ const fields = [
   { key: 'browserslist' },
   { key: 'xo', over: sortObject },
   { key: 'prettier', over: sortObject },
-  { key: 'eslintConfig', over: sortObject },
+  { key: 'eslintConfig', over: sortESLintConfig },
   { key: 'eslintIgnore' },
   { key: 'stylelint' },
   { key: 'ava', over: sortObject },
   { key: 'jest', over: sortObject },
   { key: 'mocha', over: sortObject },
   { key: 'nyc', over: sortObject },
+  { key: 'resolutions', over: sortObject },
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
   { key: 'peerDependencies', over: sortObject },
+  { key: 'optionalDependencies', over: sortObject },
   { key: 'bundledDependencies', over: sortArray },
   { key: 'bundleDependencies', over: sortArray },
-  { key: 'optionalDependencies', over: sortObject },
   /* vscode */ { key: 'extensionPack', over: sortArray },
   /* vscode */ { key: 'extensionDependencies', over: sortArray },
   { key: 'flat' },
-  { key: 'resolutions', over: sortObject },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
-  { key: 'os', over: sortObject },
-  { key: 'cpu', over: sortObject },
+  { key: 'os' },
+  { key: 'cpu' },
   { key: 'preferGlobal', over: sortObject },
   { key: 'publishConfig', over: sortObject },
   /* vscode */ { key: 'preview' },

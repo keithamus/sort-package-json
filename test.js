@@ -189,7 +189,6 @@ assert.deepStrictEqual(
 for (const field of [
   'exports',
   'bin',
-  'man',
   'commitlint',
   'lint-staged',
   'config',
@@ -198,16 +197,12 @@ for (const field of [
   'babel',
   'xo',
   'prettier',
-  'eslintConfig',
   'ava',
   'jest',
   'mocha',
   'nyc',
-  'resolutions',
   'engines',
   'engineStrict',
-  'os',
-  'cpu',
   'preferGlobal',
   'publishConfig',
 ]) {
@@ -251,12 +246,15 @@ for (const field of [
   'example',
   'examplestyle',
   'assets',
+  'man',
   'workspaces',
   'pre-commit',
   'browserslist',
   'eslintIgnore',
   'stylelint',
   'flat',
+  'os',
+  'cpu',
 ]) {
   testField(field, [
     {
@@ -286,6 +284,19 @@ testField('husky', [
       },
     },
     expect: ['pre-commit', 'commit-msg', UNKNOWN],
+  },
+])
+
+testField('eslintConfig', [
+  {
+    value: {
+      overrides: [],
+      extends: ['standard', 'plugin:prettier/recommended', 'prettier/standard'],
+      [UNKNOWN]: UNKNOWN,
+      rules: {},
+      plugins: ['prettier'],
+    },
+    expect: ['plugins', 'extends', 'rules', 'overrides', UNKNOWN],
   },
 ])
 
@@ -499,8 +510,9 @@ testField('betterScripts', [
   },
 ])
 
-// dependencies
+// `resolutions` and `dependencies`
 for (const field of [
+  'resolutions',
   'dependencies',
   'devDependencies',
   'peerDependencies',
