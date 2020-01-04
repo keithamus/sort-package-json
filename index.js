@@ -84,6 +84,7 @@ const sortScripts = scripts => {
 }
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
+// https://code.visualstudio.com/api/references/extension-manifest
 // Supported fields:
 // publisher, displayName, categories, galleryBanner, preview, contributes,
 // activationEvents, badges, markdown, qna, extensionPack,
@@ -103,8 +104,8 @@ const fields = [
   { key: 'bugs', over: sortObjectBy(['url', 'email']) },
   { key: 'repository', over: sortURLObject },
   { key: 'funding', over: sortURLObject },
-  /* vscode */ { key: 'qna' },
   { key: 'license', over: sortURLObject },
+  /* vscode */ { key: 'qna' },
   { key: 'author', over: sortPeopleObject },
   {
     key: 'contributors',
@@ -146,6 +147,8 @@ const fields = [
   },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
+  /* vscode */ { key: 'contributes', over: sortObject },
+  /* vscode */ { key: 'activationEvents', over: uniq },
   { key: 'husky', over: sortProperty('hooks', sortGitHooks) },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
@@ -180,18 +183,14 @@ const fields = [
   { key: 'cpu' },
   { key: 'preferGlobal', over: sortObject },
   { key: 'publishConfig', over: sortObject },
-  /* vscode */ { key: 'preview' },
-  /* vscode */ { key: 'markdown' },
-
-  // not decided
-  /* vscode */ { key: 'galleryBanner', over: sortObject },
-  /* vscode */ { key: 'contributes', over: sortObject },
-  /* vscode */ { key: 'activationEvents' },
+  /* vscode */ { key: 'icon' },
   /* vscode */ {
     key: 'badges',
     over: onArray(badge => badge.map(sortVSCodeBadgeObject)),
   },
-  /* vscode */ { key: 'icon' },
+  /* vscode */ { key: 'galleryBanner', over: sortObject },
+  /* vscode */ { key: 'preview' },
+  /* vscode */ { key: 'markdown' },
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
