@@ -194,7 +194,6 @@ for (const data of [
   new Date(),
   function() {},
   () => {},
-  NaN,
   Symbol.iterator,
   new Set(),
   new Map(),
