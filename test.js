@@ -183,6 +183,33 @@ assert.deepStrictEqual(
   ['name', 'version', 'bar', 'foo', '_bar', '_foo', '_id'],
 )
 
+// Should not crash on any type of data
+for (const data of [
+  ['name'],
+  'string',
+  null,
+  1,
+  true,
+  undefined,
+  new Date(),
+  function() {},
+  () => {},
+  NaN,
+  Symbol.iterator,
+  new Set(),
+  new Map(),
+  new RegExp(),
+  new Error(),
+  new Uint8Array(),
+  Promise.resolve(),
+]) {
+  assert.strictEqual(sortPackageJson(data), data)
+  const string = JSON.stringify(data)
+  assert.strictEqual(sortPackageJson(string), string)
+}
+const brokenJSONString = '}{'
+assert.strictEqual(sortPackageJson(brokenJSONString), brokenJSONString)
+
 // fields tests
 
 // fields sort as object
