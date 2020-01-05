@@ -35,137 +35,132 @@ ${message || defaultMessage}
   }
 }
 
-fs.readFile('./package.json', 'utf8', (error, contents) => {
-  if (error) {
-    console.error(error.stack || error)
-    process.exit(1)
-  }
+let contents = fs.readFileSync('./package.json', 'utf8')
 
-  // Enforce LF line-endings. Windows git users often set core.autocrlf
-  // to true, so the file may have CRLF line endings.
-  contents = newline.set(contents, 'LF')
+// Enforce LF line-endings. Windows git users often set core.autocrlf
+// to true, so the file may have CRLF line endings.
+contents = newline.set(contents, 'LF')
 
-  const parsed = JSON.parse(contents)
-  assert.deepStrictEqual(
-    typeof sortPackageJson(parsed),
-    'object',
-    'Accepts object, returns object',
-  )
-  assert.strictEqual(
-    `${JSON.stringify(sortPackageJson(parsed), null, 2)}\n`,
-    contents,
-    'Returned object is sorted',
-  )
-  assert.strictEqual(
-    sortPackageJson(contents),
-    contents,
-    'Accepts string, returns sorted string',
-  )
+const parsed = JSON.parse(contents)
+assert.deepStrictEqual(
+  typeof sortPackageJson(parsed),
+  'object',
+  'Accepts object, returns object',
+)
+assert.strictEqual(
+  `${JSON.stringify(sortPackageJson(parsed), null, 2)}\n`,
+  contents,
+  'Returned object is sorted',
+)
+assert.strictEqual(
+  sortPackageJson(contents),
+  contents,
+  'Accepts string, returns sorted string',
+)
 
-  assert.strictEqual(
-    JSON.stringify(
-      sortPackageJson({
-        dependencies: {},
+assert.strictEqual(
+  JSON.stringify(
+    sortPackageJson({
+      dependencies: {},
+      version: '1.0.0',
+      keywords: ['thing'],
+      name: 'foo',
+      private: true,
+    }),
+  ),
+  '{"name":"foo","version":"1.0.0","private":true,"keywords":["thing"],"dependencies":{}}',
+)
+
+// Custom sort order
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson(
+      {
+        name: 'my-package',
+        a: 'a',
+        z: 'z',
+      },
+      {
+        sortOrder: ['z', 'a', 'name'],
+      },
+    ),
+  ),
+  ['z', 'a', 'name'],
+)
+
+// defaultSortOrder still applied, when using custom sortOrder
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson(
+      {
+        b: 'b',
+        a: 'a',
+        z: 'z',
         version: '1.0.0',
-        keywords: ['thing'],
         name: 'foo',
         private: true,
-      }),
+      },
+      {
+        sortOrder: ['z', 'private'],
+      },
     ),
-    '{"name":"foo","version":"1.0.0","private":true,"keywords":["thing"],"dependencies":{}}',
-  )
+  ),
+  ['z', 'private', 'name', 'version', 'a', 'b'],
+)
 
-  // Custom sort order
-  assert.deepStrictEqual(
-    Object.keys(
-      sortPackageJson(
-        {
+// Custom sort order should not effect field sorting
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson(
+      {
+        scripts: {
           name: 'my-package',
           a: 'a',
           z: 'z',
         },
-        {
-          sortOrder: ['z', 'a', 'name'],
-        },
-      ),
-    ),
-    ['z', 'a', 'name'],
-  )
+      },
+      {
+        sortOrder: ['z', 'a', 'name'],
+      },
+    ).scripts,
+  ),
+  ['a', 'name', 'z'],
+)
 
-  // defaultSortOrder still applied, when using custom sortOrder
-  assert.deepStrictEqual(
-    Object.keys(
-      sortPackageJson(
-        {
-          b: 'b',
-          a: 'a',
-          z: 'z',
-          version: '1.0.0',
-          name: 'foo',
-          private: true,
-        },
-        {
-          sortOrder: ['z', 'private'],
-        },
-      ),
-    ),
-    ['z', 'private', 'name', 'version', 'a', 'b'],
-  )
+assert.strictEqual(sortPackageJson('{}'), '{}')
+assert.strictEqual(sortPackageJson('{}\n'), '{}\n')
+assert.strictEqual(sortPackageJson('{}\r\n'), '{}\r\n')
+assert.strictEqual(sortPackageJson('{"foo":"bar"}\n'), '{"foo":"bar"}\n')
 
-  // Custom sort order should not effect field sorting
-  assert.deepStrictEqual(
-    Object.keys(
-      sortPackageJson(
-        {
-          scripts: {
-            name: 'my-package',
-            a: 'a',
-            z: 'z',
-          },
-        },
-        {
-          sortOrder: ['z', 'a', 'name'],
-        },
-      ).scripts,
-    ),
-    ['a', 'name', 'z'],
-  )
+assert.strictEqual(
+  sortPackageJson('{\n  "foo": "bar"\n}\n'),
+  '{\n  "foo": "bar"\n}\n',
+)
+assert.strictEqual(
+  sortPackageJson('{\n     "name": "foo",\n "version": "1.0.0"\n}'),
+  '{\n     "name": "foo",\n     "version": "1.0.0"\n}',
+)
+assert.strictEqual(
+  sortPackageJson('{\r\n  "foo": "bar"\r\n}\r\n'),
+  '{\r\n  "foo": "bar"\r\n}\r\n',
+)
+assert.strictEqual(
+  sortPackageJson('{\r\n  "foo": "bar"\n}\n'),
+  '{\n  "foo": "bar"\n}\n',
+)
 
-  assert.strictEqual(sortPackageJson('{}'), '{}')
-  assert.strictEqual(sortPackageJson('{}\n'), '{}\n')
-  assert.strictEqual(sortPackageJson('{}\r\n'), '{}\r\n')
-  assert.strictEqual(sortPackageJson('{"foo":"bar"}\n'), '{"foo":"bar"}\n')
-
-  assert.strictEqual(
-    sortPackageJson('{\n  "foo": "bar"\n}\n'),
-    '{\n  "foo": "bar"\n}\n',
-  )
-  assert.strictEqual(
-    sortPackageJson('{\n     "name": "foo",\n "version": "1.0.0"\n}'),
-    '{\n     "name": "foo",\n     "version": "1.0.0"\n}',
-  )
-  assert.strictEqual(
-    sortPackageJson('{\r\n  "foo": "bar"\r\n}\r\n'),
-    '{\r\n  "foo": "bar"\r\n}\r\n',
-  )
-  assert.strictEqual(
-    sortPackageJson('{\r\n  "foo": "bar"\n}\n'),
-    '{\n  "foo": "bar"\n}\n',
-  )
-
-  const array = ['foo', 'bar']
-  const string = JSON.stringify(array)
-  assert.strictEqual(
-    sortPackageJson(array),
-    array,
-    'should not sort object that is not plain object',
-  )
-  assert.strictEqual(
-    sortPackageJson(string),
-    string,
-    'should not sort object that is not plain object',
-  )
-})
+const array = ['foo', 'bar']
+const string = JSON.stringify(array)
+assert.strictEqual(
+  sortPackageJson(array),
+  array,
+  'should not sort object that is not plain object',
+)
+assert.strictEqual(
+  sortPackageJson(string),
+  string,
+  'should not sort object that is not plain object',
+)
 
 // fields with '_' prefix should alway at bottom
 assert.deepStrictEqual(
