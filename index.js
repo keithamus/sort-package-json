@@ -5,7 +5,7 @@ const detectNewline = require('detect-newline').graceful
 const globby = require('globby')
 const gitHooks = require('git-hooks-list')
 
-const pipe = (...fns) => x => fns.reduce((result, fn) => fn(result), x)
+const pipe = fns => x => fns.reduce((result, fn) => fn(result), x)
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onArray(array => [...array].sort())
@@ -49,7 +49,7 @@ const sortPrettierConfig = onObject(config => {
 
   if (Array.isArray(config.overrides)) {
     config.overrides = config.overrides.map(
-      pipe(sortObject, sortProperty('options', sortPrettierConfig)),
+      pipe([sortObject, sortProperty('options', sortPrettierConfig)]),
     )
   }
 
