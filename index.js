@@ -46,19 +46,25 @@ const sortESLintConfig = sortObjectBy([
   'reportUnusedDisableDirectives',
 ])
 
-const sortPrettierConfig = onObject(config => {
-  const keys = Object.keys(config).filter(key => key !== 'overrides')
-
-  config = sortObjectKeys(config, [...keys.sort(), 'overrides'])
-
-  if (Array.isArray(config.overrides)) {
-    config.overrides = config.overrides.map(
-      pipe([sortObject, overProperty('options', sortPrettierConfig)]),
-    )
-  }
-
-  return config
-})
+const sortPrettierConfigKeys = onObject(config =>
+  sortObjectKeys(config, [
+    ...Object.keys(config)
+      .filter(key => key !== 'overrides')
+      .sort(),
+    'overrides',
+  ]),
+)
+const sortPrettierConfigOptions = pipe([
+  sortObject,
+  overProperty('options', sortObject),
+])
+const sortPrettierConfigOverrides = onArray(overrides =>
+  overrides.map(sortPrettierConfigOptions),
+)
+const sortPrettierConfig = pipe([
+  sortPrettierConfigKeys,
+  onObject(overProperty('overrides', sortPrettierConfigOverrides)),
+])
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
