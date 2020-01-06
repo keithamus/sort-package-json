@@ -4,12 +4,11 @@ const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
 const globby = require('globby')
 const gitHooks = require('git-hooks-list')
+const isPlainObject = require('is-plain-obj')
 
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onArray(array => [...array].sort())
-const isPlainObject = x =>
-  x && Object.prototype.toString.call(x) === '[object Object]'
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
 const sortObjectBy = comparator => onObject(x => sortObjectKeys(x, comparator))
 const sortObject = sortObjectBy()
