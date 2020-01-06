@@ -7,6 +7,7 @@ const gitHooks = require('git-hooks-list')
 
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
+const pipe = fns => x => fns.reduce((result, fn) => fn(result), x)
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onArray(array => [...array].sort())
@@ -174,6 +175,11 @@ const fields = [
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
+const overFields = pipe(
+  fields
+    .filter(({ over }) => over)
+    .map(({ key, over }) => overProperty(key, over)),
+)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -218,13 +224,7 @@ function sortPackageJson(jsonIsh, options = {}) {
         ]
       }
 
-      const newJson = sortObjectKeys(json, sortOrder)
-
-      for (const { key, over } of fields) {
-        if (over && newJson[key]) newJson[key] = over(newJson[key])
-      }
-
-      return newJson
+      return overFields(sortObjectKeys(json, sortOrder))
     }),
   )
 }
