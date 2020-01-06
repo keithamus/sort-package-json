@@ -5,6 +5,7 @@ const detectNewline = require('detect-newline').graceful
 const globby = require('globby')
 const gitHooks = require('git-hooks-list')
 
+const pipe = (...fns) => x => fns.reduce((result, fn) => fn(result), x)
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onArray(array => [...array].sort())
@@ -40,6 +41,20 @@ const sortESLintConfig = sortObjectBy([
   'noInlineConfig',
   'reportUnusedDisableDirectives',
 ])
+
+const sortPrettierConfig = onObject(config => {
+  const keys = Object.keys(config).filter(key => key !== 'overrides')
+
+  config = sortObjectKeys(config, [...keys.sort(), 'overrides'])
+
+  if (Array.isArray(config.overrides)) {
+    config.overrides = config.overrides.map(
+      pipe(sortObject, sortProperty('options', sortPrettierConfig)),
+    )
+  }
+
+  return config
+})
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -145,7 +160,7 @@ const fields = [
   { key: 'babel', over: sortObject },
   { key: 'browserslist' },
   { key: 'xo', over: sortObject },
-  { key: 'prettier', over: sortObject },
+  { key: 'prettier', over: sortPrettierConfig },
   { key: 'eslintConfig', over: sortESLintConfig },
   { key: 'eslintIgnore' },
   { key: 'stylelint' },
