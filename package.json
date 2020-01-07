@@ -67,7 +67,7 @@
     "husky": "^1.1.1",
     "newline": "0.0.3",
     "prettier": "^1.19.1",
-    "semantic-release": "^15.9.17",
+    "semantic-release": "15.14.0",
     "validate-commit-msg": "^2.14.0"
   }
 }
