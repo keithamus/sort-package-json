@@ -184,6 +184,7 @@ assert.deepStrictEqual(
 for (const field of [
   'exports',
   'bin',
+  'contributes',
   'commitlint',
   'lint-staged',
   'config',
@@ -199,6 +200,7 @@ for (const field of [
   'engineStrict',
   'preferGlobal',
   'publishConfig',
+  'galleryBanner',
 ]) {
   testField(field, [
     {
@@ -220,11 +222,15 @@ for (const field of [
 // simple disabled subKey sorting test
 for (const field of [
   'name',
+  'displayName',
   'version',
   'description',
   'sideEffects',
   'files',
+  'categories',
   'keywords',
+  'qna',
+  'publisher',
   'type',
   'main',
   'umd:main',
@@ -242,6 +248,7 @@ for (const field of [
   'assets',
   'man',
   'workspaces',
+  'activationEvents',
   'pre-commit',
   'browserslist',
   'eslintIgnore',
@@ -249,6 +256,9 @@ for (const field of [
   'flat',
   'os',
   'cpu',
+  'icon',
+  'preview',
+  'markdown',
 ]) {
   testField(field, [
     {
@@ -457,6 +467,29 @@ assert.deepStrictEqual(
   ['foo', 'bar', ['foo', 'bar']],
 )
 
+// badges
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson({
+      badges: [
+        {
+          [UNKNOWN]: UNKNOWN,
+          href: 'https://travis-ci.com/keithamus/sort-package-json.svg',
+          url: 'https://travis-ci.com/keithamus/sort-package-json',
+          description: 'sort-package-json build status',
+        },
+      ],
+    }).badges[0],
+  ),
+  ['description', 'url', 'href', UNKNOWN],
+)
+assert.deepStrictEqual(
+  sortPackageJson({
+    badges: ['foo', 'bar', ['foo', 'bar']],
+  }).badges,
+  ['foo', 'bar', ['foo', 'bar']],
+)
+
 testField('directories', [
   {
     value: {
@@ -567,7 +600,12 @@ for (const field of [
 }
 
 // bundledDependencies
-for (const field of ['bundledDependencies', 'bundleDependencies']) {
+for (const field of [
+  'bundledDependencies',
+  'bundleDependencies',
+  'extensionPack',
+  'extensionDependencies',
+]) {
   testField(field, [
     {
       value: ['z', 'a'],

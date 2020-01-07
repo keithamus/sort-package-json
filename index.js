@@ -45,6 +45,7 @@ const sortESLintConfig = sortObjectBy([
   'noInlineConfig',
   'reportUnusedDisableDirectives',
 ])
+const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 
 const sortPrettierConfigKeys = onObject(config =>
   sortObjectKeys(config, [
@@ -107,24 +108,35 @@ const sortScripts = scripts => {
   return sortObjectBy(order)(scripts)
 }
 
+// fields marked `vscode` are for `Visual Studio Code extension manifest` only
+// https://code.visualstudio.com/api/references/extension-manifest
+// Supported fields:
+// publisher, displayName, categories, galleryBanner, preview, contributes,
+// activationEvents, badges, markdown, qna, extensionPack,
+// extensionDependencies, icon
+
 // field.key{string}: field name
 // field.over{function}: sort field subKey
 const fields = [
   { key: 'name' },
+  /* vscode */ { key: 'displayName' },
   { key: 'version' },
   { key: 'private' },
   { key: 'description' },
+  /* vscode */ { key: 'categories', over: uniq },
   { key: 'keywords', over: uniq },
   { key: 'homepage' },
   { key: 'bugs', over: sortObjectBy(['url', 'email']) },
   { key: 'repository', over: sortURLObject },
   { key: 'funding', over: sortURLObject },
   { key: 'license', over: sortURLObject },
+  /* vscode */ { key: 'qna' },
   { key: 'author', over: sortPeopleObject },
   {
     key: 'contributors',
     over: onArray(contributors => contributors.map(sortPeopleObject)),
   },
+  /* vscode */ { key: 'publisher' },
   { key: 'files', over: uniq },
   { key: 'sideEffects' },
   { key: 'type' },
@@ -160,6 +172,8 @@ const fields = [
   },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
+  /* vscode */ { key: 'contributes', over: sortObject },
+  /* vscode */ { key: 'activationEvents', over: uniq },
   { key: 'husky', over: overProperty('hooks', sortGitHooks) },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
@@ -185,6 +199,8 @@ const fields = [
   { key: 'optionalDependencies', over: sortObject },
   { key: 'bundledDependencies', over: sortArray },
   { key: 'bundleDependencies', over: sortArray },
+  /* vscode */ { key: 'extensionPack', over: sortArray },
+  /* vscode */ { key: 'extensionDependencies', over: sortArray },
   { key: 'flat' },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
@@ -192,6 +208,14 @@ const fields = [
   { key: 'cpu' },
   { key: 'preferGlobal', over: sortObject },
   { key: 'publishConfig', over: sortObject },
+  /* vscode */ { key: 'icon' },
+  /* vscode */ {
+    key: 'badges',
+    over: onArray(badge => badge.map(sortVSCodeBadgeObject)),
+  },
+  /* vscode */ { key: 'galleryBanner', over: sortObject },
+  /* vscode */ { key: 'preview' },
+  /* vscode */ { key: 'markdown' },
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
