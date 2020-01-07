@@ -176,9 +176,12 @@ const fields = [
 
 const defaultSortOrder = fields.map(({ key }) => key)
 const overFields = pipe(
-  fields
-    .filter(({ over }) => over)
-    .map(({ key, over }) => overProperty(key, over)),
+  fields.reduce((fns, { key, over }) => {
+    if (over) {
+      fns.push(overProperty(key, over))
+    }
+    return fns
+  }, []),
 )
 
 function editStringJSON(json, over) {
