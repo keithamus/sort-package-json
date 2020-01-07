@@ -46,6 +46,26 @@ const sortESLintConfig = sortObjectBy([
   'reportUnusedDisableDirectives',
 ])
 
+const sortPrettierConfigKeys = onObject(config =>
+  sortObjectKeys(config, [
+    ...Object.keys(config)
+      .filter(key => key !== 'overrides')
+      .sort(),
+    'overrides',
+  ]),
+)
+const sortPrettierConfigOptions = pipe([
+  sortObject,
+  overProperty('options', sortObject),
+])
+const sortPrettierConfigOverrides = onArray(overrides =>
+  overrides.map(sortPrettierConfigOptions),
+)
+const sortPrettierConfig = pipe([
+  sortPrettierConfigKeys,
+  onObject(overProperty('overrides', sortPrettierConfigOverrides)),
+])
+
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
   'install',
@@ -150,7 +170,7 @@ const fields = [
   { key: 'babel', over: sortObject },
   { key: 'browserslist' },
   { key: 'xo', over: sortObject },
-  { key: 'prettier', over: sortObject },
+  { key: 'prettier', over: sortPrettierConfig },
   { key: 'eslintConfig', over: sortESLintConfig },
   { key: 'eslintIgnore' },
   { key: 'stylelint' },
