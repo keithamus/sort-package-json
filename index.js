@@ -5,6 +5,8 @@ const detectNewline = require('detect-newline').graceful
 const globby = require('globby')
 const gitHooks = require('git-hooks-list')
 
+const hasOwnProperty = (object, property) =>
+  Object.prototype.hasOwnProperty.call(object, property)
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onArray(array => [...array].sort())
@@ -23,8 +25,10 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
-const sortProperty = (property, over) => object =>
-  Object.assign(object, { [property]: over(object[property]) })
+const overProperty = (property, over) => object =>
+  hasOwnProperty(object, property)
+    ? Object.assign(object, { [property]: over(object[property]) })
+    : object
 const sortGitHooks = sortObjectBy(gitHooks)
 const sortESLintConfig = sortObjectBy([
   'env',
@@ -149,7 +153,7 @@ const fields = [
   { key: 'betterScripts', over: sortScripts },
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents', over: uniq },
-  { key: 'husky', over: sortProperty('hooks', sortGitHooks) },
+  { key: 'husky', over: overProperty('hooks', sortGitHooks) },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
   { key: 'lint-staged', over: sortObject },
