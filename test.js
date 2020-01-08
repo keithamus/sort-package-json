@@ -608,8 +608,9 @@ for (const field of [
 ]) {
   testField(field, [
     {
-      value: ['z', 'a'],
+      value: ['z', 'a', 'a'],
       expect: ['a', 'z'],
+      message: `Should sort and unique array type of ${field} field.`,
     },
     // should ignore object
     {
