@@ -251,7 +251,6 @@ for (const field of [
   'activationEvents',
   'pre-commit',
   'browserslist',
-  'eslintIgnore',
   'stylelint',
   'flat',
   'os',
@@ -290,101 +289,6 @@ testField('husky', [
     expect: ['pre-commit', 'commit-msg', UNKNOWN],
   },
 ])
-
-// eslint
-const sortedEslintConfig = sortPackageJson({
-  eslintConfig: {
-    overrides: [
-      {
-        z: 'z',
-        a: 'a',
-        files: '*.js',
-        excludedFiles: '*.exclude.js',
-        rules: {
-          z: 'z',
-          a: 'a',
-          semi: 'error',
-        },
-      },
-    ],
-    extends: ['standard', 'plugin:prettier/recommended', 'prettier/standard'],
-    z: 'z',
-    a: 'a',
-    rules: {
-      z: 'z',
-      a: 'a',
-      semi: 'error',
-    },
-    env: {
-      z: 'z',
-      a: 'a',
-      browser: true,
-      node: true,
-    },
-    globals: {
-      z: 'z',
-      a: 'a',
-      var1: 'writable',
-      var2: 'readonly',
-    },
-    parserOptions: {
-      z: 'z',
-      a: 'a',
-      ecmaVersion: 6,
-      sourceType: 'module',
-      ecmaFeatures: {
-        jsx: true,
-      },
-    },
-    settings: {
-      z: 'z',
-      a: 'a',
-      'import/extensions': '',
-    },
-    plugins: ['a', 'z', 'prettier'],
-  },
-}).eslintConfig
-assert.deepStrictEqual(
-  Object.keys(sortedEslintConfig),
-  [
-    'env',
-    'parserOptions',
-    'settings',
-    'plugins',
-    'extends',
-    'rules',
-    'overrides',
-    'globals',
-    'a',
-    'z',
-  ],
-  'eslintConfig field should sorted',
-)
-assert.deepStrictEqual(
-  Object.keys(sortedEslintConfig.parserOptions),
-  ['a', 'ecmaFeatures', 'ecmaVersion', 'sourceType', 'z'],
-  'eslintConfig.parserOptions should sorted',
-)
-assert.deepStrictEqual(
-  Object.keys(sortedEslintConfig.rules),
-  ['a', 'semi', 'z'],
-  'eslintConfig.rules should sorted',
-)
-assert.deepStrictEqual(
-  Object.keys(sortedEslintConfig.settings),
-  ['a', 'import/extensions', 'z'],
-  'eslintConfig.settings should sorted',
-)
-assert.deepStrictEqual(
-  Object.keys(sortedEslintConfig.overrides[0]),
-  ['files', 'excludedFiles', 'rules', 'a', 'z'],
-  'eslintConfig.overrides[0] should sorted',
-)
-assert.deepStrictEqual(
-  Object.keys(sortedEslintConfig.overrides[0].rules),
-  ['a', 'semi', 'z'],
-  'eslintConfig.overrides[0].rules should sorted',
-)
 
 // prettier
 const sortedPrettierConfig = sortPackageJson({

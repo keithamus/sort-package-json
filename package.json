@@ -29,7 +29,8 @@
     "lint": "eslint .",
     "semantic-release": "semantic-release",
     "sort-package-json": "node cli.js package.json --check",
-    "test": "node test.js"
+    "test": "node test.js && ava",
+    "test-coverage": "nyc npm test"
   },
   "husky": {
     "hooks": {
@@ -54,6 +55,12 @@
       "prettier/standard"
     ]
   },
+  "ava": {
+    "files": [
+      "tests/**/*.js"
+    ],
+    "verbose": true
+  },
   "dependencies": {
     "detect-indent": "^6.0.0",
     "detect-newline": "3.1.0",
@@ -64,6 +71,8 @@
   "devDependencies": {
     "@commitlint/cli": "8.3.4",
     "@commitlint/config-conventional": "8.3.4",
+    "ava": "^2.4.0",
+    "dot-prop": "^5.2.0",
     "eslint": "^6.7.2",
     "eslint-config-prettier": "^6.7.0",
     "eslint-config-standard": "^14.1.0",
@@ -74,6 +83,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "husky": "^1.1.1",
     "newline": "0.0.3",
+    "nyc": "^15.0.0",
     "prettier": "^1.19.1",
     "semantic-release": "15.14.0"
   }
