@@ -45,25 +45,33 @@ const sortESLintConfig = sortObjectBy([
 ])
 const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 
-const sortPrettierConfigKeys = onObject(config =>
-  sortObjectKeys(config, [
-    ...Object.keys(config)
-      .filter(key => key !== 'overrides')
-      .sort(),
-    'overrides',
+const sortPrettierConfig = onObject(
+  pipe([
+    // sort keys alphabetically, but put `overrides` at bottom
+    config =>
+      sortObjectKeys(config, [
+        ...Object.keys(config)
+          .filter(key => key !== 'overrides')
+          .sort(),
+        'overrides',
+      ]),
+    // if `config.overrides` exists
+    overProperty(
+      'overrides',
+      // and `config.overrides` is an array
+      onArray(overrides =>
+        overrides.map(
+          pipe([
+            // sort `config.overrides[]` alphabetically
+            sortObject,
+            // sort `config.overrides[].options` alphabetically
+            overProperty('options', sortObject),
+          ]),
+        ),
+      ),
+    ),
   ]),
 )
-const sortPrettierConfigOptions = pipe([
-  sortObject,
-  overProperty('options', sortObject),
-])
-const sortPrettierConfigOverrides = onArray(overrides =>
-  overrides.map(sortPrettierConfigOptions),
-)
-const sortPrettierConfig = pipe([
-  sortPrettierConfigKeys,
-  onObject(overProperty('overrides', sortPrettierConfigOverrides)),
-])
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
