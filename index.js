@@ -9,6 +9,7 @@ const pipe = fns => x => fns.reduce((result, fn) => fn(result), x)
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
 const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onArray(array => [...array].sort())
+const uniqAndSortArray = pipe([uniq, sortArray])
 const isPlainObject = x =>
   x && Object.prototype.toString.call(x) === '[object Object]'
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
@@ -195,10 +196,10 @@ const fields = [
   { key: 'devDependencies', over: sortObject },
   { key: 'peerDependencies', over: sortObject },
   { key: 'optionalDependencies', over: sortObject },
-  { key: 'bundledDependencies', over: sortArray },
-  { key: 'bundleDependencies', over: sortArray },
-  /* vscode */ { key: 'extensionPack', over: sortArray },
-  /* vscode */ { key: 'extensionDependencies', over: sortArray },
+  { key: 'bundledDependencies', over: uniqAndSortArray },
+  { key: 'bundleDependencies', over: uniqAndSortArray },
+  /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
+  /* vscode */ { key: 'extensionDependencies', over: uniqAndSortArray },
   { key: 'flat' },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
