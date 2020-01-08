@@ -184,6 +184,7 @@ assert.deepStrictEqual(
 for (const field of [
   'exports',
   'bin',
+  'contributes',
   'commitlint',
   'lint-staged',
   'config',
@@ -191,7 +192,6 @@ for (const field of [
   'browserify',
   'babel',
   'xo',
-  'prettier',
   'ava',
   'jest',
   'mocha',
@@ -200,6 +200,7 @@ for (const field of [
   'engineStrict',
   'preferGlobal',
   'publishConfig',
+  'galleryBanner',
 ]) {
   testField(field, [
     {
@@ -221,11 +222,15 @@ for (const field of [
 // simple disabled subKey sorting test
 for (const field of [
   'name',
+  'displayName',
   'version',
   'description',
   'sideEffects',
   'files',
+  'categories',
   'keywords',
+  'qna',
+  'publisher',
   'type',
   'main',
   'umd:main',
@@ -243,6 +248,7 @@ for (const field of [
   'assets',
   'man',
   'workspaces',
+  'activationEvents',
   'pre-commit',
   'browserslist',
   'eslintIgnore',
@@ -250,6 +256,9 @@ for (const field of [
   'flat',
   'os',
   'cpu',
+  'icon',
+  'preview',
+  'markdown',
 ]) {
   testField(field, [
     {
@@ -294,6 +303,44 @@ testField('eslintConfig', [
     expect: ['plugins', 'extends', 'rules', 'overrides', UNKNOWN],
   },
 ])
+
+// prettier
+const sortedPrettierConfig = sortPackageJson({
+  prettier: {
+    trailingComma: 'none',
+    z: 'z',
+    a: 'a',
+    overrides: [
+      {
+        options: {
+          trailingComma: 'all',
+          semi: false,
+          z: 'z',
+          a: 'a',
+        },
+        z: 'z',
+        a: 'a',
+        files: '*.js',
+      },
+    ],
+    semi: false,
+  },
+}).prettier
+assert.deepStrictEqual(
+  Object.keys(sortedPrettierConfig),
+  ['a', 'semi', 'trailingComma', 'z', 'overrides'],
+  'prettier field should sorted',
+)
+assert.deepStrictEqual(
+  Object.keys(sortedPrettierConfig.overrides[0]),
+  ['a', 'files', 'options', 'z'],
+  'prettier.overrides should sorted',
+)
+assert.deepStrictEqual(
+  Object.keys(sortedPrettierConfig.overrides[0].options),
+  ['a', 'semi', 'trailingComma', 'z'],
+  'prettier.overrides[].options should sorted',
+)
 
 testField('binary', [
   {
@@ -420,6 +467,29 @@ assert.deepStrictEqual(
   ['foo', 'bar', ['foo', 'bar']],
 )
 
+// badges
+assert.deepStrictEqual(
+  Object.keys(
+    sortPackageJson({
+      badges: [
+        {
+          [UNKNOWN]: UNKNOWN,
+          href: 'https://travis-ci.com/keithamus/sort-package-json.svg',
+          url: 'https://travis-ci.com/keithamus/sort-package-json',
+          description: 'sort-package-json build status',
+        },
+      ],
+    }).badges[0],
+  ),
+  ['description', 'url', 'href', UNKNOWN],
+)
+assert.deepStrictEqual(
+  sortPackageJson({
+    badges: ['foo', 'bar', ['foo', 'bar']],
+  }).badges,
+  ['foo', 'bar', ['foo', 'bar']],
+)
+
 testField('directories', [
   {
     value: {
@@ -530,7 +600,12 @@ for (const field of [
 }
 
 // bundledDependencies
-for (const field of ['bundledDependencies', 'bundleDependencies']) {
+for (const field of [
+  'bundledDependencies',
+  'bundleDependencies',
+  'extensionPack',
+  'extensionDependencies',
+]) {
   testField(field, [
     {
       value: ['z', 'a'],
@@ -548,22 +623,25 @@ for (const field of ['bundledDependencies', 'bundleDependencies']) {
   ])
 }
 
+// CLI should be executable
+fs.accessSync('./cli.js', fs.constants.X_OK)
+
 // CLI `--check` flag tests
 
 // make sure `--check` not fixing file
 // support `-c` as well
-const orignal = fs.readFileSync('fixtures/not-sorted-1/package.json', 'utf8')
+const original = fs.readFileSync('fixtures/not-sorted-1/package.json', 'utf8')
 execFile(
   'node',
-  ['index.js', 'fixtures/not-sorted-1/package.json', '-c'],
+  ['cli.js', 'fixtures/not-sorted-1/package.json', '-c'],
   (error, stdout, stderr) => {
     assert.notStrictEqual(
-      orignal,
-      sortPackageJson(orignal),
+      original,
+      sortPackageJson(original),
       'fixtures/not-sorted-1/package.json should be a unsorted file.',
     )
     assert.strictEqual(
-      orignal,
+      original,
       fs.readFileSync('fixtures/not-sorted-1/package.json', 'utf8'),
       'file should not fixed when --check is enabled.',
     )
@@ -582,7 +660,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'fixtures/not-sorted-*/package.json', '--check'],
+  ['cli.js', 'fixtures/not-sorted-*/package.json', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error.code, 2)
     assert.strictEqual(stderr, '')
@@ -603,7 +681,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'fixtures/sorted-1/package.json', '--check'],
+  ['cli.js', 'fixtures/sorted-1/package.json', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error, null)
     assert.strictEqual(stderr, '')
@@ -613,7 +691,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'fixtures/sorted-*/package.json', '--check'],
+  ['cli.js', 'fixtures/sorted-*/package.json', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error, null)
     assert.strictEqual(stderr, '')
@@ -623,7 +701,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'fixtures/*/package.json', '--check'],
+  ['cli.js', 'fixtures/*/package.json', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error.code, 3)
     assert.strictEqual(stderr, '')
@@ -650,7 +728,7 @@ execFile(
 
 execFile(
   'node',
-  ['index.js', 'NONE_EXISTS_FILE', '--check'],
+  ['cli.js', 'NONE_EXISTS_FILE', '--check'],
   (error, stdout, stderr) => {
     assert.strictEqual(error.code, 1)
     assert.strictEqual(stderr, '')
@@ -662,7 +740,7 @@ execFile(
 execFile(
   'node',
   [
-    'index.js',
+    'cli.js',
     'fixtures/not-sorted-1/package.json',
     'fixtures/not-sorted-1/**/package.json',
     '--check',
