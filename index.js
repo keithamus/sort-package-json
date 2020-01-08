@@ -30,7 +30,15 @@ const overProperty = (property, over) => object =>
     ? Object.assign(object, { [property]: over(object[property]) })
     : object
 const sortGitHooks = sortObjectBy(gitHooks)
-const sortESLintConfig = sortObjectBy([
+
+// https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
+const eslintBaseConfigProperties = [
+  // `files` and `excludedFiles` are only on `overrides[]`
+  // for easier sort `overrides[]`,
+  // add them to here, so we don't need sort `overrides[]` twice
+  'files',
+  'excludedFiles',
+  // baseConfig
   'env',
   'parser',
   'parserOptions',
@@ -43,7 +51,21 @@ const sortESLintConfig = sortObjectBy([
   'processor',
   'noInlineConfig',
   'reportUnusedDisableDirectives',
-])
+]
+const sortEslintConfig = onObject(
+  pipe([
+    sortObjectBy(eslintBaseConfigProperties),
+    overProperty('env', sortObject),
+    overProperty('globals', sortObject),
+    overProperty(
+      'overrides',
+      onArray(overrides => overrides.map(sortEslintConfig)),
+    ),
+    overProperty('parserOptions', sortObject),
+    overProperty('rules', sortObject),
+    overProperty('settings', sortObject),
+  ]),
+)
 const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 
 const sortPrettierConfig = onObject(
@@ -192,7 +214,7 @@ const fields = [
   { key: 'browserslist' },
   { key: 'xo', over: sortObject },
   { key: 'prettier', over: sortPrettierConfig },
-  { key: 'eslintConfig', over: sortESLintConfig },
+  { key: 'eslintConfig', over: sortEslintConfig },
   { key: 'eslintIgnore' },
   { key: 'stylelint' },
   { key: 'ava', over: sortObject },
