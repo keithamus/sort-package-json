@@ -175,9 +175,12 @@ console.log(Object.keys(sorted))
 - [Istanbul](https://istanbul.js.org/)
 - [Jest](https://jestjs.io/)
 - [Mocha](https://mochajs.org/)
-- [node-pre-gyp](https://github.com/mapbox/node-pre-gyp/)
+- [node-pre-gyp](https://github.com/mapbox/node-pre-gyp)
 - [Prettier](https://prettier.io/)
+- [stylelint](https://github.com/stylelint/stylelint)
 - [xojs](https://github.com/xojs/xo)
+
+_Alphabetically ordered._
 
 ## Automatically Sort
 
