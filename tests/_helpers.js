@@ -5,15 +5,17 @@ const { execFile } = require('child_process')
 const cliScript = path.join(__dirname, '../cli.js')
 
 // object can't compare keys order, so use string to test
-const sortPackageJsonAsString = (key, value, pretty) =>
+const sortPackageJsonAsString = (path, value, pretty) =>
   JSON.stringify(
-    sortPackageJson(dotProp.set({}, key, value)),
+    sortPackageJson(path ? dotProp.set({}, path, value) : value),
     null,
     pretty === false ? undefined : 2,
   )
-
 const sortPackageJsonAsObject = (path, value) =>
-  dotProp.get(sortPackageJson(dotProp.set({}, path, value)), path)
+  dotProp.get(
+    sortPackageJson(path ? dotProp.set({}, path, value) : value),
+    path,
+  )
 
 const keysToObject = keys =>
   keys.reduce((object, key) => Object.assign(object, { [key]: '' }), {})
@@ -33,7 +35,11 @@ function sortObject(
   if (expected) {
     t.deepEqual(
       sortPackageJsonAsString(path, value),
-      JSON.stringify(dotProp.set({}, path, expected), null, 2),
+      JSON.stringify(
+        path ? dotProp.set({}, path, expected) : expected,
+        null,
+        2,
+      ),
       message,
     )
   } else {

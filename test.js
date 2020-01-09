@@ -1,6 +1,4 @@
 const assert = require('assert')
-const fs = require('fs')
-const newline = require('newline')
 const sortPackageJson = require('./')
 
 const UNKNOWN = 'UNKNOWN_KEY_OR_VALUE'
@@ -33,42 +31,6 @@ ${message || defaultMessage}
     assert.deepStrictEqual(actual, expect, detail)
   }
 }
-
-let contents = fs.readFileSync('./package.json', 'utf8')
-
-// Enforce LF line-endings. Windows git users often set core.autocrlf
-// to true, so the file may have CRLF line endings.
-contents = newline.set(contents, 'LF')
-
-const parsed = JSON.parse(contents)
-assert.deepStrictEqual(
-  typeof sortPackageJson(parsed),
-  'object',
-  'Accepts object, returns object',
-)
-assert.strictEqual(
-  `${JSON.stringify(sortPackageJson(parsed), null, 2)}\n`,
-  contents,
-  'Returned object is sorted',
-)
-assert.strictEqual(
-  sortPackageJson(contents),
-  contents,
-  'Accepts string, returns sorted string',
-)
-
-assert.strictEqual(
-  JSON.stringify(
-    sortPackageJson({
-      dependencies: {},
-      version: '1.0.0',
-      keywords: ['thing'],
-      name: 'foo',
-      private: true,
-    }),
-  ),
-  '{"name":"foo","version":"1.0.0","private":true,"keywords":["thing"],"dependencies":{}}',
-)
 
 // Custom sort order
 assert.deepStrictEqual(
