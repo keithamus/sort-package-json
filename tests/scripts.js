@@ -17,7 +17,7 @@ const fixture = {
   'pre-fetch-info': 'foo',
 }
 
-const expected = {
+const expect = {
   postinstall: 'echo "Installed"',
   multiply: '2 * 3',
   'pre-fetch-info': 'foo',
@@ -37,6 +37,6 @@ for (const field of ['scripts', 'betterScripts']) {
   test(field, macro.sortObject, {
     path: field,
     value: fixture,
-    expected: expected,
+    expect: expect,
   })
 }

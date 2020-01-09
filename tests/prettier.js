@@ -10,6 +10,7 @@ const prettierConfig = {
 
 test('prettier', macro.sortObject, {
   path: 'prettier',
+  expect: 'snapshot',
   value: {
     overrides: [],
     ...prettierConfig,

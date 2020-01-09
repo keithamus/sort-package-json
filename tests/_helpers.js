@@ -28,7 +28,7 @@ function sortObjectAlphabetically(t, options) {
   sortObject(t, {
     ...options,
     value: keysToObject(['z', 'a']),
-    expected: keysToObject(['a', 'z']),
+    expect: keysToObject(['a', 'z']),
   })
 }
 
@@ -38,22 +38,18 @@ function sortObject(
     options,
     path,
     value,
-    expected,
+    expect,
     message = `Should sort \`${path}\` as object.`,
   },
 ) {
-  if (expected) {
+  if (expect === 'snapshot') {
+    t.snapshot(sortPackageJsonAsString({ path, value, options }), message)
+  } else {
     t.deepEqual(
       sortPackageJsonAsString({ path, value, options }),
-      JSON.stringify(
-        path ? dotProp.set({}, path, expected) : expected,
-        null,
-        2,
-      ),
+      JSON.stringify(path ? dotProp.set({}, path, expect) : expect, null, 2),
       message,
     )
-  } else {
-    t.snapshot(sortPackageJsonAsString({ path, value, options }), message)
   }
 }
 

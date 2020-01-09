@@ -21,6 +21,7 @@ const baseEslintConfigKeys = [
 
 test('eslintConfig', macro.sortObject, {
   path: 'eslintConfig',
+  expect: 'snapshot',
   value: keysToObject(['z', ...baseEslintConfigKeys, 'a']),
 })
 

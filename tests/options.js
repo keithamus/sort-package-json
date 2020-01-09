@@ -7,7 +7,7 @@ test('options.sortOrder', macro.sortObject, {
     sortOrder: ['z', 'a', 'name'],
   },
   value: keysToObject(['z', 'name', 'a']),
-  expected: keysToObject(['z', 'a', 'name']),
+  expect: keysToObject(['z', 'a', 'name']),
   message: 'Should sort in order of `options.sortOrder`',
 })
 
@@ -16,7 +16,7 @@ test('options.sortOrder prepend', macro.sortObject, {
     sortOrder: ['z', 'private'],
   },
   value: keysToObject(['b', 'a', 'z', 'version', 'name', 'private']),
-  expected: keysToObject(['z', 'private', 'name', 'version', 'a', 'b']),
+  expect: keysToObject(['z', 'private', 'name', 'version', 'a', 'b']),
   message: 'Should still sort `name` and `version`',
 })
 
@@ -26,7 +26,7 @@ test('options.sortOrder effect', macro.sortObject, {
   },
   path: 'bin',
   value: keysToObject(['b', 'a', 'z', 'version', 'name', 'private']),
-  expected: keysToObject(['a', 'b', 'name', 'private', 'version', 'z']),
+  expect: keysToObject(['a', 'b', 'name', 'private', 'version', 'z']),
   message: 'options.sortOrder should not effect fields ordering`',
 })
 
@@ -37,7 +37,7 @@ test('options.sortOrder function', macro.sortObject, {
     },
   },
   value: keysToObject(['version', 'name', 'a', 'z']),
-  expected: keysToObject(['z', 'version', 'name', 'a']),
+  expect: keysToObject(['z', 'version', 'name', 'a']),
   message: 'options.sortOrder should accept function`',
 })
 
@@ -46,6 +46,6 @@ test('options.sortOrder with private key', macro.sortObject, {
     sortOrder: ['_z'],
   },
   value: keysToObject(['z', '_a', 'name', '_z', 'a']),
-  expected: keysToObject(['_z', 'name', 'a', 'z', '_a']),
+  expect: keysToObject(['_z', 'name', 'a', 'z', '_a']),
   message: 'options.sortOrder should work with private keys`',
 })

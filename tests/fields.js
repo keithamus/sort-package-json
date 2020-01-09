@@ -75,7 +75,7 @@ for (const field of ['keywords', 'files', 'activationEvents', 'categories']) {
 test('husky', macro.sortObject, {
   path: 'husky.hooks',
   value: keysToObject(['z', ...gitHooks, 'a']),
-  expected: keysToObject([...gitHooks, 'a', 'z']),
+  expect: keysToObject([...gitHooks, 'a', 'z']),
 })
 
 test('binary', macro.sortObject, {
@@ -90,7 +90,7 @@ test('binary', macro.sortObject, {
       '{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz',
     host: 'https://node-pre-gyp-tests.s3-us-west-1.amazonaws.com',
   },
-  expected: {
+  expect: {
     module_name: 'node_addon_example',
     module_path: './lib/binding/{configuration}/{node_abi}-{platform}-{arch}/',
     remote_path: './{module_name}/v{version}/{configuration}/',
@@ -110,7 +110,7 @@ test('bugs', macro.sortObject, {
     email: 'npm@keithcirkel.co.uk',
     url: 'https://github.com/keithamus/sort-package-json/issues',
   },
-  expected: {
+  expect: {
     url: 'https://github.com/keithamus/sort-package-json/issues',
     email: 'npm@keithcirkel.co.uk',
     a: 'a',
@@ -127,7 +127,7 @@ for (const field of ['repository', 'funding', 'license']) {
       url: 'https://github.com/keithamus/sort-package-json',
       type: 'github',
     },
-    expected: {
+    expect: {
       type: 'github',
       url: 'https://github.com/keithamus/sort-package-json',
       a: 'a',
@@ -145,7 +145,7 @@ test('author', macro.sortObject, {
     name: 'Keith Cirkel',
     email: 'npm@keithcirkel.co.uk',
   },
-  expected: {
+  expect: {
     name: 'Keith Cirkel',
     email: 'npm@keithcirkel.co.uk',
     url: 'http://keithcirkel.co.uk/',
@@ -166,7 +166,7 @@ test('directories', macro.sortObject, {
     bin: 'bin',
     lib: 'lib',
   },
-  expected: {
+  expect: {
     lib: 'lib',
     bin: 'bin',
     man: 'man',
