@@ -51,27 +51,45 @@ function sortObject(
       message,
     )
   }
+
+  asItIs(t, { path, options }, ['object'])
 }
 
-function asItIs(t, { path, options }) {
-  t.is(
-    sortPackageJsonAsString({ path, value: keysToObject(['z', 'a']), options }),
-    JSON.stringify(dotProp.set({}, path, keysToObject(['z', 'a'])), null, 2),
-    `Should keep object type \`${path}\` as it is.`,
-  )
+function asItIs(t, { path, options }, excludeTypes = []) {
+  // Don't test string type on root, `JSON.parse` might throws
+  if (!path) {
+    excludeTypes.push('string')
+  }
 
-  t.deepEqual(
-    sortPackageJsonAsObject({ path, value: ['z', 'a', 'a'], options }),
-    ['z', 'a', 'a'],
-    `Should keep array type \`${path}\` as it is.`,
-  )
+  if (!excludeTypes.includes('object')) {
+    t.is(
+      sortPackageJsonAsString({
+        path,
+        value: keysToObject(['z', 'a']),
+        options,
+      }),
+      JSON.stringify(dotProp.set({}, path, keysToObject(['z', 'a'])), null, 2),
+      `Should keep object type \`${path}\` as it is.`,
+    )
+  }
+
+  if (!excludeTypes.includes('array')) {
+    t.deepEqual(
+      sortPackageJsonAsObject({ path, value: ['z', 'a', 'a'], options }),
+      ['z', 'a', 'a'],
+      `Should keep array type \`${path}\` as it is.`,
+    )
+  }
 
   for (const value of ['string', false, 2020]) {
-    t.is(
-      sortPackageJsonAsObject({ path, value, options }),
-      value,
-      `Should keep ${typeof value} type \`${path}\` as it is.`,
-    )
+    const type = typeof value
+    if (!excludeTypes.includes(type)) {
+      t.is(
+        sortPackageJsonAsObject({ path, value, options }),
+        value,
+        `Should keep ${type} type \`${path}\` as it is.`,
+      )
+    }
   }
 }
 
@@ -94,6 +112,7 @@ function uniqueArray(t, { path, options }) {
     ['z', 'a'],
     `Should unique array type \`${path}\`.`,
   )
+  asItIs(t, { path, options }, ['array'])
 }
 
 function uniqueAndSort(t, { path, options }) {
@@ -102,6 +121,7 @@ function uniqueAndSort(t, { path, options }) {
     ['a', 'z'],
     `Should unique and sorted array type \`${path}\`.`,
   )
+  asItIs(t, { path, options }, ['array'])
 }
 
 module.exports = {
