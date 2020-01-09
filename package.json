@@ -82,7 +82,7 @@
     "husky": "^4.0.2",
     "nyc": "^15.0.0",
     "prettier": "^1.19.1",
-    "semantic-release": "15.14.0",
+    "semantic-release": "16.0.0",
     "tempy": "0.3.0"
   }
 }
