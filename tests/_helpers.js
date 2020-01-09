@@ -104,7 +104,14 @@ async function testCLI(t, { fixtures = {}, args, cwd, message }) {
   })
 
   cleanFixtures(root)
-  t.snapshot(actual, message)
+  t.snapshot(
+    {
+      fixtures: Object.keys(fixtures).map(dir => `${dir}/packages.json`),
+      args,
+      result: actual,
+    },
+    message,
+  )
 }
 
 function runCLI({ args = [], cwd = process.cwd() }) {
