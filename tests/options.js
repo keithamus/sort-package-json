@@ -29,3 +29,14 @@ test('options.sortOrder effect', macro.sortObject, {
   expected: keysToObject(['a', 'b', 'name', 'private', 'version', 'a', 'z']),
   message: 'options.sortOrder should not effect fields ordering`',
 })
+
+test('options.sortOrder function', macro.sortObject, {
+  options: {
+    sortOrder(left, right) {
+      return right.localeCompare(left)
+    },
+  },
+  value: keysToObject(['version', 'name', 'a', 'z']),
+  expected: keysToObject(['z', 'version', 'name', 'a']),
+  message: 'options.sortOrder should accept function`',
+})
