@@ -1,6 +1,8 @@
 const dotProp = require('dot-prop')
+const tempy = require('tempy')
 const sortPackageJson = require('..')
 const path = require('path')
+const fs = require('fs')
 const { execFile } = require('child_process')
 const cliScript = path.join(__dirname, '../cli.js')
 
@@ -93,14 +95,21 @@ function asItIs(t, { path, options }, excludeTypes = []) {
   }
 }
 
-async function testCLI(t, args = [], message) {
-  const actual = await runCLI(args)
+async function testCLI(t, { fixtures = {}, args, cwd, message }) {
+  const { root } = setupFixtures(fixtures)
+  const actual = await runCLI({
+    args,
+    cwd: cwd || root,
+    message,
+  })
+
+  cleanFixtures(root)
   t.snapshot(actual, message)
 }
 
-function runCLI(args = []) {
+function runCLI({ args = [], cwd = process.cwd() }) {
   return new Promise(resolve => {
-    execFile('node', [cliScript, ...args], (error, stdout, stderr) => {
+    execFile('node', [cliScript, ...args], { cwd }, (error, stdout, stderr) => {
       resolve({ errorCode: error && error.code, stdout, stderr })
     })
   })
@@ -124,6 +133,29 @@ function uniqueAndSort(t, { path, options }) {
   asItIs(t, { path, options }, ['array'])
 }
 
+function setupFixtures(fixtures) {
+  const root = tempy.directory()
+  const result = {
+    root,
+  }
+  for (const [dir, packageJson] of Object.entries(fixtures)) {
+    const content =
+      typeof packageJson === 'string'
+        ? packageJson
+        : JSON.stringify(packageJson, null, 2)
+    const file = path.join(root, dir, 'package.json')
+    fs.mkdirSync(path.join(root, dir), { recursive: true })
+    fs.writeFileSync(file, content)
+    result[dir] = file
+  }
+
+  return result
+}
+
+function cleanFixtures(root) {
+  fs.rmdirSync(root, { recursive: true })
+}
+
 module.exports = {
   macro: {
     sortObject,
@@ -138,4 +170,6 @@ module.exports = {
   keysToObject,
   cliScript,
   runCLI,
+  setupFixtures,
+  cleanFixtures,
 }
