@@ -1,5 +1,8 @@
 const dotProp = require('dot-prop')
 const sortPackageJson = require('..')
+const path = require('path')
+const { execFile } = require('child_process')
+const cliScript = path.join(__dirname, '../cli.js')
 
 // object can't compare keys order, so use string to test
 const sortPackageJsonAsString = (key, value, pretty) =>
@@ -60,13 +63,29 @@ function asItIs(t, { path }) {
   }
 }
 
+async function testCLI(t, args = [], message) {
+  const actual = await runCLI(args)
+  t.snapshot(actual, message)
+}
+
+function runCLI(args = []) {
+  return new Promise(resolve => {
+    execFile('node', [cliScript, ...args], (error, stdout, stderr) => {
+      resolve({ errorCode: error && error.code, stdout, stderr })
+    })
+  })
+}
+
 module.exports = {
   macro: {
     sortObject,
     asItIs,
     sortObjectAlphabetically,
+    testCLI,
   },
   sortPackageJsonAsObject,
   sortPackageJsonAsString,
   keysToObject,
+  cliScript,
+  runCLI,
 }
