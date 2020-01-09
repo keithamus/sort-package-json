@@ -100,6 +100,15 @@ test('main', t => {
     '{"name":"sort-package-json","version":"1.0.0"}',
     'Accepts string, returns sorted string',
   )
+
+  const array = ['foo', 'bar']
+  const string = JSON.stringify(array)
+  t.is(sortPackageJson(array), array, 'should not sort object that is an array')
+  t.is(
+    sortPackageJson(string),
+    string,
+    'should not sort string that is JSON string of array',
+  )
 })
 
 test('default sortOrder', macro.sortObject, {

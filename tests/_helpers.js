@@ -92,12 +92,21 @@ function runCLI(args = []) {
   })
 }
 
+function uniqueArray(t, { path, options }) {
+  t.deepEqual(
+    sortPackageJsonAsObject({ path, value: ['z', 'a', 'a'], options }),
+    ['z', 'a'],
+    `Should unique array type \`${path}\` as it is.`,
+  )
+}
+
 module.exports = {
   macro: {
     sortObject,
     asItIs,
     sortObjectAlphabetically,
     testCLI,
+    uniqueArray,
   },
   sortPackageJsonAsObject,
   sortPackageJsonAsString,
