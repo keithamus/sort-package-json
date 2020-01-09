@@ -7,8 +7,10 @@ const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
 const pipe = fns => x => fns.reduce((result, fn) => fn(result), x)
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
-const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
-const sortArray = onArray(array => [...array].sort())
+const onStringArray = fn => x =>
+  Array.isArray(x) && x.every(item => typeof item === 'string') ? fn(x) : x
+const uniq = onStringArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
+const sortArray = onStringArray(array => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
 const isPlainObject = x =>
   x && Object.prototype.toString.call(x) === '[object Object]'
