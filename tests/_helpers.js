@@ -5,9 +5,9 @@ const { execFile } = require('child_process')
 const cliScript = path.join(__dirname, '../cli.js')
 
 // object can't compare keys order, so use string to test
-const sortPackageJsonAsString = ({ path, value }, pretty) =>
+const sortPackageJsonAsString = ({ path, value, options }, pretty) =>
   JSON.stringify(
-    sortPackageJson(path ? dotProp.set({}, path, value) : value),
+    sortPackageJson(path ? dotProp.set({}, path, value) : value, options),
     null,
     pretty === false ? undefined : 2,
   )

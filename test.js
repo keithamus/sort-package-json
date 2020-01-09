@@ -32,62 +32,6 @@ ${message || defaultMessage}
   }
 }
 
-// Custom sort order
-assert.deepStrictEqual(
-  Object.keys(
-    sortPackageJson(
-      {
-        name: 'my-package',
-        a: 'a',
-        z: 'z',
-      },
-      {
-        sortOrder: ['z', 'a', 'name'],
-      },
-    ),
-  ),
-  ['z', 'a', 'name'],
-)
-
-// defaultSortOrder still applied, when using custom sortOrder
-assert.deepStrictEqual(
-  Object.keys(
-    sortPackageJson(
-      {
-        b: 'b',
-        a: 'a',
-        z: 'z',
-        version: '1.0.0',
-        name: 'foo',
-        private: true,
-      },
-      {
-        sortOrder: ['z', 'private'],
-      },
-    ),
-  ),
-  ['z', 'private', 'name', 'version', 'a', 'b'],
-)
-
-// Custom sort order should not effect field sorting
-assert.deepStrictEqual(
-  Object.keys(
-    sortPackageJson(
-      {
-        scripts: {
-          name: 'my-package',
-          a: 'a',
-          z: 'z',
-        },
-      },
-      {
-        sortOrder: ['z', 'a', 'name'],
-      },
-    ).scripts,
-  ),
-  ['a', 'name', 'z'],
-)
-
 const array = ['foo', 'bar']
 const string = JSON.stringify(array)
 assert.strictEqual(
