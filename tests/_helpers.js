@@ -5,15 +5,15 @@ const { execFile } = require('child_process')
 const cliScript = path.join(__dirname, '../cli.js')
 
 // object can't compare keys order, so use string to test
-const sortPackageJsonAsString = (path, value, pretty) =>
+const sortPackageJsonAsString = ({ path, value }, pretty) =>
   JSON.stringify(
     sortPackageJson(path ? dotProp.set({}, path, value) : value),
     null,
     pretty === false ? undefined : 2,
   )
-const sortPackageJsonAsObject = (path, value) =>
+const sortPackageJsonAsObject = ({ path, value, options }) =>
   dotProp.get(
-    sortPackageJson(path ? dotProp.set({}, path, value) : value),
+    sortPackageJson(path ? dotProp.set({}, path, value) : value, options),
     path,
   )
 
@@ -30,11 +30,17 @@ function sortObjectAlphabetically(t, options) {
 
 function sortObject(
   t,
-  { path, value, expected, message = `Should sort \`${path}\` as object.` },
+  {
+    options,
+    path,
+    value,
+    expected,
+    message = `Should sort \`${path}\` as object.`,
+  },
 ) {
   if (expected) {
     t.deepEqual(
-      sortPackageJsonAsString(path, value),
+      sortPackageJsonAsString({ path, value, options }),
       JSON.stringify(
         path ? dotProp.set({}, path, expected) : expected,
         null,
@@ -43,26 +49,26 @@ function sortObject(
       message,
     )
   } else {
-    t.snapshot(sortPackageJsonAsString(path, value), message)
+    t.snapshot(sortPackageJsonAsString({ path, value, options }), message)
   }
 }
 
-function asItIs(t, { path }) {
+function asItIs(t, { path, options }) {
   t.is(
-    sortPackageJsonAsString(path, keysToObject(['z', 'a'])),
+    sortPackageJsonAsString({ path, value: keysToObject(['z', 'a']), options }),
     JSON.stringify(dotProp.set({}, path, keysToObject(['z', 'a'])), null, 2),
     `Should keep object type \`${path}\` as it is.`,
   )
 
   t.deepEqual(
-    sortPackageJsonAsObject(path, ['z', 'a', 'a']),
+    sortPackageJsonAsObject({ path, value: ['z', 'a', 'a'], options }),
     ['z', 'a', 'a'],
     `Should keep array type \`${path}\` as it is.`,
   )
 
   for (const value of ['string', false, 2020]) {
     t.is(
-      sortPackageJsonAsObject(path, value),
+      sortPackageJsonAsObject({ path, value, options }),
       value,
       `Should keep ${typeof value} type \`${path}\` as it is.`,
     )
