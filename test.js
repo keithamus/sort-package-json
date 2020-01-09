@@ -2,7 +2,6 @@ const assert = require('assert')
 const fs = require('fs')
 const newline = require('newline')
 const sortPackageJson = require('./')
-const { execFile } = require('child_process')
 
 const UNKNOWN = 'UNKNOWN_KEY_OR_VALUE'
 function testField(name, tests, options) {
@@ -125,28 +124,6 @@ assert.deepStrictEqual(
     ).scripts,
   ),
   ['a', 'name', 'z'],
-)
-
-assert.strictEqual(sortPackageJson('{}'), '{}')
-assert.strictEqual(sortPackageJson('{}\n'), '{}\n')
-assert.strictEqual(sortPackageJson('{}\r\n'), '{}\r\n')
-assert.strictEqual(sortPackageJson('{"foo":"bar"}\n'), '{"foo":"bar"}\n')
-
-assert.strictEqual(
-  sortPackageJson('{\n  "foo": "bar"\n}\n'),
-  '{\n  "foo": "bar"\n}\n',
-)
-assert.strictEqual(
-  sortPackageJson('{\n     "name": "foo",\n "version": "1.0.0"\n}'),
-  '{\n     "name": "foo",\n     "version": "1.0.0"\n}',
-)
-assert.strictEqual(
-  sortPackageJson('{\r\n  "foo": "bar"\r\n}\r\n'),
-  '{\r\n  "foo": "bar"\r\n}\r\n',
-)
-assert.strictEqual(
-  sortPackageJson('{\r\n  "foo": "bar"\n}\n'),
-  '{\n  "foo": "bar"\n}\n',
 )
 
 const array = ['foo', 'bar']
