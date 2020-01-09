@@ -106,3 +106,9 @@ test('default sortOrder', macro.sortObject, {
   value: keysToObject(fields),
   message: 'Should sort fields',
 })
+
+test('private keys', macro.sortObject, {
+  value: keysToObject(['z', '_a', 'name', '_z', 'a']),
+  expected: keysToObject(['name', 'a', 'z', '_a', '_z']),
+  message: 'Should put private keys at bottom',
+})

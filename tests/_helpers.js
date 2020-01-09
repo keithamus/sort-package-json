@@ -17,8 +17,12 @@ const sortPackageJsonAsObject = ({ path, value, options }) =>
     path,
   )
 
-const keysToObject = keys =>
-  keys.reduce((object, key) => Object.assign(object, { [key]: '' }), {})
+const keysToObject = keys => {
+  if (keys.some((value, index) => keys.indexOf(value) !== index)) {
+    throw new Error(`${keys} should be unique.`)
+  }
+  return keys.reduce((object, key) => Object.assign(object, { [key]: '' }), {})
+}
 
 function sortObjectAlphabetically(t, options) {
   sortObject(t, {

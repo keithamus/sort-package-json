@@ -45,24 +45,6 @@ assert.strictEqual(
   'should not sort object that is not plain object',
 )
 
-// fields with '_' prefix should alway at bottom
-assert.deepStrictEqual(
-  Object.keys(
-    sortPackageJson({
-      _foo: '_foo',
-      foo: 'foo',
-      version: '1.0.0',
-      name: 'sort-package-json',
-      bar: 'bar',
-      _id: 'sort-package-json@1.0.0',
-      _bar: '_bar',
-    }),
-  ),
-  ['name', 'version', 'bar', 'foo', '_bar', '_foo', '_id'],
-)
-
-// fields tests
-
 // fields sort as object
 for (const field of [
   'exports',
