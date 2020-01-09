@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 type ComparatorFunction = (left: string, right: string) => number
 
 declare namespace sortPackageJson {
@@ -8,27 +10,31 @@ declare namespace sortPackageJson {
 
 declare const sortPackageJson: {
   /**
-  Sort packageJson.
+   Sort packageJson.
 
-  @param packageJson - A packageJson object or string.
-  @returns Sorted packageJson object or string.
-  */
-  (packageJson, options?: sortPackageJson.Options): typeof packageJson
+   @param packageJson - A packageJson object or string.
+   @param options
+   @returns Sorted packageJson object or string.
+   */
 
-  /**
-  Sort packageJson.
-
-  @param packageJson - A packageJson object or string.
-  @returns Sorted packageJson object or string.
-  */
-  sortPackageJson(
-    packageJson,
-    options?: sortPackageJson.Options,
-  ): typeof packageJson
+  <T extends any>(packageJson: T, options?: sortPackageJson.Options): T
 
   /**
-  Default sort order.
-  */
+   Sort packageJson.
+
+   @param packageJson - A packageJson object or string.
+   @param options
+   @returns Sorted packageJson object or string.
+   */
+
+  sortPackageJson<T extends any>(
+    packageJson: T,
+    options?: sortPackageJson.Options
+  ): T
+
+  /**
+   Default sort order.
+   */
   readonly sortOrder: readonly string[]
 }
 
