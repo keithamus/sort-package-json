@@ -290,44 +290,6 @@ testField('husky', [
   },
 ])
 
-// prettier
-const sortedPrettierConfig = sortPackageJson({
-  prettier: {
-    trailingComma: 'none',
-    z: 'z',
-    a: 'a',
-    overrides: [
-      {
-        options: {
-          trailingComma: 'all',
-          semi: false,
-          z: 'z',
-          a: 'a',
-        },
-        z: 'z',
-        a: 'a',
-        files: '*.js',
-      },
-    ],
-    semi: false,
-  },
-}).prettier
-assert.deepStrictEqual(
-  Object.keys(sortedPrettierConfig),
-  ['a', 'semi', 'trailingComma', 'z', 'overrides'],
-  'prettier field should sorted',
-)
-assert.deepStrictEqual(
-  Object.keys(sortedPrettierConfig.overrides[0]),
-  ['a', 'files', 'options', 'z'],
-  'prettier.overrides should sorted',
-)
-assert.deepStrictEqual(
-  Object.keys(sortedPrettierConfig.overrides[0].options),
-  ['a', 'semi', 'trailingComma', 'z'],
-  'prettier.overrides[].options should sorted',
-)
-
 testField('binary', [
   {
     value: {
