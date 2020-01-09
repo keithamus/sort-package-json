@@ -1,8 +1,9 @@
-const dotProp = require('dot-prop')
-const tempy = require('tempy')
-const sortPackageJson = require('..')
 const path = require('path')
 const fs = require('fs')
+const dotProp = require('dot-prop')
+const tempy = require('tempy')
+const del = require('del')
+const sortPackageJson = require('..')
 const { execFile } = require('child_process')
 const cliScript = path.join(__dirname, '../cli.js')
 
@@ -151,7 +152,9 @@ function setupFixtures(fixtures) {
         ? packageJson
         : JSON.stringify(packageJson, null, 2)
     const file = path.join(root, dir, 'package.json')
-    fs.mkdirSync(path.join(root, dir), { recursive: true })
+    try {
+      fs.mkdirSync(path.join(root, dir), { recursive: true })
+    } catch (_) {}
     fs.writeFileSync(file, content)
     result[dir] = file
   }
@@ -160,7 +163,7 @@ function setupFixtures(fixtures) {
 }
 
 function cleanFixtures(root) {
-  fs.rmdirSync(root, { recursive: true })
+  del.sync(root, { force: true })
 }
 
 module.exports = {
