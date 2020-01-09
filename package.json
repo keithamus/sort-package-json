@@ -29,8 +29,8 @@
     "lint": "eslint .",
     "semantic-release": "semantic-release",
     "sort-package-json": "node cli.js package.json --check",
-    "test": "node test.js && ava",
-    "test-coverage": "nyc npm test"
+    "test": "ava",
+    "test-coverage": "nyc ava"
   },
   "husky": {
     "hooks": {
@@ -56,9 +56,6 @@
     ]
   },
   "ava": {
-    "files": [
-      "tests/**/*.js"
-    ],
     "verbose": true
   },
   "dependencies": {
