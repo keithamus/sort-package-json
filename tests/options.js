@@ -1,5 +1,4 @@
 import test from 'ava'
-import sortPackageJson from '..'
 import { keysToObject, macro } from './_helpers'
 
 test('options.sortOrder', macro.sortObject, {
