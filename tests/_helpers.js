@@ -96,7 +96,15 @@ function uniqueArray(t, { path, options }) {
   t.deepEqual(
     sortPackageJsonAsObject({ path, value: ['z', 'a', 'a'], options }),
     ['z', 'a'],
-    `Should unique array type \`${path}\` as it is.`,
+    `Should unique array type \`${path}\`.`,
+  )
+}
+
+function uniqueAndSort(t, { path, options }) {
+  t.deepEqual(
+    sortPackageJsonAsObject({ path, value: ['z', 'a', 'a'], options }),
+    ['a', 'z'],
+    `Should unique and sorted array type \`${path}\`.`,
   )
 }
 
@@ -107,6 +115,7 @@ module.exports = {
     sortObjectAlphabetically,
     testCLI,
     uniqueArray,
+    uniqueAndSort,
   },
   sortPackageJsonAsObject,
   sortPackageJsonAsString,
