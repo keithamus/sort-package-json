@@ -34,7 +34,6 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm t",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },

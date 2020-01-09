@@ -1,5 +1,4 @@
 import test from 'ava'
-import sortPackageJson from '..'
 import {
   runCLI,
   cliScript,
