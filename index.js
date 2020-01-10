@@ -113,7 +113,7 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const sortScripts = scripts => {
+const sortScripts = onObject(scripts => {
   const names = Object.keys(scripts)
   const prefixable = new Set()
 
@@ -137,7 +137,7 @@ const sortScripts = scripts => {
   )
 
   return sortObjectBy(order)(scripts)
-}
+})
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
