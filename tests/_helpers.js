@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const dotProp = require('dot-prop')
 const tempy = require('tempy')
+const makeDir = require('make-dir')
 const del = require('del')
 const sortPackageJson = require('..')
 const { execFile } = require('child_process')
@@ -96,20 +97,53 @@ function asItIs(t, { path, options }, excludeTypes = []) {
   }
 }
 
-async function testCLI(t, { fixtures = {}, args, cwd, message }) {
-  const { root } = setupFixtures(fixtures)
-  const actual = await runCLI({
+async function testCLI(t, { fixtures = [], args, message }) {
+  const cwd = tempy.directory()
+
+  fixtures = fixtures.map(({ file = 'package.json', content, expect }) => {
+    const absolutePath = path.join(cwd, file)
+    makeDir.sync(path.dirname(absolutePath))
+
+    const original =
+      typeof content === 'string' ? content : JSON.stringify(content, null, 2)
+
+    fs.writeFileSync(absolutePath, original)
+
+    return {
+      file,
+      absolutePath,
+      original,
+      expect:
+        typeof expect === 'string' ? expect : JSON.stringify(expect, null, 2),
+    }
+  })
+
+  const result = await runCLI({
     args,
-    cwd: cwd || root,
+    cwd,
     message,
   })
 
-  cleanFixtures(root)
+  for (const fixture of fixtures) {
+    fixture.actual = fs.readFileSync(fixture.absolutePath, 'utf8')
+  }
+
+  // clean up fixtures
+  del.sync(cwd, { force: true })
+
+  for (const { actual, expect, file } of fixtures) {
+    t.is(actual, expect, `\`${file}\` content is expected.`)
+  }
+
   t.snapshot(
     {
-      fixtures: Object.keys(fixtures).map(dir => `${dir}/packages.json`),
+      fixtures: fixtures.map(({ file, original, expect }) => ({
+        file,
+        original,
+        expect,
+      })),
       args,
-      result: actual,
+      result,
     },
     message,
   )
@@ -141,31 +175,6 @@ function uniqueAndSort(t, { path, options }) {
   asItIs(t, { path, options }, ['array'])
 }
 
-function setupFixtures(fixtures) {
-  const root = tempy.directory()
-  const result = {
-    root,
-  }
-  for (const [dir, packageJson] of Object.entries(fixtures)) {
-    const content =
-      typeof packageJson === 'string'
-        ? packageJson
-        : JSON.stringify(packageJson, null, 2)
-    const file = path.join(root, dir, 'package.json')
-    try {
-      fs.mkdirSync(path.join(root, dir), { recursive: true })
-    } catch (_) {}
-    fs.writeFileSync(file, content)
-    result[dir] = file
-  }
-
-  return result
-}
-
-function cleanFixtures(root) {
-  del.sync(root, { force: true })
-}
-
 module.exports = {
   macro: {
     sortObject,
@@ -179,7 +188,4 @@ module.exports = {
   sortPackageJsonAsString,
   keysToObject,
   cliScript,
-  runCLI,
-  setupFixtures,
-  cleanFixtures,
 }
