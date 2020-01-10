@@ -85,8 +85,8 @@ function asItIs(t, { path, options }, excludeTypes = []) {
     )
   }
 
-  for (const value of ['string', false, 2020]) {
-    const type = typeof value
+  for (const value of ['string', false, 2020, undefined, null]) {
+    const type = value === null ? 'null' : typeof value
     if (!excludeTypes.includes(type)) {
       t.is(
         sortPackageJsonAsObject({ path, value, options }),
