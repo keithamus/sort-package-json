@@ -136,7 +136,7 @@ const sortScripts = onObject(scripts => {
     [],
   )
 
-  return sortObjectBy(order)(scripts)
+  return sortObjectKeys(scripts, order)
 })
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
