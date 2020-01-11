@@ -27,19 +27,34 @@ const sortPackageJsonAsObject = ({ path, value, options }) =>
     path,
   )
 
-const keysToObject = keys => {
+const keysToObject = (keys, depth = 1) => {
   if (keys.some((value, index) => keys.indexOf(value) !== index)) {
     throw new Error(`${keys} should be unique.`)
   }
-  return keys.reduce((object, key) => Object.assign(object, { [key]: key }), {})
+
+  if (depth < 1) {
+    throw new Error(`depth should be a positive integer, got ${depth}.`)
+  }
+
+  return keys.reduce(
+    (object, key) =>
+      Object.assign(object, {
+        [key]: depth > 1 ? keysToObject(keys, depth - 1) : key,
+      }),
+    {},
+  )
 }
 
-function sortObjectAlphabetically(t, options) {
-  sortObject(t, {
-    ...options,
-    value: keysToObject(['z', 'a']),
-    expect: keysToObject(['a', 'z']),
-  })
+function sortObjectAlphabetically(t, options = {}) {
+  const { maxDepth = 1, expect } = options
+
+  for (let depth = 1; depth < maxDepth + 1; depth++) {
+    sortObject(t, {
+      ...options,
+      value: keysToObject(['z', 'a'], depth),
+      expect: expect || keysToObject(['a', 'z'], depth),
+    })
+  }
 }
 
 function sortObject(
