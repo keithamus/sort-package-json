@@ -15,7 +15,19 @@ const uniqAndSortArray = pipe([uniq, sortArray])
 const isPlainObject = x =>
   x && Object.prototype.toString.call(x) === '[object Object]'
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
-const sortObjectBy = comparator => onObject(x => sortObjectKeys(x, comparator))
+const sortObjectBy = (comparator, deep) => {
+  const over = onObject(object => {
+    object = sortObjectKeys(object, comparator)
+    if (deep) {
+      for (const [key, value] of Object.entries(object)) {
+        object[key] = over(value)
+      }
+    }
+    return object
+  })
+
+  return over
+}
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
@@ -227,6 +239,8 @@ const fields = [
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
   { key: 'peerDependencies', over: sortObject },
+  // TODO: only sort depth = 2
+  { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
   { key: 'optionalDependencies', over: sortObject },
   { key: 'bundledDependencies', over: uniqAndSortArray },
   { key: 'bundleDependencies', over: uniqAndSortArray },

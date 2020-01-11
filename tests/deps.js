@@ -21,3 +21,11 @@ for (const field of [
 ]) {
   test(field, macro.uniqueAndSort, { path: field })
 }
+
+// peerDependenciesMeta
+test('peerDependenciesMeta', macro.sortObjectAlphabetically, {
+  path: 'peerDependenciesMeta',
+  maxDepth: 2,
+  // TODO: don't use snapshot, find a esaier way for review
+  expect: 'snapshot',
+})
