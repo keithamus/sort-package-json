@@ -9,12 +9,18 @@ const { execFile } = require('child_process')
 const cliScript = path.join(__dirname, '../cli.js')
 
 // object can't compare keys order, so use string to test
-const sortPackageJsonAsString = ({ path, value, options }, pretty) =>
-  JSON.stringify(
-    sortPackageJson(path ? dotProp.set({}, path, value) : value, options),
-    null,
-    pretty === false ? undefined : 2,
-  )
+const sortPackageJsonAsString = ({ path, value, options }, pretty = true) => {
+  const input = path ? dotProp.set({}, path, value) : value
+  const output = sortPackageJson(input, options)
+
+  return {
+    options,
+    pretty,
+    input: JSON.stringify(input, null, pretty ? 2 : undefined),
+    output: JSON.stringify(output, null, pretty ? 2 : undefined),
+  }
+}
+
 const sortPackageJsonAsObject = ({ path, value, options }) =>
   dotProp.get(
     sortPackageJson(path ? dotProp.set({}, path, value) : value, options),
@@ -65,7 +71,7 @@ function sortObject(
     t.snapshot(sortPackageJsonAsString({ path, value, options }), message)
   } else {
     t.deepEqual(
-      sortPackageJsonAsString({ path, value, options }),
+      sortPackageJsonAsString({ path, value, options }).output,
       JSON.stringify(path ? dotProp.set({}, path, expect) : expect, null, 2),
       message,
     )
@@ -86,7 +92,7 @@ function asItIs(t, { path, options }, excludeTypes = []) {
         path,
         value: keysToObject(['z', 'a']),
         options,
-      }),
+      }).output,
       JSON.stringify(dotProp.set({}, path, keysToObject(['z', 'a'])), null, 2),
       `Should keep object type \`${path}\` as it is.`,
     )
