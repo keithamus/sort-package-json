@@ -34,13 +34,27 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm t",
+      "pre-commit": "npm t && lint-staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
+    ]
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ],
+    "package.json": [
+      "node cli.js",
+      "git add"
     ]
   },
   "prettier": {
@@ -80,6 +94,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "husky": "^4.0.2",
+    "lint-staged": "^9.5.0",
     "make-dir": "3.0.0",
     "nyc": "^15.0.0",
     "prettier": "^1.19.1",
