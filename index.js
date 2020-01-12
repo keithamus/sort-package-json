@@ -259,23 +259,21 @@ const overFields = pipe(
   }, []),
 )
 
-function editStringJSON(json, over) {
-  if (typeof json === 'string') {
-    const { indent } = detectIndent(json)
-    const endCharacters = json.slice(-1) === '\n' ? '\n' : ''
-    const newline = detectNewline(json)
-    json = JSON.parse(json)
-
-    let result = JSON.stringify(over(json), null, indent) + endCharacters
-    if (newline === '\r\n') {
-      result = result.replace(/\n/g, newline)
-    }
-    return result
+const LF = '\n'
+const editJSONString = (string, over) => {
+  const json = over(JSON.parse(string))
+  const { indent } = detectIndent(string)
+  let result = JSON.stringify(json, null, indent)
+  const newline = detectNewline(string)
+  const hasFinalNewLine = string.slice(-1) === LF
+  if (newline !== LF) {
+    result = result.replace(/\n/g, newline)
   }
-
-  return over(json)
+  if (hasFinalNewLine) {
+    result += newline
+  }
+  return result
 }
-
 const isPrivateKey = key => key[0] === '_'
 const partition = (array, predicate) =>
   array.reduce(
@@ -285,26 +283,27 @@ const partition = (array, predicate) =>
     },
     [[], []],
   )
-function sortPackageJson(jsonIsh, options = {}) {
-  return editStringJSON(
-    jsonIsh,
-    onObject(json => {
-      let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
+function sortPackageJson(packageJson, options = {}) {
+  const over = onObject(json => {
+    let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
 
-      if (Array.isArray(sortOrder)) {
-        const keys = Object.keys(json)
-        const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
-        sortOrder = [
-          ...sortOrder,
-          ...defaultSortOrder,
-          ...publicKeys.sort(),
-          ...privateKeys.sort(),
-        ]
-      }
+    if (Array.isArray(sortOrder)) {
+      const keys = Object.keys(json)
+      const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
+      sortOrder = [
+        ...sortOrder,
+        ...defaultSortOrder,
+        ...publicKeys.sort(),
+        ...privateKeys.sort(),
+      ]
+    }
 
-      return overFields(sortObjectKeys(json, sortOrder))
-    }),
-  )
+    return overFields(sortObjectKeys(json, sortOrder))
+  })
+
+  return typeof packageJson === 'string'
+    ? editJSONString(packageJson, over)
+    : over(packageJson)
 }
 
 module.exports = sortPackageJson
