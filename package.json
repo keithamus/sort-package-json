@@ -82,7 +82,7 @@
   "devDependencies": {
     "@commitlint/cli": "8.3.5",
     "@commitlint/config-conventional": "8.3.4",
-    "ava": "^2.4.0",
+    "ava": "^3.0.0",
     "del": "5.1.0",
     "dot-prop": "^5.2.0",
     "eslint": "^6.7.2",
