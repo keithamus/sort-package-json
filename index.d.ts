@@ -29,7 +29,7 @@ declare const sortPackageJson: {
 
   sortPackageJson<T extends any>(
     packageJson: T,
-    options?: sortPackageJson.Options
+    options?: sortPackageJson.Options,
   ): T
 
   /**
