@@ -180,7 +180,6 @@ const fields = [
     over: onArray(contributors => contributors.map(sortPeopleObject)),
   },
   /* vscode */ { key: 'publisher' },
-  { key: 'files', over: uniq },
   { key: 'sideEffects' },
   { key: 'type' },
   { key: 'exports', over: sortObject },
@@ -201,6 +200,7 @@ const fields = [
   { key: 'bin', over: sortObject },
   { key: 'man' },
   { key: 'directories', over: sortDirectories },
+  { key: 'files', over: uniq },
   { key: 'workspaces' },
   // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
   {
