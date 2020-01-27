@@ -17,20 +17,21 @@
   },
   "license": "MIT",
   "author": "Keith Cirkel <npm@keithcirkel.co.uk> (http://keithcirkel.co.uk/)",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "bin": "cli.js",
   "files": [
     "index.js",
     "index.d.ts",
     "cli.js"
   ],
-  "main": "index.js",
-  "types": "index.d.ts",
-  "bin": "cli.js",
   "scripts": {
     "lint": "eslint .",
     "semantic-release": "semantic-release",
     "sort-package-json": "node cli.js package.json --check",
     "test": "ava",
-    "test-coverage": "nyc ava"
+    "test-coverage": "nyc ava",
+    "update-snapshot": "ava -u && node cli.js package.json"
   },
   "husky": {
     "hooks": {
