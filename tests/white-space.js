@@ -1,5 +1,5 @@
-import test from 'ava'
-import sortPackageJson from '..'
+const test = require('ava')
+const sortPackageJson = require('..')
 
 test('white space', t => {
   t.is(sortPackageJson('{}'), '{}')
