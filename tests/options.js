@@ -1,5 +1,5 @@
-import test from 'ava'
-import { keysToObject, macro } from './_helpers'
+const test = require('ava')
+const { keysToObject, macro } = require('./_helpers')
 
 test('options.sortOrder', macro.sortObject, {
   options: {

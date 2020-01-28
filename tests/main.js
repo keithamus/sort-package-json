@@ -1,6 +1,6 @@
-import test from 'ava'
-import sortPackageJson from '..'
-import { macro, keysToObject } from './_helpers'
+const test = require('ava')
+const sortPackageJson = require('..')
+const { macro, keysToObject } = require('./_helpers')
 
 const fields = [...sortPackageJson.sortOrder].sort()
 
