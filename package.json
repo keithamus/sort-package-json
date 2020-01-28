@@ -45,16 +45,13 @@
   },
   "lint-staged": {
     "*.js": [
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ],
     "*.ts": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "package.json": [
-      "node cli.js",
-      "git add"
+      "node cli.js"
     ]
   },
   "prettier": {
