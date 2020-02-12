@@ -93,7 +93,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "husky": "^4.0.2",
     "lint-staged": "^10.0.3",
-    "make-dir": "3.0.0",
+    "make-dir": "3.0.1",
     "nyc": "^15.0.0",
     "prettier": "^1.19.1",
     "semantic-release": "16.0.1",
