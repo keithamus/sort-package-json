@@ -66,6 +66,16 @@ const eslintBaseConfigProperties = [
   'noInlineConfig',
   'reportUnusedDisableDirectives',
 ]
+const sortEslintRules = onObject(rules => {
+  return sortObjectKeys(
+    rules,
+    Object.keys(rules).sort(
+      (rule1, rule2) =>
+        rule1.split('/').length - rule2.split('/').length ||
+        rule1.localeCompare(rule2),
+    ),
+  )
+})
 const sortEslintConfig = onObject(
   pipe([
     sortObjectBy(eslintBaseConfigProperties),
@@ -76,7 +86,7 @@ const sortEslintConfig = onObject(
       onArray(overrides => overrides.map(sortEslintConfig)),
     ),
     overProperty('parserOptions', sortObject),
-    overProperty('rules', sortObject),
+    overProperty('rules', sortEslintRules),
     overProperty('settings', sortObject),
   ]),
 )

@@ -25,7 +25,25 @@ test('eslintConfig', macro.sortObject, {
   value: keysToObject(['z', ...baseEslintConfigKeys, 'a']),
 })
 
-for (const key of ['env', 'globals', 'parserOptions', 'rules', 'settings']) {
+test('eslintConfig.rules', macro.sortObject, {
+  path: 'eslintConfig.rules',
+  expect: 'snapshot',
+  value: keysToObject([
+    'z',
+    'unknown-plugin/depth-1/depth-2',
+    'unicorn/new-for-builtins',
+    'unicorn/prefer-includes',
+    'for-direction',
+    'array-callback-return',
+    'yoda',
+    'prettier/prettier',
+    'react/display-name',
+    'react/jsx-key',
+    'a',
+  ]),
+})
+
+for (const key of ['env', 'globals', 'parserOptions', 'settings']) {
   const path = ['eslintConfig', key].join('.')
   test(path, macro.sortObjectAlphabetically, { path })
 }
