@@ -2,6 +2,7 @@ const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
 const gitHooks = require('git-hooks-list')
+const isPlainObject = require('is-plain-obj')
 
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
@@ -12,8 +13,6 @@ const onStringArray = fn => x =>
 const uniq = onStringArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onStringArray(array => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
-const isPlainObject = x =>
-  x && Object.prototype.toString.call(x) === '[object Object]'
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
 const sortObjectBy = (comparator, deep) => {
   const over = onObject(object => {
