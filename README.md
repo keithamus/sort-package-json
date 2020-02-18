@@ -80,10 +80,10 @@ npm install --save-dev sort-package-json
 ### Usage
 
 ```js
-sortPackageJson(jsonIsh, options?)
+sortPackageJson(packageJson, options?)
 ```
 
-Pass a JSON string, return a new sorted JSON string.
+Pass a JSON string, return a new sorted JSON string.\
 Pass a JSON object, return a new sorted JSON object.
 
 ```js
@@ -126,23 +126,40 @@ console.log(sortPackageJson(packageJsonObject))
 
 #### options.sortOrder
 
-custom sortOrder
+Type: `string[] | Function`\
+Default: `sortPackageJson.sortOrder`
+
+Custom ordering array or comparator function.
+
+If an array, sort keys in ordering of `options.sortOrder`.
+
+**Notice**: fields not in this array, will still sort by `defaultSortOrder`
 
 ```js
-console.log(sortPackageJson(packageJsonObject, {
-  sortOrder: ['version', 'name', 'dependencies'],
-}))
-/* => object:
-{
-  version: '1.0.0',
-  name: 'my-awesome-project',
-  dependencies: {
-    'sort-object-keys': '1.0.0',
-    'sort-package-json': '1.0.0'
-  }
-}
+const sorted = sortPackageJson(packageJsonObject, {
+  sortOrder: ['version']
+})
+
+console.log(Object.keys(sorted))
+
+// -> [ 'version', 'name', 'dependencies' ]
+//                 ^^^^^^^^^^^^^^^^^^^^^^
+//                 `name` and `dependencies` are sorted by defaultSortOrder
 ```
 
+If a function, sort fields by [Array#sort(options.sortOrder)](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Description)
+
+```js
+const sorted = sortPackageJson(packageJsonObject, {
+  sortOrder(left, right) {
+    return left.localeCompare(right)
+  }
+})
+
+console.log(Object.keys(sorted))
+
+// -> [ 'dependencies', 'name', 'version' ]
+```
 
 ## Related tools
 
@@ -154,13 +171,19 @@ console.log(sortPackageJson(packageJsonObject, {
 - [AVA](https://github.com/avajs/ava)
 - [Babel](https://babeljs.io/)
 - [Browserify](http://browserify.org/)
+- [commitlint](https://commitlint.js.org/)
 - [ESLint](https://eslint.org/)
+- [Husky](https://github.com/typicode/husky)
 - [Istanbul](https://istanbul.js.org/)
 - [Jest](https://jestjs.io/)
+- [lint-staged](https://github.com/okonet/lint-staged)
 - [Mocha](https://mochajs.org/)
-- [node-pre-gyp](https://github.com/mapbox/node-pre-gyp/)
+- [node-pre-gyp](https://github.com/mapbox/node-pre-gyp)
 - [Prettier](https://prettier.io/)
+- [stylelint](https://github.com/stylelint/stylelint)
 - [xojs](https://github.com/xojs/xo)
+
+_Alphabetically ordered._
 
 ## Automatically Sort
 

@@ -1,16 +1,32 @@
-#!/usr/bin/env node
 const sortObjectKeys = require('sort-object-keys')
 const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
-const globby = require('globby')
 const gitHooks = require('git-hooks-list')
 const isPlainObject = require('is-plain-obj')
 
+const hasOwnProperty = (object, property) =>
+  Object.prototype.hasOwnProperty.call(object, property)
+const pipe = fns => x => fns.reduce((result, fn) => fn(result), x)
 const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
-const uniq = onArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
-const sortArray = onArray(array => [...array].sort())
+const onStringArray = fn => x =>
+  Array.isArray(x) && x.every(item => typeof item === 'string') ? fn(x) : x
+const uniq = onStringArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
+const sortArray = onStringArray(array => [...array].sort())
+const uniqAndSortArray = pipe([uniq, sortArray])
 const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
-const sortObjectBy = comparator => onObject(x => sortObjectKeys(x, comparator))
+const sortObjectBy = (comparator, deep) => {
+  const over = onObject(object => {
+    object = sortObjectKeys(object, comparator)
+    if (deep) {
+      for (const [key, value] of Object.entries(object)) {
+        object[key] = over(value)
+      }
+    }
+    return object
+  })
+
+  return over
+}
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
@@ -22,10 +38,20 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
-const sortProperty = (property, over) => object =>
-  Object.assign(object, { [property]: over(object[property]) })
+const overProperty = (property, over) => object =>
+  hasOwnProperty(object, property)
+    ? Object.assign(object, { [property]: over(object[property]) })
+    : object
 const sortGitHooks = sortObjectBy(gitHooks)
-const sortESLintConfig = sortObjectBy([
+
+// https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
+const eslintBaseConfigProperties = [
+  // `files` and `excludedFiles` are only on `overrides[]`
+  // for easier sort `overrides[]`,
+  // add them to here, so we don't need sort `overrides[]` twice
+  'files',
+  'excludedFiles',
+  // baseConfig
   'env',
   'parser',
   'parserOptions',
@@ -38,7 +64,50 @@ const sortESLintConfig = sortObjectBy([
   'processor',
   'noInlineConfig',
   'reportUnusedDisableDirectives',
-])
+]
+const sortEslintConfig = onObject(
+  pipe([
+    sortObjectBy(eslintBaseConfigProperties),
+    overProperty('env', sortObject),
+    overProperty('globals', sortObject),
+    overProperty(
+      'overrides',
+      onArray(overrides => overrides.map(sortEslintConfig)),
+    ),
+    overProperty('parserOptions', sortObject),
+    overProperty('rules', sortObject),
+    overProperty('settings', sortObject),
+  ]),
+)
+const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
+
+const sortPrettierConfig = onObject(
+  pipe([
+    // sort keys alphabetically, but put `overrides` at bottom
+    config =>
+      sortObjectKeys(config, [
+        ...Object.keys(config)
+          .filter(key => key !== 'overrides')
+          .sort(),
+        'overrides',
+      ]),
+    // if `config.overrides` exists
+    overProperty(
+      'overrides',
+      // and `config.overrides` is an array
+      onArray(overrides =>
+        overrides.map(
+          pipe([
+            // sort `config.overrides[]` alphabetically
+            sortObject,
+            // sort `config.overrides[].options` alphabetically
+            overProperty('options', sortObject),
+          ]),
+        ),
+      ),
+    ),
+  ]),
+)
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -55,7 +124,7 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const sortScripts = scripts => {
+const sortScripts = onObject(scripts => {
   const names = Object.keys(scripts)
   const prefixable = new Set()
 
@@ -78,28 +147,38 @@ const sortScripts = scripts => {
     [],
   )
 
-  return sortObjectBy(order)(scripts)
-}
+  return sortObjectKeys(scripts, order)
+})
+
+// fields marked `vscode` are for `Visual Studio Code extension manifest` only
+// https://code.visualstudio.com/api/references/extension-manifest
+// Supported fields:
+// publisher, displayName, categories, galleryBanner, preview, contributes,
+// activationEvents, badges, markdown, qna, extensionPack,
+// extensionDependencies, icon
 
 // field.key{string}: field name
 // field.over{function}: sort field subKey
 const fields = [
   { key: 'name' },
+  /* vscode */ { key: 'displayName' },
   { key: 'version' },
   { key: 'private' },
   { key: 'description' },
+  /* vscode */ { key: 'categories', over: uniq },
   { key: 'keywords', over: uniq },
   { key: 'homepage' },
   { key: 'bugs', over: sortObjectBy(['url', 'email']) },
   { key: 'repository', over: sortURLObject },
   { key: 'funding', over: sortURLObject },
   { key: 'license', over: sortURLObject },
+  /* vscode */ { key: 'qna' },
   { key: 'author', over: sortPeopleObject },
   {
     key: 'contributors',
     over: onArray(contributors => contributors.map(sortPeopleObject)),
   },
-  { key: 'files', over: uniq },
+  /* vscode */ { key: 'publisher' },
   { key: 'sideEffects' },
   { key: 'type' },
   { key: 'exports', over: sortObject },
@@ -120,6 +199,7 @@ const fields = [
   { key: 'bin', over: sortObject },
   { key: 'man' },
   { key: 'directories', over: sortDirectories },
+  { key: 'files', over: uniq },
   { key: 'workspaces' },
   // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
   {
@@ -134,7 +214,9 @@ const fields = [
   },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
-  { key: 'husky', over: sortProperty('hooks', sortGitHooks) },
+  /* vscode */ { key: 'contributes', over: sortObject },
+  /* vscode */ { key: 'activationEvents', over: uniq },
+  { key: 'husky', over: overProperty('hooks', sortGitHooks) },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
   { key: 'lint-staged', over: sortObject },
@@ -144,8 +226,8 @@ const fields = [
   { key: 'babel', over: sortObject },
   { key: 'browserslist' },
   { key: 'xo', over: sortObject },
-  { key: 'prettier', over: sortObject },
-  { key: 'eslintConfig', over: sortESLintConfig },
+  { key: 'prettier', over: sortPrettierConfig },
+  { key: 'eslintConfig', over: sortEslintConfig },
   { key: 'eslintIgnore' },
   { key: 'stylelint' },
   { key: 'ava', over: sortObject },
@@ -156,9 +238,13 @@ const fields = [
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
   { key: 'peerDependencies', over: sortObject },
+  // TODO: only sort depth = 2
+  { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
   { key: 'optionalDependencies', over: sortObject },
-  { key: 'bundledDependencies', over: sortArray },
-  { key: 'bundleDependencies', over: sortArray },
+  { key: 'bundledDependencies', over: uniqAndSortArray },
+  { key: 'bundleDependencies', over: uniqAndSortArray },
+  /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
+  /* vscode */ { key: 'extensionDependencies', over: uniqAndSortArray },
   { key: 'flat' },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
@@ -166,9 +252,25 @@ const fields = [
   { key: 'cpu' },
   { key: 'preferGlobal', over: sortObject },
   { key: 'publishConfig', over: sortObject },
+  /* vscode */ { key: 'icon' },
+  /* vscode */ {
+    key: 'badges',
+    over: onArray(badge => badge.map(sortVSCodeBadgeObject)),
+  },
+  /* vscode */ { key: 'galleryBanner', over: sortObject },
+  /* vscode */ { key: 'preview' },
+  /* vscode */ { key: 'markdown' },
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
+const overFields = pipe(
+  fields.reduce((fns, { key, over }) => {
+    if (over) {
+      fns.push(overProperty(key, over))
+    }
+    return fns
+  }, []),
+)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -213,13 +315,7 @@ function sortPackageJson(jsonIsh, options = {}) {
         ]
       }
 
-      const newJson = sortObjectKeys(json, sortOrder)
-
-      for (const { key, over } of fields) {
-        if (over && newJson[key]) newJson[key] = over(newJson[key])
-      }
-
-      return newJson
+      return overFields(sortObjectKeys(json, sortOrder))
     }),
   )
 }
@@ -227,59 +323,3 @@ function sortPackageJson(jsonIsh, options = {}) {
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
 module.exports.sortOrder = defaultSortOrder
-
-if (require.main === module) {
-  const fs = require('fs')
-  const isCheckFlag = argument => argument === '--check' || argument === '-c'
-
-  const cliArguments = process.argv.slice(2)
-  const isCheck = cliArguments.some(isCheckFlag)
-
-  const patterns = cliArguments.filter(argument => !isCheckFlag(argument))
-
-  if (!patterns.length) {
-    patterns[0] = 'package.json'
-  }
-
-  const files = globby.sync(patterns)
-
-  if (files.length === 0) {
-    console.log('No matching files.')
-    process.exit(1)
-  }
-
-  let notSortedFiles = 0
-
-  files.forEach(file => {
-    const packageJson = fs.readFileSync(file, 'utf8')
-    const sorted = sortPackageJson(packageJson)
-
-    if (sorted !== packageJson) {
-      if (isCheck) {
-        notSortedFiles++
-        console.log(file)
-      } else {
-        fs.writeFileSync(file, sorted, 'utf8')
-        console.log(`${file} is sorted!`)
-      }
-    }
-  })
-
-  if (isCheck) {
-    console.log()
-    if (notSortedFiles) {
-      console.log(
-        notSortedFiles === 1
-          ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
-          : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
-      )
-    } else {
-      console.log(
-        files.length === 1
-          ? `${files.length} matched file is sorted.`
-          : `${files.length} matched files are sorted.`,
-      )
-    }
-    process.exit(notSortedFiles)
-  }
-}
