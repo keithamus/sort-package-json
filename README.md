@@ -164,6 +164,7 @@ console.log(Object.keys(sorted))
 ## Related tools
 
 - [ESLint Rule with Autofix](https://github.com/kellyselden/eslint-plugin-json-files#supported-rules)
+- [Prettier Plugin](https://github.com/matzkoh/prettier-plugin-packagejson)
 - [Visual Studio Code Extension](https://github.com/unional/vscode-sort-package-json)
 
 ## Supported Libraries
