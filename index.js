@@ -236,6 +236,7 @@ const fields = [
   { key: 'prettier', over: sortPrettierConfig },
   { key: 'eslintConfig', over: sortEslintConfig },
   { key: 'eslintIgnore' },
+  { key: 'remarkConfig', over: sortObject },
   { key: 'stylelint' },
   { key: 'ava', over: sortObject },
   { key: 'jest', over: sortObject },

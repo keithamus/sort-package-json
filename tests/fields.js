@@ -63,6 +63,7 @@ for (const field of [
   'preferGlobal',
   'publishConfig',
   'galleryBanner',
+  'remarkConfig',
 ]) {
   test(field, macro.sortObjectAlphabetically, { path: field })
 }

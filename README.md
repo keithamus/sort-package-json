@@ -181,6 +181,7 @@ console.log(Object.keys(sorted))
 - [Mocha](https://mochajs.org/)
 - [node-pre-gyp](https://github.com/mapbox/node-pre-gyp)
 - [Prettier](https://prettier.io/)
+- [remark](https://remark.js.org/)
 - [stylelint](https://github.com/stylelint/stylelint)
 - [xojs](https://github.com/xojs/xo)
 
