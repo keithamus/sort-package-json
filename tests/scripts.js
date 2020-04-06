@@ -18,19 +18,19 @@ const fixture = {
 }
 
 const expect = {
-  postinstall: 'echo "Installed"',
-  multiply: '2 * 3',
-  'pre-fetch-info': 'foo',
-  prepare: 'npm run build',
-  preprettier: 'echo "not pretty"',
-  prettier: 'prettier -l "**/*.js"',
-  postprettier: 'echo "so pretty"',
   start: 'node server.js',
   pretest: 'xyz',
   test: 'node test.js',
   posttest: 'abc',
+  postinstall: 'echo "Installed"',
+  prepare: 'npm run build',
+  multiply: '2 * 3',
+  preprettier: 'echo "not pretty"',
+  prettier: 'prettier -l "**/*.js"',
+  postprettier: 'echo "so pretty"',
+  'pre-fetch-info': 'foo',
   prewatch: 'echo "about to watch"',
-  watch: 'watch things',
+  watch: 'watch things'
 }
 
 for (const field of ['scripts', 'betterScripts']) {
