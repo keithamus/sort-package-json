@@ -331,3 +331,4 @@ function sortPackageJson(jsonIsh, options = {}) {
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
 module.exports.sortOrder = defaultSortOrder
+module.exports.default = sortPackageJson
