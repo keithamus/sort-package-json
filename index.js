@@ -132,9 +132,7 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const sortScripts = onObject(scripts => {
-  return sortPackageJsonScripts(scripts)
-})
+const sortScripts = onObject(sortPackageJsonScripts)
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
