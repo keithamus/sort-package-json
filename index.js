@@ -3,6 +3,7 @@ const detectIndent = require('detect-indent')
 const detectNewline = require('detect-newline').graceful
 const gitHooks = require('git-hooks-list')
 const isPlainObject = require('is-plain-obj')
+const sortPackageJsonScripts = require('sort-package-json-scripts').default
 
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
@@ -131,31 +132,7 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const sortScripts = onObject(scripts => {
-  const names = Object.keys(scripts)
-  const prefixable = new Set()
-
-  const keys = names
-    .map(name => {
-      const omitted = name.replace(/^(?:pre|post)/, '')
-      if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
-        prefixable.add(omitted)
-        return omitted
-      }
-      return name
-    })
-    .sort()
-
-  const order = keys.reduce(
-    (order, key) =>
-      order.concat(
-        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-      ),
-    [],
-  )
-
-  return sortObjectKeys(scripts, order)
-})
+const sortScripts = onObject(sortPackageJsonScripts)
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
