@@ -40,28 +40,10 @@ jobs:
 
       - name: Run Tests
         run: npm run test-coverage
-
-    release:
-      name: Release
-      runs-on: ubuntu-latest
-      needs: [test]
-      steps:
-        - name: Checkout
-          uses: actions/checkout@master
-          with:
-            depth: 1
-
-        - name: Setup Node.js
-          uses: actions/setup-node@master
-          with:
-            node-version: 12
-
-        - name: Install Dependencies
-          run: npm ci
-
-        - name: Release
-          run: npm run semantic-release
-          env:
-            GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-            NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-
+        
+      - name: Release
+        if: github.ref == 'master'
+        run: npm run semantic-release
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
