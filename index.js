@@ -6,16 +6,16 @@ const isPlainObject = require('is-plain-obj')
 
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
-const pipe = fns => x => fns.reduce((result, fn) => fn(result), x)
-const onArray = fn => x => (Array.isArray(x) ? fn(x) : x)
-const onStringArray = fn => x =>
-  Array.isArray(x) && x.every(item => typeof item === 'string') ? fn(x) : x
-const uniq = onStringArray(xs => xs.filter((x, i) => i === xs.indexOf(x)))
-const sortArray = onStringArray(array => [...array].sort())
+const pipe = (fns) => (x) => fns.reduce((result, fn) => fn(result), x)
+const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
+const onStringArray = (fn) => (x) =>
+  Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
+const uniq = onStringArray((xs) => xs.filter((x, i) => i === xs.indexOf(x)))
+const sortArray = onStringArray((array) => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
-const onObject = fn => x => (isPlainObject(x) ? fn(x) : x)
+const onObject = (fn) => (x) => (isPlainObject(x) ? fn(x) : x)
 const sortObjectBy = (comparator, deep) => {
-  const over = onObject(object => {
+  const over = onObject((object) => {
     object = sortObjectKeys(object, comparator)
     if (deep) {
       for (const [key, value] of Object.entries(object)) {
@@ -38,7 +38,7 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
-const overProperty = (property, over) => object =>
+const overProperty = (property, over) => (object) =>
   hasOwnProperty(object, property)
     ? Object.assign(object, { [property]: over(object[property]) })
     : object
@@ -72,7 +72,7 @@ const sortEslintConfig = onObject(
     overProperty('globals', sortObject),
     overProperty(
       'overrides',
-      onArray(overrides => overrides.map(sortEslintConfig)),
+      onArray((overrides) => overrides.map(sortEslintConfig)),
     ),
     overProperty('parserOptions', sortObject),
     overProperty(
@@ -91,10 +91,10 @@ const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 const sortPrettierConfig = onObject(
   pipe([
     // sort keys alphabetically, but put `overrides` at bottom
-    config =>
+    (config) =>
       sortObjectKeys(config, [
         ...Object.keys(config)
-          .filter(key => key !== 'overrides')
+          .filter((key) => key !== 'overrides')
           .sort(),
         'overrides',
       ]),
@@ -102,7 +102,7 @@ const sortPrettierConfig = onObject(
     overProperty(
       'overrides',
       // and `config.overrides` is an array
-      onArray(overrides =>
+      onArray((overrides) =>
         overrides.map(
           pipe([
             // sort `config.overrides[]` alphabetically
@@ -131,12 +131,12 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const sortScripts = onObject(scripts => {
+const sortScripts = onObject((scripts) => {
   const names = Object.keys(scripts)
   const prefixable = new Set()
 
   const keys = names
-    .map(name => {
+    .map((name) => {
       const omitted = name.replace(/^(?:pre|post)/, '')
       if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
         prefixable.add(omitted)
@@ -183,7 +183,7 @@ const fields = [
   { key: 'author', over: sortPeopleObject },
   {
     key: 'contributors',
-    over: onArray(contributors => contributors.map(sortPeopleObject)),
+    over: onArray((contributors) => contributors.map(sortPeopleObject)),
   },
   /* vscode */ { key: 'publisher' },
   { key: 'sideEffects' },
@@ -263,7 +263,7 @@ const fields = [
   /* vscode */ { key: 'icon' },
   /* vscode */ {
     key: 'badges',
-    over: onArray(badge => badge.map(sortVSCodeBadgeObject)),
+    over: onArray((badge) => badge.map(sortVSCodeBadgeObject)),
   },
   /* vscode */ { key: 'galleryBanner', over: sortObject },
   /* vscode */ { key: 'preview' },
@@ -297,7 +297,7 @@ function editStringJSON(json, over) {
   return over(json)
 }
 
-const isPrivateKey = key => key[0] === '_'
+const isPrivateKey = (key) => key[0] === '_'
 const partition = (array, predicate) =>
   array.reduce(
     (result, value) => {
@@ -309,7 +309,7 @@ const partition = (array, predicate) =>
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
-    onObject(json => {
+    onObject((json) => {
       let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
 
       if (Array.isArray(sortOrder)) {

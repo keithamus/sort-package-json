@@ -1,7 +1,7 @@
 const test = require('ava')
 const sortPackageJson = require('..')
 
-test('white space', t => {
+test('white space', (t) => {
   t.is(sortPackageJson('{}'), '{}')
   t.is(sortPackageJson('{}\n'), '{}\n')
   t.is(sortPackageJson('{}\r\n'), '{}\r\n')

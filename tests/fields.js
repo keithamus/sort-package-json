@@ -179,7 +179,7 @@ test('directories', macro.sortObject, {
   },
 })
 
-test('contributors', t => {
+test('contributors', (t) => {
   const contributors = {
     contributors: [
       {
@@ -208,7 +208,7 @@ test('contributors', t => {
   )
 })
 
-test('badges', t => {
+test('badges', (t) => {
   const badges = {
     badges: [
       {

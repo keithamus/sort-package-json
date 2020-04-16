@@ -4,7 +4,7 @@ const { macro, keysToObject } = require('./_helpers')
 
 const fields = [...sortPackageJson.sortOrder].sort()
 
-test('main', t => {
+test('main', (t) => {
   const packageJson = { version: '1.0.0', name: 'sort-package-json' }
 
   t.is(

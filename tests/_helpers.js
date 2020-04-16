@@ -171,7 +171,7 @@ async function testCLI(t, { fixtures = [], args, message }) {
 }
 
 function runCLI({ args = [], cwd = process.cwd() }) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     execFile('node', [cliScript, ...args], { cwd }, (error, stdout, stderr) => {
       resolve({ errorCode: error && error.code, stdout, stderr })
     })
