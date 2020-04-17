@@ -17,7 +17,7 @@ test('prettier', macro.sortObject, {
   },
 })
 
-test('prettier.overrides[]', t => {
+test('prettier.overrides[]', (t) => {
   const prettierConfig = {
     prettier: {
       overrides: [
@@ -43,7 +43,7 @@ test('prettier.overrides[]', t => {
   )
 })
 
-test('prettier.overrides[].options', t => {
+test('prettier.overrides[].options', (t) => {
   const config = {
     prettier: {
       overrides: [

@@ -3,12 +3,12 @@ const fs = require('fs')
 const globby = require('globby')
 const sortPackageJson = require('.')
 
-const isCheckFlag = argument => argument === '--check' || argument === '-c'
+const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
 
 const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)
 
-const patterns = cliArguments.filter(argument => !isCheckFlag(argument))
+const patterns = cliArguments.filter((argument) => !isCheckFlag(argument))
 
 if (!patterns.length) {
   patterns[0] = 'package.json'
@@ -23,7 +23,7 @@ if (files.length === 0) {
 
 let notSortedFiles = 0
 
-files.forEach(file => {
+files.forEach((file) => {
   const packageJson = fs.readFileSync(file, 'utf8')
   const sorted = sortPackageJson(packageJson)
 

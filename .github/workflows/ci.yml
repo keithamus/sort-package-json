@@ -33,6 +33,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
+        if: matrix.node_version == '12'
         run: npm run lint
 
       - name: Check package.json
@@ -40,7 +41,7 @@ jobs:
 
       - name: Run Tests
         run: npm run test-coverage
-        
+
       - name: Release
         if: github.ref == 'master'
         run: npm run semantic-release

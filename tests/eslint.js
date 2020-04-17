@@ -60,7 +60,7 @@ for (const key of [
   test(path, macro.asItIs, { path })
 }
 
-test('eslintConfig.override[]', t => {
+test('eslintConfig.override[]', (t) => {
   const eslintConfigWithOverrides = {
     eslintConfig: {
       overrides: [
