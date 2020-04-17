@@ -11,7 +11,7 @@ const goodJson = {
   version: '1.0.0',
 }
 
-test('cli', t => {
+test('cli', (t) => {
   t.notThrows(
     () => fs.accessSync(cliScript, fs.constants.X_OK),
     'CLI should be executable.',
