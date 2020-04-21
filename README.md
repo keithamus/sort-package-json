@@ -33,7 +33,7 @@ $ cat package.json
 $ npx sort-package-json
 package.json is sorted!
 
-cat package.json
+$ cat package.json
 {
   "name": "my-awesome-project",
   "version": "1.0.0",
