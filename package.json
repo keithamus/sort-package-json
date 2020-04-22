@@ -97,7 +97,7 @@
     "make-dir": "3.0.2",
     "nyc": "^15.0.0",
     "prettier": "^2.0.4",
-    "semantic-release": "17.0.5",
+    "semantic-release": "17.0.7",
     "tempy": "0.4.0"
   }
 }
