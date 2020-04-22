@@ -9,9 +9,9 @@
  */
 declare function sortPackageJsonCore<T extends Record<any, any>>(packageJson: T, options?: sortPackageJsonCore.Options): T;
 declare namespace sortPackageJsonCore {
-  var sortPackageJson: typeof sortPackageJsonCore;
+  var sortPackageJson: <T extends Record<any, any>>(packageJson: T, options?: sortPackageJsonCore.Options) => T;
   // @ts-ignore
-  var default: typeof sortPackageJsonCore;
+  var default: <T extends Record<any, any>>(packageJson: T, options?: sortPackageJsonCore.Options) => T;
 }
 declare namespace sortPackageJsonCore {
   type ComparatorFunction = (left: string, right: string) => number;
