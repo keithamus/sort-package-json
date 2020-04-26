@@ -73,7 +73,7 @@
   "dependencies": {
     "detect-indent": "^6.0.0",
     "detect-newline": "3.1.0",
-    "git-hooks-list": "1.0.3",
+    "git-hooks-list": "2.0.0",
     "globby": "11.0.0",
     "is-plain-obj": "2.1.0",
     "sort-object-keys": "^1.1.3"
