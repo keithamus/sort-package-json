@@ -29,3 +29,11 @@ test('peerDependenciesMeta', macro.sortObjectAlphabetically, {
   // TODO: don't use snapshot, find a esaier way for review
   expect: 'snapshot',
 })
+
+// peerDependenciesMeta
+test('dependenciesMeta', macro.sortObjectAlphabetically, {
+  path: 'dependenciesMeta',
+  maxDepth: 2,
+  // TODO: don't use snapshot, find a esaier way for review
+  expect: 'snapshot',
+})
