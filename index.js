@@ -257,6 +257,7 @@ const fields = [
   { key: 'flat' },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
+  { key: 'languageName' },
   { key: 'os' },
   { key: 'cpu' },
   { key: 'preferGlobal', over: sortObject },
