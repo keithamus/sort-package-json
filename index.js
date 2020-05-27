@@ -246,6 +246,7 @@ const fields = [
   { key: 'resolutions', over: sortObject },
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
+  { key: 'dependenciesMeta', over: sortObjectBy(undefined, true) },
   { key: 'peerDependencies', over: sortObject },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
