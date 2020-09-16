@@ -182,6 +182,10 @@ const fields = [
   /* vscode */ { key: 'qna' },
   { key: 'author', over: sortPeopleObject },
   {
+    key: 'maintainers',
+    over: onArray((maintainers) => maintainers.map(sortPeopleObject)),
+  },
+  {
     key: 'contributors',
     over: onArray((contributors) => contributors.map(sortPeopleObject)),
   },
