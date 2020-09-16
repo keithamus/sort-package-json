@@ -184,6 +184,7 @@ console.log(Object.keys(sorted))
 - [Prettier](https://prettier.io/)
 - [remark](https://remark.js.org/)
 - [stylelint](https://github.com/stylelint/stylelint)
+- [Tap](https://node-tap.org/)
 - [xojs](https://github.com/xojs/xo)
 
 _Alphabetically ordered._
