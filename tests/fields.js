@@ -44,7 +44,6 @@ for (const field of [
 
 // fields sort alphabetically
 for (const field of [
-  'exports',
   'bin',
   'contributes',
   'commitlint',
