@@ -201,10 +201,7 @@ The package.json file can be sorted automatically before committing, install `hu
     }
   },
   "lint-staged": {
-    "package.json": [
-      "sort-package-json",
-      "git add"
-    ]
+    "package.json": "sort-package-json"
   }
 }
 ```
