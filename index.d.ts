@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-declare namespace sortPackageJsonExports {
+declare namespace sortPackageJson {
   interface SortPackageJsonFn {
     /**
      * Sort packageJson object.
      *
      * @param packageJson - A packageJson
-     * @param options
+     * @param options - An options object
      * @returns Sorted packageJson object
      */
     <T extends Record<any, any>>(packageJson: T, options?: Options): T
@@ -15,21 +15,22 @@ declare namespace sortPackageJsonExports {
      * Sort packageJson string.
      *
      * @param packageJson - A packageJson string.
-     * @param options
+     * @param options - An options object
      * @returns Sorted packageJson string.
      */
     (packageJson: string, options?: Options): string
   }
 
   type ComparatorFunction = (left: string, right: string) => number
+
   function sortObjectBy<T extends Record<any, any>>(
-    comparator: string[],
-    deep: boolean,
+    comparator?: string[],
+    deep?: boolean,
   ): (x: T) => T
 
   interface Field {
     readonly key: string
-    readonly over: sortObjectBy
+    over?<T extends Record<any, any>>(x: T): T
   }
 
   interface Options {
@@ -38,12 +39,11 @@ declare namespace sortPackageJsonExports {
   }
 }
 
-interface sortPackageJsonExports
-  extends sortPackageJsonExports.SortPackageJsonFn {
-  readonly default: sortPackageJsonExports.SortPackageJsonFn
-  readonly sortPackageJson: sortPackageJsonExports.SortPackageJsonFn
+interface sortPackageJsonExports extends sortPackageJson.SortPackageJsonFn {
+  readonly default: sortPackageJson.SortPackageJsonFn
+  readonly sortPackageJson: sortPackageJson.SortPackageJsonFn
   readonly sortOrder: string[]
-  readonly sortObjectBy: sortPackageJsonExports.sortObjectBy
+  readonly sortObjectBy: typeof sortPackageJson.sortObjectBy
 }
 
 declare const sortPackageJsonExports: sortPackageJsonExports
