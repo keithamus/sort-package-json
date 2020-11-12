@@ -280,14 +280,15 @@ const fields = [
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
-const overFields = pipe(
-  fields.reduce((fns, { key, over }) => {
-    if (over) {
-      fns.push(overProperty(key, over))
-    }
-    return fns
-  }, []),
-)
+const overFields = (fields) =>
+  pipe(
+    fields.reduce((fns, { key, over }) => {
+      if (over) {
+        fns.push(overProperty(key, over))
+      }
+      return fns
+    }, []),
+  )
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -332,7 +333,16 @@ function sortPackageJson(jsonIsh, options = {}) {
         ]
       }
 
-      return overFields(sortObjectKeys(json, sortOrder))
+      if (options.fields) {
+        for (const field of options.fields) {
+          const idx = fields.findIndex((f) => f.key === field.key)
+
+          if (idx > -1) fields[idx] = field
+          if (idx === -1) fields.push(field)
+        }
+      }
+
+      return overFields(fields)(sortObjectKeys(json, sortOrder))
     }),
   )
 }
@@ -340,4 +350,5 @@ function sortPackageJson(jsonIsh, options = {}) {
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
 module.exports.sortOrder = defaultSortOrder
+module.exports.sortObjectBy = sortObjectBy
 module.exports.default = sortPackageJson
