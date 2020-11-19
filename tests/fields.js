@@ -22,6 +22,7 @@ for (const field of [
   'jsnext:main',
   'browser',
   'types',
+  'typesVersions',
   'typings',
   'style',
   'example',

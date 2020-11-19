@@ -203,6 +203,7 @@ const fields = [
   { key: 'jsnext:main' },
   { key: 'browser' },
   { key: 'types' },
+  { key: 'typesVersions' },
   { key: 'typings' },
   { key: 'style' },
   { key: 'example' },
