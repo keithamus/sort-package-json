@@ -5,6 +5,7 @@ const gitHooks = require('git-hooks-list')
 
 // fields sort keep as it is
 for (const field of [
+  '$schema',
   'name',
   'displayName',
   'version',

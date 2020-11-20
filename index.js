@@ -167,6 +167,7 @@ const sortScripts = onObject((scripts) => {
 // field.key{string}: field name
 // field.over{function}: sort field subKey
 const fields = [
+  { key: '$schema' },
   { key: 'name' },
   /* vscode */ { key: 'displayName' },
   { key: 'version' },
