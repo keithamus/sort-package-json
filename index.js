@@ -133,8 +133,10 @@ const defaultNpmScripts = new Set([
 ])
 
 const sortScripts = onObject((scripts) => {
-  // TODO: apply comments extraction and re-application here.
-  const names = Object.keys(scripts)
+  const [names, comments, trailing] = removeAndGatherComments(
+    Object.keys(scripts),
+    isCommentKey,
+  )
   const prefixable = new Set()
 
   const keys = names
@@ -148,13 +150,16 @@ const sortScripts = onObject((scripts) => {
     })
     .sort()
 
-  const order = keys.reduce(
-    (order, key) =>
-      order.concat(
-        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-      ),
-    [],
-  )
+  const order = keys
+    .reduce(
+      (order, key) =>
+        order.concat(
+          prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+        ),
+      [],
+    )
+    .reduce((result, key) => result.concat(comments[key] || [], key), [])
+    .concat(trailing)
 
   return sortObjectKeys(scripts, order)
 })
