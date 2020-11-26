@@ -16,8 +16,15 @@ const uniqAndSortArray = pipe([uniq, sortArray])
 const onObject = (fn) => (x) => (isPlainObject(x) ? fn(x) : x)
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
-    // TODO:  check for comments and update comparator accordingly
-    object = sortObjectKeys(object, comparator)
+    const [keys, comments, trailing] = removeAndGatherComments(
+      Object.keys(object),
+      isCommentKey,
+    )
+    const sortFn = typeof comparator === 'function' ? comparator : undefined
+    const sortOrder = ((!sortFn && comparator) || [])
+      .concat(keys.sort(sortFn), trailing)
+      .reduce((result, key) => result.concat(comments[key] || [], key), [])
+    object = sortObjectKeys(object, sortOrder)
     if (deep) {
       for (const [key, value] of Object.entries(object)) {
         object[key] = over(value)

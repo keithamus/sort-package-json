@@ -238,3 +238,23 @@ test('badges', (t) => {
     'Should sort `badges[]`',
   )
 })
+
+test('comments', macro.sortObject, {
+  path: 'repository',
+  value: {
+    '// z comment': '',
+    z: 'z',
+    a: 'a',
+    url: 'https://github.com/keithamus/sort-package-json',
+    type: 'github',
+    '// trailing comment': '',
+  },
+  expect: {
+    type: 'github',
+    url: 'https://github.com/keithamus/sort-package-json',
+    a: 'a',
+    '// z comment': '',
+    z: 'z',
+    '// trailing comment': '',
+  },
+})
