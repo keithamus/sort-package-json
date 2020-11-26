@@ -39,3 +39,9 @@ test('private keys', macro.sortObject, {
   expect: keysToObject(['name', 'a', 'z', '_a', '_z']),
   message: 'Should put private keys at bottom',
 })
+
+test('comment keys', macro.sortObject, {
+  value: keysToObject(['//z', '//x', 'z', ' //name', 'name', 'a', '// end']),
+  expect: keysToObject([' //name', 'name', 'a', '//z', '//x', 'z', '// end']),
+  message: 'Should keep comment keys above preceding key',
+})

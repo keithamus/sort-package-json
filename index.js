@@ -16,6 +16,7 @@ const uniqAndSortArray = pipe([uniq, sortArray])
 const onObject = (fn) => (x) => (isPlainObject(x) ? fn(x) : x)
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
+    // TODO:  check for comments and update comparator accordingly
     object = sortObjectKeys(object, comparator)
     if (deep) {
       for (const [key, value] of Object.entries(object)) {
@@ -132,6 +133,7 @@ const defaultNpmScripts = new Set([
 ])
 
 const sortScripts = onObject((scripts) => {
+  // TODO: apply comments extraction and re-application here.
   const names = Object.keys(scripts)
   const prefixable = new Set()
 
@@ -309,6 +311,7 @@ function editStringJSON(json, over) {
 }
 
 const isPrivateKey = (key) => key[0] === '_'
+const isCommentKey = (key) => key.trim().startsWith('//')
 const partition = (array, predicate) =>
   array.reduce(
     (result, value) => {
@@ -317,6 +320,23 @@ const partition = (array, predicate) =>
     },
     [[], []],
   )
+const removeAndGatherComments = (keys, predicate) =>
+  keys.reduceRight(
+    (result, key) => {
+      const prev = result[0][0]
+      ;(predicate(key)
+        ? prev
+          ? result[1][prev] || (result[1][prev] = [])
+          : result[2]
+        : result[0]
+      ).unshift(key)
+      return result
+    },
+    // 0: non-comment keys
+    // 1: comments that precede a key
+    // 2: trailing comments
+    [[], {}, []],
+  )
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
@@ -324,14 +344,28 @@ function sortPackageJson(jsonIsh, options = {}) {
       let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
 
       if (Array.isArray(sortOrder)) {
-        const keys = Object.keys(json)
+        const allKeys = Object.keys(json)
+        const [keys, comments, trailing] = removeAndGatherComments(
+          allKeys,
+          isCommentKey,
+        )
         const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
         sortOrder = [
           ...sortOrder,
           ...defaultSortOrder,
           ...publicKeys.sort(),
           ...privateKeys.sort(),
+          ...trailing,
         ]
+        if (allKeys.length !== keys.length) {
+          // re-add comment keys
+          for (let i = sortOrder.length - 1; i >= 0; i--) {
+            const c = comments[sortOrder[i]]
+            if (c) {
+              sortOrder.splice(i, 0, ...c)
+            }
+          }
+        }
       }
 
       return overFields(sortObjectKeys(json, sortOrder))
