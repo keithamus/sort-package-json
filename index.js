@@ -356,16 +356,7 @@ function sortPackageJson(jsonIsh, options = {}) {
           ...publicKeys.sort(),
           ...privateKeys.sort(),
           ...trailing,
-        ]
-        if (allKeys.length !== keys.length) {
-          // re-add comment keys
-          for (let i = sortOrder.length - 1; i >= 0; i--) {
-            const c = comments[sortOrder[i]]
-            if (c) {
-              sortOrder.splice(i, 0, ...c)
-            }
-          }
-        }
+        ].reduce((result, key) => result.concat(comments[key] || [], key), [])
       }
 
       return overFields(sortObjectKeys(json, sortOrder))
