@@ -49,7 +49,6 @@ for (const field of [
   'bin',
   'contributes',
   'commitlint',
-  'lint-staged',
   'config',
   'nodemonConfig',
   'browserify',
