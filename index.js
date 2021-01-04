@@ -233,7 +233,7 @@ const fields = [
   { key: 'husky', over: overProperty('hooks', sortGitHooks) },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
-  { key: 'lint-staged', over: sortObject },
+  { key: 'lint-staged' },
   { key: 'config', over: sortObject },
   { key: 'nodemonConfig', over: sortObject },
   { key: 'browserify', over: sortObject },
