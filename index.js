@@ -134,10 +134,22 @@ const defaultNpmScripts = new Set([
 const sortScripts = (scripts, parent) => {
   if (!isPlainObject(scripts)) return scripts
 
+  // npm-run-all provides commands that are sensitive to script-ordering.
+  // If we detect its usage, do not re-order scripts.
   if (hasOwnProperty(parent, 'devDependencies')) {
     if (Object.keys(parent.devDependencies).includes('npm-run-all')) {
       return scripts
     }
+  }
+
+  // These are the commands that npm-run-all provides that are sensitive to script-ordering
+  // Explicitly check for them in case npm-run-all is installed globally
+  if (Object.values(scripts).some((script) => script.includes('npm-run-all'))) {
+    return scripts
+  }
+
+  if (Object.values(scripts).some((script) => script.includes('run-s'))) {
+    return scripts
   }
 
   const names = Object.keys(scripts)

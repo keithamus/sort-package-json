@@ -41,12 +41,44 @@ for (const field of ['scripts', 'betterScripts']) {
     expect: expect,
   })
 
-  test(`${field} with npm-run-all`, (t) => {
+  test(`${field} with npm-run-all devDependency`, (t) => {
     const packageJson = {
       [field]: fixture,
       devDependencies: {
         'npm-run-all': '*',
       },
+    }
+
+    t.is(
+      sortPackageJson(JSON.stringify(packageJson)),
+      JSON.stringify(packageJson),
+    )
+  })
+
+  test(`${field} with npm-run-all usage`, (t) => {
+    const newFixture = {
+      ...fixture,
+      test: 'npm-run-all foo:*',
+    }
+
+    const packageJson = {
+      [field]: newFixture,
+    }
+
+    t.is(
+      sortPackageJson(JSON.stringify(packageJson)),
+      JSON.stringify(packageJson),
+    )
+  })
+
+  test(`${field} with run-s usage`, (t) => {
+    const newFixture = {
+      ...fixture,
+      test: 'run-s foo:*',
+    }
+
+    const packageJson = {
+      [field]: newFixture,
     }
 
     t.is(
