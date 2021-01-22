@@ -40,7 +40,7 @@ const sortDirectories = sortObjectBy([
 ])
 const overProperty = (property, over) => (object) =>
   hasOwnProperty(object, property)
-    ? Object.assign(object, { [property]: over(object[property]) })
+    ? Object.assign(object, { [property]: over(object[property], object) })
     : object
 const sortGitHooks = sortObjectBy(gitHooks)
 
@@ -131,7 +131,15 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const sortScripts = onObject((scripts) => {
+const sortScripts = (scripts, parent) => {
+  if (!isPlainObject(scripts)) return scripts
+
+  if (hasOwnProperty(parent, 'devDependencies')) {
+    if (Object.keys(parent.devDependencies).includes('npm-run-all')) {
+      return scripts
+    }
+  }
+
   const names = Object.keys(scripts)
   const prefixable = new Set()
 
@@ -155,7 +163,7 @@ const sortScripts = onObject((scripts) => {
   )
 
   return sortObjectKeys(scripts, order)
-})
+}
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
@@ -280,15 +288,14 @@ const fields = [
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
-const overFields = (fields) =>
-  pipe(
-    fields.reduce((fns, { key, over }) => {
-      if (over) {
-        fns.push(overProperty(key, over))
-      }
-      return fns
-    }, []),
-  )
+const overFields = pipe(
+  fields.reduce((fns, { key, over }) => {
+    if (over) {
+      fns.push(overProperty(key, over))
+    }
+    return fns
+  }, []),
+)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -333,16 +340,7 @@ function sortPackageJson(jsonIsh, options = {}) {
         ]
       }
 
-      if (options.fields) {
-        for (const field of options.fields) {
-          const idx = fields.findIndex((f) => f.key === field.key)
-
-          if (idx > -1) fields[idx] = field
-          if (idx === -1) fields.push(field)
-        }
-      }
-
-      return overFields(fields)(sortObjectKeys(json, sortOrder))
+      return overFields(sortObjectKeys(json, sortOrder))
     }),
   )
 }
@@ -350,5 +348,4 @@ function sortPackageJson(jsonIsh, options = {}) {
 module.exports = sortPackageJson
 module.exports.sortPackageJson = sortPackageJson
 module.exports.sortOrder = defaultSortOrder
-module.exports.sortObjectBy = sortObjectBy
 module.exports.default = sortPackageJson

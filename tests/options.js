@@ -1,6 +1,5 @@
 const test = require('ava')
 const { keysToObject, macro } = require('./_helpers')
-const sortPackageJson = require('..')
 
 test('options.sortOrder', macro.sortObject, {
   options: {
@@ -48,24 +47,4 @@ test('options.sortOrder with private key', macro.sortObject, {
   value: keysToObject(['z', '_a', 'name', '_z', 'a']),
   expect: keysToObject(['_z', 'name', 'a', 'z', '_a']),
   message: 'options.sortOrder should work with private keys`',
-})
-
-test('options.fields with existing key', macro.sortObject, {
-  options: {
-    fields: [{ key: 'scripts' }],
-  },
-  value: `{"scripts":{"z":"","a":""}}`,
-  expect: `{"scripts":{"z":"","a":""}}`,
-  message:
-    'options.fields should work with keys that are already present in the fields list`',
-})
-
-test('options.fields with new key', macro.sortObject, {
-  options: {
-    fields: [{ key: 'new-key', over: sortPackageJson.sortObjectBy() }],
-  },
-  value: `{"new-key":{"z":"","a":""}}`,
-  expect: `{"new-key":{"a":"","z":""}}`,
-  message:
-    'options.fields should work with keys that are not already present in the fields list`',
 })

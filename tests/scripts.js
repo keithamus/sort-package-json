@@ -1,4 +1,5 @@
 const test = require('ava')
+const sortPackageJson = require('..')
 const { macro } = require('./_helpers')
 
 const fixture = {
@@ -38,5 +39,19 @@ for (const field of ['scripts', 'betterScripts']) {
     path: field,
     value: fixture,
     expect: expect,
+  })
+
+  test(`${field} with npm-run-all`, (t) => {
+    const packageJson = {
+      [field]: fixture,
+      devDependencies: {
+        'npm-run-all': '*',
+      },
+    }
+
+    t.is(
+      sortPackageJson(JSON.stringify(packageJson)),
+      JSON.stringify(packageJson),
+    )
   })
 }

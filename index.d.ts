@@ -35,7 +35,6 @@ declare namespace sortPackageJson {
 
   interface Options {
     readonly sortOrder?: readonly string[] | ComparatorFunction
-    readonly fields?: Field[]
   }
 }
 
@@ -43,7 +42,6 @@ interface sortPackageJsonExports extends sortPackageJson.SortPackageJsonFn {
   readonly default: sortPackageJson.SortPackageJsonFn
   readonly sortPackageJson: sortPackageJson.SortPackageJsonFn
   readonly sortOrder: string[]
-  readonly sortObjectBy: typeof sortPackageJson.sortObjectBy
 }
 
 declare const sortPackageJsonExports: sortPackageJsonExports
