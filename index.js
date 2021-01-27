@@ -40,7 +40,7 @@ const sortDirectories = sortObjectBy([
 ])
 const overProperty = (property, over) => (object) =>
   hasOwnProperty(object, property)
-    ? Object.assign(object, { [property]: over(object[property], object) })
+    ? Object.assign(object, { [property]: over(object[property]) })
     : object
 const sortGitHooks = sortObjectBy(gitHooks)
 
@@ -116,67 +116,6 @@ const sortPrettierConfig = onObject(
   ]),
 )
 
-// See https://docs.npmjs.com/misc/scripts
-const defaultNpmScripts = new Set([
-  'install',
-  'pack',
-  'prepare',
-  'publish',
-  'restart',
-  'shrinkwrap',
-  'start',
-  'stop',
-  'test',
-  'uninstall',
-  'version',
-])
-
-const sortScripts = (scripts, parent) => {
-  if (!isPlainObject(scripts)) return scripts
-
-  // npm-run-all provides commands that are sensitive to script-ordering.
-  // If we detect its usage, do not re-order scripts.
-  if (hasOwnProperty(parent, 'devDependencies')) {
-    if (Object.keys(parent.devDependencies).includes('npm-run-all')) {
-      return scripts
-    }
-  }
-
-  // These are the commands that npm-run-all provides that are sensitive to script-ordering
-  // Explicitly check for them in case npm-run-all is installed globally
-  if (Object.values(scripts).some((script) => script.includes('npm-run-all'))) {
-    return scripts
-  }
-
-  if (Object.values(scripts).some((script) => script.includes('run-s'))) {
-    return scripts
-  }
-
-  const names = Object.keys(scripts)
-  const prefixable = new Set()
-
-  const keys = names
-    .map((name) => {
-      const omitted = name.replace(/^(?:pre|post)/, '')
-      if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
-        prefixable.add(omitted)
-        return omitted
-      }
-      return name
-    })
-    .sort()
-
-  const order = keys.reduce(
-    (order, key) =>
-      order.concat(
-        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-      ),
-    [],
-  )
-
-  return sortObjectKeys(scripts, order)
-}
-
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
 // Supported fields:
@@ -244,8 +183,8 @@ const fields = [
       'host',
     ]),
   },
-  { key: 'scripts', over: sortScripts },
-  { key: 'betterScripts', over: sortScripts },
+  { key: 'scripts' },
+  { key: 'betterScripts' },
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents', over: uniq },
   { key: 'husky', over: overProperty('hooks', sortGitHooks) },
