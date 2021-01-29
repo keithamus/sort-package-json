@@ -116,6 +116,45 @@ const sortPrettierConfig = onObject(
   ]),
 )
 
+// See https://docs.npmjs.com/misc/scripts
+const defaultNpmScripts = new Set([
+  'install',
+  'pack',
+  'prepare',
+  'publish',
+  'restart',
+  'shrinkwrap',
+  'start',
+  'stop',
+  'test',
+  'uninstall',
+  'version',
+])
+
+const sortScripts = onObject((scripts) => {
+  const names = Object.keys(scripts)
+  const prefixable = new Set()
+
+  const keys = names.map((name) => {
+    const omitted = name.replace(/^(?:pre|post)/, '')
+    if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
+      prefixable.add(omitted)
+      return omitted
+    }
+    return name
+  })
+
+  const order = keys.reduce(
+    (order, key) =>
+      order.concat(
+        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+      ),
+    [],
+  )
+
+  return sortObjectKeys(scripts, order)
+})
+
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
 // Supported fields:
@@ -183,8 +222,8 @@ const fields = [
       'host',
     ]),
   },
-  { key: 'scripts' },
-  { key: 'betterScripts' },
+  { key: 'scripts', over: sortScripts },
+  { key: 'betterScripts', over: sortScripts },
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents', over: uniq },
   { key: 'husky', over: overProperty('hooks', sortGitHooks) },

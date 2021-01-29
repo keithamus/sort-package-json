@@ -29,7 +29,7 @@
     "lint": "eslint .",
     "semantic-release": "semantic-release",
     "sort-package-json": "node cli.js package.json --check",
-    "test": "ava && dtslint --localTs node_modules/typescript/lib ",
+    "test": "ava && dtslint --localTs node_modules/typescript/lib",
     "test-coverage": "nyc ava",
     "update-snapshot": "ava -u && node cli.js package.json"
   },
