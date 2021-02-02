@@ -137,7 +137,7 @@ const sortScripts = onObject((scripts) => {
 
   const keys = names
     .map((name) => {
-      const omitted = name.replace(/^(?:pre|post)/, '')
+      const omitted = name.replace(/^(?:pre-|post-|pre|post)/, '')
       if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
         prefixable.add(omitted)
         return omitted
@@ -149,7 +149,7 @@ const sortScripts = onObject((scripts) => {
   const order = keys.reduce(
     (order, key) =>
       order.concat(
-        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+        prefixable.has(key) ? [`pre${key}`, `pre-${key}`, key, `post${key}`, `post-${key}`] : [key],
       ),
     [],
   )
