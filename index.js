@@ -16,7 +16,15 @@ const uniqAndSortArray = pipe([uniq, sortArray])
 const onObject = (fn) => (x) => (isPlainObject(x) ? fn(x) : x)
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
-    object = sortObjectKeys(object, comparator)
+    const [keys, comments, trailing] = removeAndGatherComments(
+      Object.keys(object),
+      isCommentKey,
+    )
+    const sortFn = typeof comparator === 'function' ? comparator : undefined
+    const sortOrder = ((!sortFn && comparator) || [])
+      .concat(keys.sort(sortFn), trailing)
+      .reduce((result, key) => result.concat(comments[key] || [], key), [])
+    object = sortObjectKeys(object, sortOrder)
     if (deep) {
       for (const [key, value] of Object.entries(object)) {
         object[key] = over(value)
@@ -132,7 +140,10 @@ const defaultNpmScripts = new Set([
 ])
 
 const sortScripts = onObject((scripts) => {
-  const names = Object.keys(scripts)
+  const [names, comments, trailing] = removeAndGatherComments(
+    Object.keys(scripts),
+    isCommentKey,
+  )
   const prefixable = new Set()
 
   const keys = names
@@ -146,13 +157,16 @@ const sortScripts = onObject((scripts) => {
     })
     .sort()
 
-  const order = keys.reduce(
-    (order, key) =>
-      order.concat(
-        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-      ),
-    [],
-  )
+  const order = keys
+    .reduce(
+      (order, key) =>
+        order.concat(
+          prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+        ),
+      [],
+    )
+    .reduce((result, key) => result.concat(comments[key] || [], key), [])
+    .concat(trailing)
 
   return sortObjectKeys(scripts, order)
 })
@@ -309,6 +323,7 @@ function editStringJSON(json, over) {
 }
 
 const isPrivateKey = (key) => key[0] === '_'
+const isCommentKey = (key) => key.trim().startsWith('//')
 const partition = (array, predicate) =>
   array.reduce(
     (result, value) => {
@@ -317,6 +332,23 @@ const partition = (array, predicate) =>
     },
     [[], []],
   )
+const removeAndGatherComments = (keys, predicate) =>
+  keys.reduceRight(
+    (result, key) => {
+      const prev = result[0][0]
+      ;(predicate(key)
+        ? prev
+          ? result[1][prev] || (result[1][prev] = [])
+          : result[2]
+        : result[0]
+      ).unshift(key)
+      return result
+    },
+    // 0: non-comment keys
+    // 1: comments that precede a key
+    // 2: trailing comments
+    [[], {}, []],
+  )
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
@@ -324,14 +356,19 @@ function sortPackageJson(jsonIsh, options = {}) {
       let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
 
       if (Array.isArray(sortOrder)) {
-        const keys = Object.keys(json)
+        const allKeys = Object.keys(json)
+        const [keys, comments, trailing] = removeAndGatherComments(
+          allKeys,
+          isCommentKey,
+        )
         const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
         sortOrder = [
           ...sortOrder,
           ...defaultSortOrder,
           ...publicKeys.sort(),
           ...privateKeys.sort(),
-        ]
+          ...trailing,
+        ].reduce((result, key) => result.concat(comments[key] || [], key), [])
       }
 
       return overFields(sortObjectKeys(json, sortOrder))
