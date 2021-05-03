@@ -54,6 +54,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | contributes           | Key sort                                                                       |
 | activationEvents      | Unique items                                                                   |
 | husky                 | Sorts the `hooks` field using [git hook sort](#git-hooks)                      |
+| simple-git-hooks      | Key sort using [git hook sort](#git-hooks)                                     |
 | pre-commit            |                                                                                |
 | commitlint            | Key sort                                                                       |
 | lint-staged           |                                                                                |
