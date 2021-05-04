@@ -229,6 +229,7 @@ const fields = [
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents', over: uniq },
   { key: 'husky', over: overProperty('hooks', sortGitHooks) },
+  { key: 'simple-git-hooks', over: sortGitHooks },
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
   { key: 'lint-staged' },
