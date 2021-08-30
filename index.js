@@ -7,13 +7,13 @@ const isPlainObject = require('is-plain-obj')
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
 const pipe = (fns) => (x) => fns.reduce((result, fn) => fn(result), x)
-const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
+const onArray = (fn) => (x) => Array.isArray(x) ? fn(x) : x
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onStringArray((array) => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
-const onObject = (fn) => (x) => (isPlainObject(x) ? fn(x) : x)
+const onObject = (fn) => (x) => isPlainObject(x) ? fn(x) : x
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
     object = sortObjectKeys(object, comparator)
@@ -249,6 +249,7 @@ const fields = [
   { key: 'jest', over: sortObject },
   { key: 'mocha', over: sortObject },
   { key: 'nyc', over: sortObject },
+  { key: 'c8', over: sortObject },
   { key: 'tap', over: sortObject },
   { key: 'resolutions', over: sortObject },
   { key: 'dependencies', over: sortObject },
