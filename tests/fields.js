@@ -58,6 +58,7 @@ for (const field of [
   'jest',
   'mocha',
   'nyc',
+  'c8',
   'engines',
   'engineStrict',
   'preferGlobal',
