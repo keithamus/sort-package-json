@@ -190,6 +190,7 @@ const fields = [
   },
   /* vscode */ { key: 'publisher' },
   { key: 'sideEffects' },
+  { key: 'packageManager' },
   { key: 'type' },
   { key: 'imports' },
   { key: 'exports' },
