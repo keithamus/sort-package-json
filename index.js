@@ -14,8 +14,7 @@ const onStringArray = (fn) => (x) =>
 const uniq = onStringArray((xs) => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onStringArray((array) => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
-const onObject = (fn) => (x, ...args) =>
-  isPlainObject(x) ? fn(x, ...args) : x
+const onObject = (fn) => (x, ...args) => isPlainObject(x) ? fn(x, ...args) : x
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
     object = sortObjectKeys(object, comparator)
@@ -40,9 +39,9 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
-const overProperty = (property, over) => (object, packageJson) =>
+const overProperty = (property, over) => (object, ...args) =>
   hasOwnProperty(object, property)
-    ? Object.assign(object, { [property]: over(object[property], packageJson) })
+    ? Object.assign(object, { [property]: over(object[property], ...args) })
     : object
 const sortGitHooks = sortObjectBy(gitHooks)
 
