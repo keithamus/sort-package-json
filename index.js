@@ -6,16 +6,16 @@ const isPlainObject = require('is-plain-obj')
 
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
-const pipe = (fns) => (x, packageJson) =>
-  fns.reduce((result, fn) => fn(result, packageJson), x)
+const pipe = (fns) => (x, ...args) =>
+  fns.reduce((result, fn) => fn(x, ...args), x)
 const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onStringArray((array) => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
-const onObject = (fn) => (x, packageJson) =>
-  isPlainObject(x) ? fn(x, packageJson) : x
+const onObject = (fn) => (x, ...args) =>
+  isPlainObject(x) ? fn(x, ...args) : x
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
     object = sortObjectKeys(object, comparator)
