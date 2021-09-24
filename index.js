@@ -7,7 +7,7 @@ const isPlainObject = require('is-plain-obj')
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
 const pipe = (fns) => (x, ...args) =>
-  fns.reduce((result, fn) => fn(x, ...args), x)
+  fns.reduce((result, fn) => fn(result, ...args), x)
 const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
