@@ -6,14 +6,15 @@ const isPlainObject = require('is-plain-obj')
 
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
-const pipe = (fns) => (x) => fns.reduce((result, fn) => fn(result), x)
+const pipe = (fns) => (x, ...args) =>
+  fns.reduce((result, fn) => fn(result, ...args), x)
 const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onStringArray((array) => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
-const onObject = (fn) => (x) => (isPlainObject(x) ? fn(x) : x)
+const onObject = (fn) => (x, ...args) => (isPlainObject(x) ? fn(x, ...args) : x)
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
     object = sortObjectKeys(object, comparator)
@@ -38,9 +39,9 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
-const overProperty = (property, over) => (object) =>
+const overProperty = (property, over) => (object, ...args) =>
   hasOwnProperty(object, property)
-    ? Object.assign(object, { [property]: over(object[property]) })
+    ? Object.assign(object, { [property]: over(object[property], ...args) })
     : object
 const sortGitHooks = sortObjectBy(gitHooks)
 
@@ -131,7 +132,14 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const sortScripts = onObject((scripts) => {
+const hasDevDependency = (dependency, packageJson) => {
+  return (
+    'devDependencies' in packageJson &&
+    !!packageJson.devDependencies[dependency]
+  )
+}
+
+const sortScripts = onObject((scripts, packageJson) => {
   const names = Object.keys(scripts)
   const prefixable = new Set()
 
@@ -143,6 +151,10 @@ const sortScripts = onObject((scripts) => {
     }
     return name
   })
+
+  if (!hasDevDependency('npm-run-all', packageJson)) {
+    keys.sort()
+  }
 
   const order = keys.reduce(
     (order, key) =>
@@ -334,7 +346,7 @@ function sortPackageJson(jsonIsh, options = {}) {
         ]
       }
 
-      return overFields(sortObjectKeys(json, sortOrder))
+      return overFields(sortObjectKeys(json, sortOrder), json)
     }),
   )
 }
