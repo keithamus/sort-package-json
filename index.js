@@ -184,7 +184,6 @@ const fields = [
   { key: 'private' },
   { key: 'description' },
   /* vscode */ { key: 'categories', over: uniq },
-  { key: 'keywords', over: uniq },
   { key: 'homepage' },
   { key: 'bugs', over: sortObjectBy(['url', 'email']) },
   { key: 'repository', over: sortURLObject },
@@ -291,6 +290,7 @@ const fields = [
   /* vscode */ { key: 'galleryBanner', over: sortObject },
   /* vscode */ { key: 'preview' },
   /* vscode */ { key: 'markdown' },
+  { key: 'keywords', over: uniq },
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
