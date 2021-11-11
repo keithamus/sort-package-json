@@ -66,6 +66,7 @@ for (const field of [
   'galleryBanner',
   'remarkConfig',
   'npmpkgjsonlint',
+  'release',
 ]) {
   test(field, macro.sortObjectAlphabetically, { path: field })
 }
