@@ -68,6 +68,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | eslintConfig          | [ESLint sort](#eslint)                                                         |
 | eslintIgnore          |                                                                                |
 | npmpkgjsonlint        | Key sort                                                                       |
+| release               | Key sort                                                                       |
 | remarkConfig          | Key sort                                                                       |
 | stylelint             |                                                                                |
 | ava                   | Key sort                                                                       |
