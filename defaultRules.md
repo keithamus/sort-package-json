@@ -67,7 +67,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | prettier              | [Prettier sort](#prettier)                                                     |
 | eslintConfig          | [ESLint sort](#eslint)                                                         |
 | eslintIgnore          |                                                                                |
-| npmpkgjsonlint        | Key sort                                                                       |
+| npmpackagejsonlint    | Key sort (also recognizes: npmPackageJsonLintConfig, npmpkgjsonlint)           |
 | release               | Key sort                                                                       |
 | remarkConfig          | Key sort                                                                       |
 | stylelint             |                                                                                |

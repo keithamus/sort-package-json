@@ -65,8 +65,10 @@ for (const field of [
   'publishConfig',
   'galleryBanner',
   'remarkConfig',
-  'npmpkgjsonlint',
   'release',
+  'npmpkgjsonlint',
+  'npmPackageJsonLintConfig',
+  'npmpackagejsonlint',
 ]) {
   test(field, macro.sortObjectAlphabetically, { path: field })
 }
