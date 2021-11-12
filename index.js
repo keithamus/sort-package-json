@@ -255,6 +255,8 @@ const fields = [
   { key: 'eslintConfig', over: sortEslintConfig },
   { key: 'eslintIgnore' },
   { key: 'npmpkgjsonlint', over: sortObject },
+  { key: 'npmPackageJsonLintConfig', over: sortObject },
+  { key: 'npmpackagejsonlint', over: sortObject },
   { key: 'release', over: sortObject },
   { key: 'remarkConfig', over: sortObject },
   { key: 'stylelint' },
