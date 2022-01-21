@@ -148,6 +148,29 @@ const hasDevDependency = (dependency, packageJson) => {
   )
 }
 
+const runSValues = [new RegExp('run-s')]
+
+const hasRunS = (packageJson) => {
+  if (hasDevDependency('npm-run-all', packageJson)) {
+    const scripts = packageJson.scripts
+    const betterScripts = packageJson.betterScripts
+
+    if (scripts) {
+      return Object.values(scripts).some((script) =>
+        runSValues.some((runSValue) => runSValue.test(script)),
+      )
+    }
+
+    if (betterScripts) {
+      return Object.values(betterScripts).some((script) =>
+        runSValues.some((runSValue) => runSValue.test(script)),
+      )
+    }
+  }
+
+  return false
+}
+
 const sortScripts = onObject((scripts, packageJson) => {
   const names = Object.keys(scripts)
   const prefixable = new Set()
@@ -161,7 +184,7 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
-  if (!hasDevDependency('npm-run-all', packageJson)) {
+  if (!hasRunS(packageJson)) {
     keys.sort()
   }
 
@@ -172,8 +195,9 @@ const sortScripts = onObject((scripts, packageJson) => {
       ),
     [],
   )
+  const toReturn = sortObjectKeys(scripts, order)
 
-  return sortObjectKeys(scripts, order)
+  return toReturn
 })
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only

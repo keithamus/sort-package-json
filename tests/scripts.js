@@ -18,6 +18,23 @@ const fixture = {
   'pre-fetch-info': 'foo',
 }
 
+const fixtureWithRunS = {
+  test: 'node test.js',
+  multiply: '2 * 3', // between p(ostinstall) and install
+  watch: 'watch things',
+  prewatch: 'echo "about to watch"',
+  postinstall: 'echo "Installed"',
+  preinstall: 'echo "Installing"',
+  start: 'node server.js',
+  posttest: 'run-s abc def',
+  pretest: 'xyz',
+  postprettier: 'echo "so pretty"',
+  preprettier: 'echo "not pretty"',
+  prettier: 'prettier -l "**/*.js"',
+  prepare: 'npm run build',
+  'pre-fetch-info': 'foo',
+}
+
 const expectAllSorted = {
   preinstall: 'echo "Installing"',
   postinstall: 'echo "Installed"',
@@ -38,7 +55,7 @@ const expectAllSorted = {
 const expectPreAndPostSorted = {
   pretest: 'xyz',
   test: 'node test.js',
-  posttest: 'abc',
+  posttest: 'run-s abc def',
   multiply: '2 * 3',
   prewatch: 'echo "about to watch"',
   watch: 'watch things',
@@ -53,18 +70,39 @@ const expectPreAndPostSorted = {
 }
 
 for (const field of ['scripts', 'betterScripts']) {
-  test(`${field} when npm-run-all is not a dev dependency`, macro.sortObject, {
+  test(`${field} when npm-run-all is NOT a dev dependency`, macro.sortObject, {
     value: { [field]: fixture },
     expect: { [field]: expectAllSorted },
   })
-  test(`${field} when npm-run-all is a dev dependency`, macro.sortObject, {
-    value: {
-      [field]: fixture,
-      devDependencies: { 'npm-run-all': '^1.0.0' },
+
+  for (const type of ['run-s']) {
+    test(
+      `${field} when npm-run-all IS a dev dependency, and IS used in scripts in form of ${type}`,
+      macro.sortObject,
+      {
+        value: {
+          [field]: fixtureWithRunS,
+          devDependencies: { 'npm-run-all': '^1.0.0' },
+        },
+        expect: {
+          [field]: expectPreAndPostSorted,
+          devDependencies: { 'npm-run-all': '^1.0.0' },
+        },
+      },
+    )
+  }
+  test(
+    `${field} when npm-run-all IS a dev dependency, but is NOT used in scripts`,
+    macro.sortObject,
+    {
+      value: {
+        [field]: fixture,
+        devDependencies: { 'npm-run-all': '^1.0.0' },
+      },
+      expect: {
+        [field]: expectAllSorted,
+        devDependencies: { 'npm-run-all': '^1.0.0' },
+      },
     },
-    expect: {
-      [field]: expectPreAndPostSorted,
-      devDependencies: { 'npm-run-all': '^1.0.0' },
-    },
-  })
+  )
 }
