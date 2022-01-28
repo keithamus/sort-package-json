@@ -36,6 +36,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | source                |                                                                                |
 | jsnext:main           |                                                                                |
 | browser               |                                                                                |
+| react-native          |                                                                                |
 | types                 |                                                                                |
 | typesVersions         |                                                                                |
 | typings               |                                                                                |

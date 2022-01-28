@@ -213,6 +213,7 @@ const fields = [
   { key: 'source' },
   { key: 'jsnext:main' },
   { key: 'browser' },
+  { key: 'react-native' },
   { key: 'types' },
   { key: 'typesVersions' },
   { key: 'typings' },

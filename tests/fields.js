@@ -22,6 +22,7 @@ for (const field of [
   'source',
   'jsnext:main',
   'browser',
+  'react-native',
   'types',
   'typesVersions',
   'typings',
