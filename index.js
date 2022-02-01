@@ -6,15 +6,20 @@ const isPlainObject = require('is-plain-obj')
 
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
-const pipe = (fns) => (x, ...args) =>
-  fns.reduce((result, fn) => fn(result, ...args), x)
-const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
+const pipe =
+  (fns) =>
+  (x, ...args) =>
+    fns.reduce((result, fn) => fn(result, ...args), x)
+const onArray = (fn) => (x) => Array.isArray(x) ? fn(x) : x
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => xs.filter((x, i) => i === xs.indexOf(x)))
 const sortArray = onStringArray((array) => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
-const onObject = (fn) => (x, ...args) => (isPlainObject(x) ? fn(x, ...args) : x)
+const onObject =
+  (fn) =>
+  (x, ...args) =>
+    isPlainObject(x) ? fn(x, ...args) : x
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
     object = sortObjectKeys(object, comparator)
@@ -39,10 +44,12 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
-const overProperty = (property, over) => (object, ...args) =>
-  hasOwnProperty(object, property)
-    ? Object.assign(object, { [property]: over(object[property], ...args) })
-    : object
+const overProperty =
+  (property, over) =>
+  (object, ...args) =>
+    hasOwnProperty(object, property)
+      ? Object.assign(object, { [property]: over(object[property], ...args) })
+      : object
 const sortGitHooks = sortObjectBy(gitHooks)
 
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
