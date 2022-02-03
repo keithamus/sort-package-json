@@ -139,14 +139,7 @@ const defaultNpmScripts = new Set([
   'version',
 ])
 
-const hasDevDependency = (dependency, packageJson) => {
-  return (
-    'devDependencies' in packageJson &&
-    !!packageJson.devDependencies[dependency]
-  )
-}
-
-const sortScripts = onObject((scripts, packageJson) => {
+const sortScripts = onObject((scripts) => {
   const names = Object.keys(scripts)
   const prefixable = new Set()
 
@@ -159,9 +152,7 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
-  if (!hasDevDependency('npm-run-all', packageJson)) {
-    keys.sort()
-  }
+  keys.sort()
 
   const order = keys.reduce(
     (order, key) =>

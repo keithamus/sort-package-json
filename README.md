@@ -218,6 +218,15 @@ It sorts using [`sort-object-keys`](http://github.com/keithamus/sort-object-keys
 
 Cool. Send a PR! It might get denied if it is a specific vendor key of an unpopular project (e.g. `"my-super-unknown-project"`). We sort keys like "browserify" because it is a project with millions of users. If your project has, say, over 100 users, then we'll add it. Sound fair?
 
+### Can I disable sorting X?
+
+There's been discourse over this, especially when considering scripts that contain `npm-run-all`. The argument is that sorting scripts _can_ have a runtime effect. In this case (running scripts in series) there may be some dependencies between scripts that require a specific order. We decided not to do this for the following reasons:
+
+- Enforcing ordering of scripts by alphanumeric sorting is frail and implicit. The dependencies between scripts isn't clear and can breaking for many reasons, sorting being the least of them. These depdendencies should be explicit: rather than `"build": "run-s build:*"` requiring a specific order in package.json, it should be refactored to `"build": "run-s codegen:* && run-s build:*"`, for example.
+- Disabling for `npm-run-all` (and `run-s` but _not_ `run-p`) is the tip of the iceberg. This is likely not the only cli that can take into package.json order; creating exceptions for each one isn't feasible. `sort-package-json` should be expected to sort package.json.
+
+[#206](https://github.com/keithamus/sort-package-json/pull/206), [#220](https://github.com/keithamus/sort-package-json/issues/220), [#240](https://github.com/keithamus/sort-package-json/pull/240), [#242](https://github.com/keithamus/sort-package-json/issues/242), & [#244](https://github.com/keithamus/sort-package-json/issues/244) address the changes that landed us here.
+
 ### Isn't this just like Project X?
 
 Could be. I wanted this one because at the time of writing, nothing is:

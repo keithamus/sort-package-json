@@ -35,23 +35,6 @@ const expectAllSorted = {
   watch: 'watch things',
 }
 
-const expectPreAndPostSorted = {
-  pretest: 'xyz',
-  test: 'node test.js',
-  posttest: 'abc',
-  multiply: '2 * 3',
-  prewatch: 'echo "about to watch"',
-  watch: 'watch things',
-  preinstall: 'echo "Installing"',
-  postinstall: 'echo "Installed"',
-  start: 'node server.js',
-  preprettier: 'echo "not pretty"',
-  prettier: 'prettier -l "**/*.js"',
-  postprettier: 'echo "so pretty"',
-  prepare: 'npm run build',
-  'pre-fetch-info': 'foo',
-}
-
 for (const field of ['scripts', 'betterScripts']) {
   test(`${field} when npm-run-all is not a dev dependency`, macro.sortObject, {
     value: { [field]: fixture },
@@ -63,7 +46,7 @@ for (const field of ['scripts', 'betterScripts']) {
       devDependencies: { 'npm-run-all': '^1.0.0' },
     },
     expect: {
-      [field]: expectPreAndPostSorted,
+      [field]: expectAllSorted,
       devDependencies: { 'npm-run-all': '^1.0.0' },
     },
   })
