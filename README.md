@@ -226,6 +226,16 @@ Could be. I wanted this one because at the time of writing, nothing is:
 - Able to be used in a library
 - Quiet (i.e. not spitting out annoying log messages, when used in a library mode)
 
+### I would like this tool to be configurable with a config file or command line arguments.
+
+The lack of configuration here is a feature, not a bug. The intent of this tool is that a user can open a package json and always expect to see keys in a particular order. If we add a configuration for this tool, then that promise is broken, as users will first need to look at the configuration for each project to learn the ways in which this tool will change the `package.json`. The structure of the `package.json` should always be predictable & deterministic from project to project. I think the _reason_ why this project is well used is because it is not another "tool" you have to set up with yet another JSON file and more cruft in your project to support it. You run a command and it does what it says on the tin. 
+
+A lot of people who ask for configuration cite the use case that they simply don't like the given order that exists and want to make sweeping changes. To me this seems far better suited to simply making a fork of this project as then you can go far further than specifying configuration.
+
+---
+
+Because of the reasons above I'm going to close this issue. If you disagree we can continue the conversation, but as stated above I'd like to start from a place of motivation: what is the problem that you're trying to solve. What is the intent of the solution here?
+
 ### What?! Why would you want to do this?!
 
 Well, it's nice to have the keys of a package.json in a well sorted order. Almost everyone would agree having "name" at the top of a package.json is sensible (rather than sorted alphabetically or somewhere silly like the bottom), so why not the rest of the package.json?
