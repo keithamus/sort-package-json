@@ -232,10 +232,6 @@ The lack of configuration here is a feature, not a bug. The intent of this tool 
 
 A lot of people who ask for configuration cite the use case that they simply don't like the given order that exists and want to make sweeping changes. To me this seems far better suited to simply making a fork of this project as then you can go far further than specifying configuration.
 
----
-
-Because of the reasons above I'm going to close this issue. If you disagree we can continue the conversation, but as stated above I'd like to start from a place of motivation: what is the problem that you're trying to solve. What is the intent of the solution here?
-
 ### What?! Why would you want to do this?!
 
 Well, it's nice to have the keys of a package.json in a well sorted order. Almost everyone would agree having "name" at the top of a package.json is sensible (rather than sorted alphabetically or somewhere silly like the bottom), so why not the rest of the package.json?
