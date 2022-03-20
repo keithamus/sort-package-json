@@ -89,6 +89,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | extensionPack         | Sort unique items                                                              |
 | extensionDependencies | Sort unique items                                                              |
 | flat                  |                                                                                |
+| packageManager        |                                                                                |
 | engines               | Key sort                                                                       |
 | engineStrict          | Key sort                                                                       |
 | languageName          |                                                                                |

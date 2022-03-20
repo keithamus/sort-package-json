@@ -287,6 +287,7 @@ const fields = [
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionDependencies', over: uniqAndSortArray },
   { key: 'flat' },
+  { key: 'packageManager' },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
   { key: 'languageName' },
