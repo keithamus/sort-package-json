@@ -63,8 +63,7 @@
   "eslintConfig": {
     "extends": [
       "standard",
-      "plugin:prettier/recommended",
-      "prettier/standard"
+      "plugin:prettier/recommended"
     ]
   },
   "ava": {
