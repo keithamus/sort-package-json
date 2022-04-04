@@ -12,17 +12,14 @@ jobs:
           # - "macos-latest"
           # - "windows-latest"
         node_version:
-          - "13"
+          - "16"
+          - "14"
           - "12"
-          - "10"
-          - "8"
     name: Node.js ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
-        with:
-          depth: 1
 
       - name: Setup Node.js
         uses: actions/setup-node@master
@@ -33,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        if: matrix.node_version == '12'
+        if: matrix.node_version == '16'
         run: npm run lint
 
       - name: Check package.json
