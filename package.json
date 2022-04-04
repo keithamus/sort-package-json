@@ -62,17 +62,10 @@
     "trailingComma": "all"
   },
   "eslintConfig": {
-    "plugins": [
-      "unicorn"
-    ],
     "extends": [
       "standard",
       "plugin:prettier/recommended"
-    ],
-    "rules": {
-      "unicorn/prefer-module": "error",
-      "unicorn/prefer-node-protocol": "error"
-    }
+    ]
   },
   "ava": {
     "verbose": true
@@ -99,7 +92,6 @@
     "eslint-plugin-n": "^14.0.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^6.0.0",
-    "eslint-plugin-unicorn": "42.0.0",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.8",
     "make-dir": "3.0.2",
