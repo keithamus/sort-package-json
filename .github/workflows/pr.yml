@@ -26,6 +26,10 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
 
+      # https://github.com/bahmutov/npm-install/issues/103#issuecomment-931226602
+      - name: Update NPM
+        run: npm install --global npm
+
       - name: Install Dependencies
         run: npm ci
 
