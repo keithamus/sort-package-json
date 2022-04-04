@@ -1,12 +1,14 @@
-const path = require('path')
-const fs = require('fs')
-const dotProp = require('dot-prop')
-const tempy = require('tempy')
-const makeDir = require('make-dir')
-const del = require('del')
-const sortPackageJson = require('..')
-const { execFile } = require('child_process')
-const cliScript = path.join(__dirname, '../cli.js')
+import path from 'node:path'
+import fs from 'node:fs'
+import { execFile } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import dotProp from 'dot-prop'
+import tempy from 'tempy'
+import makeDir from 'make-dir'
+import del from 'del'
+import sortPackageJson from '../index.js'
+
+const cliScript = fileURLToPath(new URL('../cli.js', import.meta.url))
 
 // object can't compare keys order, so use string to test
 const sortPackageJsonAsString = ({ path, value, options }, pretty = true) => {
@@ -196,15 +198,16 @@ function uniqueAndSort(t, { path, options }) {
   asItIs(t, { path, options }, ['array'])
 }
 
-module.exports = {
-  macro: {
-    sortObject,
-    asItIs,
-    sortObjectAlphabetically,
-    testCLI,
-    uniqueArray,
-    uniqueAndSort,
-  },
+export const macro = {
+  sortObject,
+  asItIs,
+  sortObjectAlphabetically,
+  testCLI,
+  uniqueArray,
+  uniqueAndSort,
+}
+
+export {
   sortPackageJsonAsObject,
   sortPackageJsonAsString,
   keysToObject,

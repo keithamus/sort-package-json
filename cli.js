@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-const fs = require('fs')
-const globby = require('globby')
-const sortPackageJson = require('.')
+import fs from 'node:fs'
+import globby from 'globby'
+import sortPackageJson from './index.js'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
 
