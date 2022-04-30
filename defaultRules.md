@@ -92,6 +92,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | packageManager        |                                                                                |
 | engines               | Key sort                                                                       |
 | engineStrict          | Key sort                                                                       |
+| volta                 | Key order: `node`, `npm`, `yarn`                                               |
 | languageName          |                                                                                |
 | os                    |                                                                                |
 | cpu                   |                                                                                |

@@ -186,6 +186,20 @@ test('directories', macro.sortObject, {
   },
 })
 
+test('volta', macro.sortObject, {
+  path: 'volta',
+  value: {
+    yarn: '0.0.0',
+    npm: '0.0.0',
+    node: '0.0.0',
+  },
+  expect: {
+    node: '0.0.0',
+    npm: '0.0.0',
+    yarn: '0.0.0',
+  },
+})
+
 test('contributors', (t) => {
   const contributors = {
     contributors: [
