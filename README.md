@@ -235,3 +235,4 @@ A lot of people who ask for configuration cite the use case that they simply don
 ### What?! Why would you want to do this?!
 
 Well, it's nice to have the keys of a package.json in a well sorted order. Almost everyone would agree having "name" at the top of a package.json is sensible (rather than sorted alphabetically or somewhere silly like the bottom), so why not the rest of the package.json?
+
