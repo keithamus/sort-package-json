@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import fs from 'node:fs'
-import { globbySync } from 'globby'
-import sortPackageJson from './index.js'
+const fs = require('fs')
+const globby = require('globby')
+const sortPackageJson = require('.')
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
 
@@ -14,7 +14,7 @@ if (!patterns.length) {
   patterns[0] = 'package.json'
 }
 
-const files = globbySync(patterns)
+const files = globby.sync(patterns)
 
 if (files.length === 0) {
   console.log('No matching files.')

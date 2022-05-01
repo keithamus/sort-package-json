@@ -1,6 +1,6 @@
-import test from 'ava'
-import sortPackageJson from '../index.js'
-import { keysToObject, macro } from './_helpers.js'
+const test = require('ava')
+const sortPackageJson = require('..')
+const { keysToObject, macro } = require('./_helpers')
 
 test('eslintIgnore', macro.asItIs, { path: 'eslintIgnore' })
 

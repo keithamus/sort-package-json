@@ -1,8 +1,8 @@
-import sortObjectKeys from 'sort-object-keys'
-import detectIndent from 'detect-indent'
-import { detectNewlineGraceful as detectNewline } from 'detect-newline'
-import gitHooks from 'git-hooks-list'
-import isPlainObject from 'is-plain-obj'
+const sortObjectKeys = require('sort-object-keys')
+const detectIndent = require('detect-indent')
+const detectNewline = require('detect-newline').graceful
+const gitHooks = require('git-hooks-list')
+const isPlainObject = require('is-plain-obj')
 
 const hasOwnProperty = (object, property) =>
   Object.prototype.hasOwnProperty.call(object, property)
@@ -366,5 +366,7 @@ function sortPackageJson(jsonIsh, options = {}) {
   )
 }
 
-export default sortPackageJson
-export { defaultSortOrder as sortOrder }
+module.exports = sortPackageJson
+module.exports.sortPackageJson = sortPackageJson
+module.exports.sortOrder = defaultSortOrder
+module.exports.default = sortPackageJson

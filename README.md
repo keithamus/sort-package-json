@@ -87,7 +87,7 @@ Pass a JSON string, return a new sorted JSON string.\
 Pass a JSON object, return a new sorted JSON object.
 
 ```js
-import sortPackageJson from 'sort-package-json'
+const sortPackageJson = require('sort-package-json')
 
 const packageJsonString = `{
   "dependencies": {
@@ -228,7 +228,7 @@ Could be. I wanted this one because at the time of writing, nothing is:
 
 ### I would like this tool to be configurable with a config file or command line arguments.
 
-The lack of configuration here is a feature, not a bug. The intent of this tool is that a user can open a package json and always expect to see keys in a particular order. If we add a configuration for this tool, then that promise is broken, as users will first need to look at the configuration for each project to learn the ways in which this tool will change the `package.json`. The structure of the `package.json` should always be predictable & deterministic from project to project. I think the _reason_ why this project is well used is because it is not another "tool" you have to set up with yet another JSON file and more cruft in your project to support it. You run a command and it does what it says on the tin.
+The lack of configuration here is a feature, not a bug. The intent of this tool is that a user can open a package json and always expect to see keys in a particular order. If we add a configuration for this tool, then that promise is broken, as users will first need to look at the configuration for each project to learn the ways in which this tool will change the `package.json`. The structure of the `package.json` should always be predictable & deterministic from project to project. I think the _reason_ why this project is well used is because it is not another "tool" you have to set up with yet another JSON file and more cruft in your project to support it. You run a command and it does what it says on the tin. 
 
 A lot of people who ask for configuration cite the use case that they simply don't like the given order that exists and want to make sweeping changes. To me this seems far better suited to simply making a fork of this project as then you can go far further than specifying configuration.
 
