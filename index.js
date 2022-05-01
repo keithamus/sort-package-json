@@ -124,6 +124,8 @@ const sortPrettierConfig = onObject(
   ]),
 )
 
+const sortVolta = sortObjectBy(['node', 'npm', 'yarn'])
+
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
   'install',
@@ -290,6 +292,7 @@ const fields = [
   { key: 'packageManager' },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
+  { key: 'volta', over: sortVolta },
   { key: 'languageName' },
   { key: 'os' },
   { key: 'cpu' },
