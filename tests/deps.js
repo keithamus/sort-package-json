@@ -1,5 +1,5 @@
-import test from 'ava'
-import { macro } from './_helpers.js'
+const test = require('ava')
+const { macro } = require('./_helpers')
 
 // `resolutions` and `dependencies`
 for (const field of [

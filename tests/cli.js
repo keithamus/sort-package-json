@@ -1,6 +1,6 @@
-import fs from 'node:fs'
-import test from 'ava'
-import { cliScript, macro } from './_helpers.js'
+const test = require('ava')
+const { cliScript, macro } = require('./_helpers')
+const fs = require('fs')
 
 const badJson = {
   version: '1.0.0',

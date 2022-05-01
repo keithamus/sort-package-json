@@ -1,5 +1,5 @@
-import test from 'ava'
-import { macro } from './_helpers.js'
+const test = require('ava')
+const { macro } = require('./_helpers')
 
 const fixture = {
   test: 'node test.js',
