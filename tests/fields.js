@@ -15,6 +15,7 @@ for (const field of [
   'publisher',
   'type',
   'main',
+  'svelte',
   'umd:main',
   'jsdelivr',
   'unpkg',
