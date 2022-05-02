@@ -29,6 +29,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | imports               |                                                                                |
 | exports               |                                                                                |
 | main                  |                                                                                |
+| svelte                |                                                                                |
 | umd:main              |                                                                                |
 | jsdelivr              |                                                                                |
 | unpkg                 |                                                                                |
