@@ -21,6 +21,11 @@ const onObject =
   (x, ...args) =>
     isPlainObject(x) ? fn(x, ...args) : x
 const sortObjectBy = (comparator, deep) => {
+  if (comparator === undefined) {
+    comparator = (a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+  }
+
   const over = onObject((object) => {
     object = sortObjectKeys(object, comparator)
     if (deep) {
