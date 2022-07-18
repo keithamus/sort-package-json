@@ -263,6 +263,7 @@ const fields = [
   { key: 'browserslist' },
   { key: 'xo', over: sortObject },
   { key: 'prettier', over: sortPrettierConfig },
+  { key: 'prettierIgnore' },
   { key: 'eslintConfig', over: sortEslintConfig },
   { key: 'eslintIgnore' },
   { key: 'npmpkgjsonlint', over: sortObject },

@@ -59,3 +59,5 @@ test('prettier.overrides[].options', (t) => {
     'Should sort `prettier.overrides[].options`',
   )
 })
+
+test('prettierIgnore', macro.asItIs, { path: 'prettierIgnore' })
