@@ -1,6 +1,8 @@
 #!/usr/bin/env node
+require('colors')
 const fs = require('fs')
 const globby = require('globby')
+const Diff = require('diff')
 const sortPackageJson = require('.')
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
@@ -34,6 +36,11 @@ files.forEach((file) => {
     } else {
       fs.writeFileSync(file, sorted, 'utf8')
       console.log(`${file} is sorted!`)
+      const diff = Diff.diffLines(packageJson, sorted)
+      diff.forEach((part) => {
+        const color = part.added ? 'green' : part.removed ? 'red' : 'grey'
+        process.stderr.write(part.value[color])
+      })
     }
   }
 })
