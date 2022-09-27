@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-require('colors')
+const Diff = require('diff')
 const fs = require('fs')
 const globby = require('globby')
-const Diff = require('diff')
+const pc = require('picocolors')
 const sortPackageJson = require('.')
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
@@ -38,8 +38,12 @@ files.forEach((file) => {
       console.log(`${file} is sorted!`)
       const diff = Diff.diffLines(packageJson, sorted)
       diff.forEach((part) => {
-        const color = part.added ? 'green' : part.removed ? 'red' : 'grey'
-        process.stderr.write(part.value[color])
+        const colorValue = part.added
+          ? pc.green(part.value)
+          : part.removed
+          ? pc.red(part.value)
+          : pc.gray(part.value)
+        process.stderr.write(colorValue)
       })
     }
   }
