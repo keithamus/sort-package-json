@@ -38,12 +38,17 @@ files.forEach((file) => {
       console.log(`${file} is sorted!`)
       const diff = Diff.diffLines(packageJson, sorted)
       diff.forEach((part) => {
-        const colorValue = part.added
-          ? pc.green(part.value)
-          : part.removed
-          ? pc.red(part.value)
-          : pc.gray(part.value)
-        process.stderr.write(colorValue)
+        const partLineList = part.value.split('\n')
+        partLineList.forEach((line, index) => {
+          if ((part.added || part.removed) && index === partLineList.length - 1)
+            return
+          const colorValue = part.added
+            ? pc.green(`+${line}\n`)
+            : part.removed
+            ? pc.red(`-${line}\n`)
+            : pc.gray(`${line}\n`)
+          process.stderr.write(colorValue)
+        })
       })
     }
   }
