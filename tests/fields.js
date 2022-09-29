@@ -1,7 +1,7 @@
-const test = require('ava')
-const sortPackageJson = require('..')
-const { macro, keysToObject } = require('./_helpers')
-const gitHooks = require('git-hooks-list')
+import test from 'ava'
+import gitHooks from 'git-hooks-list'
+import sortPackageJson from '../index.js'
+import { macro, keysToObject } from './_helpers.js'
 
 // fields sort keep as it is
 for (const field of [

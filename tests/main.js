@@ -1,8 +1,8 @@
-const test = require('ava')
-const sortPackageJson = require('..')
-const { macro, keysToObject } = require('./_helpers')
+import test from 'ava'
+import sortPackageJson, { sortOrder } from '../index.js'
+import { macro, keysToObject } from './_helpers.js'
 
-const fields = [...sortPackageJson.sortOrder].sort()
+const fields = [...sortOrder].sort()
 
 test('main', (t) => {
   const packageJson = { version: '1.0.0', name: 'sort-package-json' }

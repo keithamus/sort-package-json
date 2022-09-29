@@ -1,16 +1,18 @@
-const path = require('path')
-const fs = require('fs')
-const dotProp = require('dot-prop')
-const tempy = require('tempy')
-const makeDir = require('make-dir')
-const del = require('del')
-const sortPackageJson = require('..')
-const { execFile } = require('child_process')
-const cliScript = path.join(__dirname, '../cli.js')
+import path from 'node:path'
+import fs from 'node:fs'
+import { execFile } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { getProperty, setProperty } from 'dot-prop'
+import tempy from 'tempy'
+import makeDir from 'make-dir'
+import del from 'del'
+import sortPackageJson from '../index.js'
+
+const cliScript = fileURLToPath(new URL('../cli.js', import.meta.url))
 
 // object can't compare keys order, so use string to test
 const sortPackageJsonAsString = ({ path, value, options }, pretty = true) => {
-  const input = path ? dotProp.set({}, path, value) : value
+  const input = path ? setProperty({}, path, value) : value
   const output = sortPackageJson(input, options)
 
   return {
@@ -22,8 +24,8 @@ const sortPackageJsonAsString = ({ path, value, options }, pretty = true) => {
 }
 
 const sortPackageJsonAsObject = ({ path, value, options }) =>
-  dotProp.get(
-    sortPackageJson(path ? dotProp.set({}, path, value) : value, options),
+  getProperty(
+    sortPackageJson(path ? setProperty({}, path, value) : value, options),
     path,
   )
 
@@ -72,7 +74,7 @@ function sortObject(
   } else {
     t.deepEqual(
       sortPackageJsonAsString({ path, value, options }).output,
-      JSON.stringify(path ? dotProp.set({}, path, expect) : expect, null, 2),
+      JSON.stringify(path ? setProperty({}, path, expect) : expect, null, 2),
       message,
     )
   }
@@ -93,7 +95,7 @@ function asItIs(t, { path, options }, excludeTypes = []) {
         value: keysToObject(['z', 'a']),
         options,
       }).output,
-      JSON.stringify(dotProp.set({}, path, keysToObject(['z', 'a'])), null, 2),
+      JSON.stringify(setProperty({}, path, keysToObject(['z', 'a'])), null, 2),
       `Should keep object type \`${path}\` as it is.`,
     )
   }
@@ -196,15 +198,16 @@ function uniqueAndSort(t, { path, options }) {
   asItIs(t, { path, options }, ['array'])
 }
 
-module.exports = {
-  macro: {
-    sortObject,
-    asItIs,
-    sortObjectAlphabetically,
-    testCLI,
-    uniqueArray,
-    uniqueAndSort,
-  },
+export const macro = {
+  sortObject,
+  asItIs,
+  sortObjectAlphabetically,
+  testCLI,
+  uniqueArray,
+  uniqueAndSort,
+}
+
+export {
   sortPackageJsonAsObject,
   sortPackageJsonAsString,
   keysToObject,
