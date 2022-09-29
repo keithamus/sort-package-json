@@ -46,7 +46,7 @@ files.forEach((file) => {
             ? pc.green(`+${line}\n`)
             : part.removed
             ? pc.red(`-${line}\n`)
-            : pc.gray(`${line}\n`)
+            : pc.gray(` ${line}\n`)
           process.stderr.write(colorValue)
         })
       })
