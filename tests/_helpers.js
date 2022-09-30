@@ -3,9 +3,9 @@ import fs from 'node:fs'
 import { execFile } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { getProperty, setProperty } from 'dot-prop'
-import tempy from 'tempy'
+import { temporaryDirectory } from 'tempy'
 import makeDir from 'make-dir'
-import del from 'del'
+import { deleteSync } from 'del'
 import sortPackageJson from '../index.js'
 
 const cliScript = fileURLToPath(new URL('../cli.js', import.meta.url))
@@ -121,7 +121,7 @@ function asItIs(t, { path, options }, excludeTypes = []) {
 }
 
 async function testCLI(t, { fixtures = [], args, message }) {
-  const cwd = tempy.directory()
+  const cwd = temporaryDirectory()
 
   fixtures = fixtures.map(({ file = 'package.json', content, expect }) => {
     const absolutePath = path.join(cwd, file)
@@ -152,7 +152,7 @@ async function testCLI(t, { fixtures = [], args, message }) {
   }
 
   // clean up fixtures
-  del.sync(cwd, { force: true })
+  deleteSync(cwd, { force: true })
 
   for (const { actual, expect, file } of fixtures) {
     t.is(actual, expect, `\`${file}\` content is expected.`)
