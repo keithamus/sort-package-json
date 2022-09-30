@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { getProperty, setProperty } from 'dot-prop'
 import tempy from 'tempy'
 import makeDir from 'make-dir'
-import del from 'del'
+import { deleteSync } from 'del'
 import sortPackageJson from '../index.js'
 
 const cliScript = fileURLToPath(new URL('../cli.js', import.meta.url))
@@ -152,7 +152,7 @@ async function testCLI(t, { fixtures = [], args, message }) {
   }
 
   // clean up fixtures
-  del.sync(cwd, { force: true })
+  deleteSync(cwd, { force: true })
 
   for (const { actual, expect, file } of fixtures) {
     t.is(actual, expect, `\`${file}\` content is expected.`)
