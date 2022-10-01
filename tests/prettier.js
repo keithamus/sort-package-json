@@ -1,6 +1,6 @@
-const test = require('ava')
-const sortPackageJson = require('..')
-const { keysToObject, macro } = require('./_helpers')
+import test from 'ava'
+import sortPackageJson from '../index.js'
+import { keysToObject, macro } from './_helpers.js'
 
 const prettierConfig = {
   trailingComma: 'none',

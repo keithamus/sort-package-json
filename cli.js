@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-const Diff = require('diff')
-const fs = require('fs')
-const globby = require('globby')
-const pc = require('picocolors')
-const sortPackageJson = require('.')
+import fs from 'node:fs'
+import { globbySync } from 'globby'
+import sortPackageJson from './index.js'
+import pc from 'picocolors'
+import { diffLines } from 'diff'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
 
@@ -16,7 +16,7 @@ if (!patterns.length) {
   patterns[0] = 'package.json'
 }
 
-const files = globby.sync(patterns)
+const files = globbySync(patterns)
 
 if (files.length === 0) {
   console.log('No matching files.')
@@ -36,7 +36,7 @@ files.forEach((file) => {
     } else {
       fs.writeFileSync(file, sorted, 'utf8')
       console.log(`${file} is sorted!`)
-      const diff = Diff.diffLines(packageJson, sorted)
+      const diff = diffLines(packageJson, sorted)
       diff.forEach((part) => {
         const partLineList = part.value.split('\n')
         partLineList.forEach((line, index) => {
