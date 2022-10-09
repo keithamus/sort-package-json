@@ -2,7 +2,7 @@
 import fs from 'node:fs'
 import { globbySync } from 'globby'
 import sortPackageJson from './index.js'
-import pc from 'picocolors'
+import picocolors from 'picocolors'
 import { diffLines } from 'diff'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
@@ -43,10 +43,10 @@ files.forEach((file) => {
           if ((part.added || part.removed) && index === partLineList.length - 1)
             return
           const colorValue = part.added
-            ? pc.green(`+${line}\n`)
+            ? picocolors.green(`+${line}\n`)
             : part.removed
-            ? pc.red(`-${line}\n`)
-            : pc.gray(` ${line}\n`)
+            ? picocolors.red(`-${line}\n`)
+            : picocolors.gray(` ${line}\n`)
           process.stderr.write(colorValue)
         })
       })

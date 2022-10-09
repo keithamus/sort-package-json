@@ -66,6 +66,19 @@ test('run `cli` on 1 bad file', macro.testCLI, {
   message: 'Should format 1 file.',
 })
 
+test('should show colored diff', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'bad/package.json',
+      content: badJson,
+      expect: goodJson,
+    },
+  ],
+  args: ['*/package.json'],
+  message: 'Should format 1 file.',
+  colors: true,
+})
+
 test('run `cli --check` on 1 bad file', macro.testCLI, {
   fixtures: [
     {
