@@ -35,7 +35,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        if: matrix.node_version == '16'
+        if: matrix.node_version == '18'
         run: npm run lint
 
       - name: Check package.json
