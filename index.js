@@ -277,6 +277,7 @@ const fields = [
   { key: 'nyc', over: sortObject },
   { key: 'c8', over: sortObject },
   { key: 'tap', over: sortObject },
+  { key: 'tsd', over: sortObject },
   { key: 'resolutions', over: sortObject },
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
