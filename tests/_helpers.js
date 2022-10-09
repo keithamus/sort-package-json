@@ -178,7 +178,7 @@ function runCLI({ args = [], cwd = process.cwd(), colors = false }) {
   const env = colors ? { FORCE_COLOR: 1 } : { NO_COLOR: 1 }
   return new Promise((resolve) => {
     execFile(
-      'node',
+      process.execPath,
       [cliScript, ...args],
       { cwd, env },
       (error, stdout, stderr) => {
