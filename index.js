@@ -273,6 +273,8 @@ const fields = [
   { key: 'stylelint' },
   { key: 'ava', over: sortObject },
   { key: 'jest', over: sortObject },
+  { key: 'jest-junit', over: sortObject },
+  { key: 'jest-stare', over: sortObject },
   { key: 'mocha', over: sortObject },
   { key: 'nyc', over: sortObject },
   { key: 'c8', over: sortObject },
