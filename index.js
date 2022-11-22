@@ -148,27 +148,31 @@ const hasDevDependency = (dependency, packageJson) => {
   )
 }
 
-const runSValues = [new RegExp('run-s')]
+const runSValues = [
+  /npm-run-all .* -s(?:$|\s|&|>|<)/,
+  /npm-run-all .* --sequential/,
+  /npm-run-all .* --serial/,
+  /run-s/,
+]
 
 const hasRunS = (packageJson) => {
-  if (hasDevDependency('npm-run-all', packageJson)) {
-    const scripts = packageJson.scripts
-    const betterScripts = packageJson.betterScripts
-
-    if (scripts) {
-      return Object.values(scripts).some((script) =>
-        runSValues.some((runSValue) => runSValue.test(script)),
-      )
-    }
-
-    if (betterScripts) {
-      return Object.values(betterScripts).some((script) =>
-        runSValues.some((runSValue) => runSValue.test(script)),
-      )
-    }
+  if (!hasDevDependency('npm-run-all', packageJson)) {
+    return false
   }
 
-  return false
+  const scripts = packageJson.scripts
+  const betterScripts = packageJson.betterScripts
+  if (scripts) {
+    return Object.values(scripts).some((script) =>
+      runSValues.some((runSValue) => runSValue.test(script)),
+    )
+  }
+
+  if (betterScripts) {
+    return Object.values(betterScripts).some((script) =>
+      runSValues.some((runSValue) => runSValue.test(script)),
+    )
+  }
 }
 
 const sortScripts = onObject((scripts, packageJson) => {
@@ -195,9 +199,8 @@ const sortScripts = onObject((scripts, packageJson) => {
       ),
     [],
   )
-  const toReturn = sortObjectKeys(scripts, order)
 
-  return toReturn
+  return sortObjectKeys(scripts, order)
 })
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
