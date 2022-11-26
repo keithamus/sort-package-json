@@ -58,6 +58,7 @@ for (const field of ['scripts', 'betterScripts']) {
   )
 }
 
+// `run-s` command
 function sortScriptsWithNpmRunAll(script) {
   const packageJson = {
     scripts: { z: 'z', a: 'a', maybeRunS: script },
@@ -68,7 +69,6 @@ function sortScriptsWithNpmRunAll(script) {
 }
 const sortedScripts = ['a', 'maybeRunS', 'z']
 const unsortedScripts = ['z', 'a', 'maybeRunS']
-// `run-s` command
 for (const { script, expected } of [
   // Should NOT sort
   { script: 'run-s "lint:*"', expected: unsortedScripts },
