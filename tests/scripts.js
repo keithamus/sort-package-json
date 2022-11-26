@@ -85,11 +85,14 @@ for (const { script, expected } of [
     script: 'cross-env FOO=1 npm-run-all --serial "lint:*"',
     expected: unsortedScripts,
   },
+  { script: 'npm-run-all "lint:*" --serial&&foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial|foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial||foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial>foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial<foo', expected: unsortedScripts },
   { script: 'npm-run-all --serial "lint:*"&&foo', expected: unsortedScripts },
-  { script: 'npm-run-all --serial "lint:*"|foo', expected: unsortedScripts },
-  { script: 'npm-run-all --serial "lint:*"||foo', expected: unsortedScripts },
-  { script: 'npm-run-all --serial "lint:*">foo', expected: unsortedScripts },
-  { script: 'npm-run-all --serial "lint:*"<foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial;foo', expected: unsortedScripts },
+  { script: '(npm-run-all "lint:*" --serial)|foo', expected: unsortedScripts },
 
   // Should sort
   { script: 'run-s lint:a lint:b', expected: sortedScripts },
@@ -97,6 +100,9 @@ for (const { script, expected } of [
   { script: 'npm-run-all * --serial!', expected: sortedScripts },
   { script: 'looks like && run-s-but-its-not *', expected: sortedScripts },
   { script: 'npm-run-all *', expected: sortedScripts },
+
+  // False positive
+  { script: 'rm -rf dist/* && run-s lint:a lint:b', expected: unsortedScripts },
 ]) {
   test(`command: '${script}'`, (t) => {
     t.deepEqual(sortScriptsWithNpmRunAll(script), expected)

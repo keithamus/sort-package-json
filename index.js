@@ -150,9 +150,9 @@ const hasDevDependency = (dependency, packageJson) => {
 
 const runSRegExp = new RegExp(
   [
-    '(?<=^|[&<>|\\s])',
+    '(?<=^|[&<>|;)\\s])',
     '(?:run-s|npm-run-all .*(?:-s|--sequential|--serial))',
-    '(?=$|[&<>|\\s])',
+    '(?=$|[&<>|;)\\s])',
   ].join(''),
 )
 
