@@ -149,7 +149,7 @@ const hasDevDependency = (dependency, packageJson) => {
 }
 
 const runSRegExp =
-  /(?<=^|[&<>|;\s(])(?:run-s|npm-run-all .*(?:-s|--sequential|--serial))((?=$|[&<>|;\s)]))/
+  /(?<=^|[\s&;<>|(])(?:run-s|npm-run-all .*(?:--sequential|--serial|-s))(?=$|[\s&;<>|)])/
 
 const isSequentialScript = (command) =>
   command.includes('*') && runSRegExp.test(command)
