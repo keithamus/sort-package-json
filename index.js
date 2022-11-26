@@ -148,31 +148,25 @@ const hasDevDependency = (dependency, packageJson) => {
   )
 }
 
-const runSValues = [
-  /npm-run-all .* -s(?:$|\s|&|>|<)/,
-  /npm-run-all .* --sequential/,
-  /npm-run-all .* --serial/,
-  /run-s/,
-]
+const runSRegExp = new RegExp(
+  [
+    '(?<=^|[&<>|\\s])',
+    '(?:run-s|npm-run-all .*(?:-s|--sequential|--serial))',
+    '(?=$|[&<>|\\s])',
+  ].join(''),
+)
 
-const hasRunS = (packageJson) => {
+const isSequentialScript = (command) =>
+  command.includes('*') && runSRegExp.test(command)
+
+const hasSequentialScript = (packageJson) => {
   if (!hasDevDependency('npm-run-all', packageJson)) {
     return false
   }
-
-  const scripts = packageJson.scripts
-  const betterScripts = packageJson.betterScripts
-  if (scripts) {
-    return Object.values(scripts).some((script) =>
-      runSValues.some((runSValue) => runSValue.test(script)),
-    )
-  }
-
-  if (betterScripts) {
-    return Object.values(betterScripts).some((script) =>
-      runSValues.some((runSValue) => runSValue.test(script)),
-    )
-  }
+  const scripts = ['scripts', 'betterScripts'].flatMap((field) =>
+    packageJson[field] ? Object.values(packageJson[field]) : [],
+  )
+  return scripts.some((script) => isSequentialScript(script))
 }
 
 const sortScripts = onObject((scripts, packageJson) => {
@@ -188,7 +182,7 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
-  if (!hasRunS(packageJson)) {
+  if (!hasSequentialScript(packageJson)) {
     keys.sort()
   }
 
