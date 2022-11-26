@@ -100,6 +100,7 @@ for (const { script, expected } of [
   { script: 'npm-run-all * --serial!', expected: sortedScripts },
   { script: 'looks like && run-s-but-its-not *', expected: sortedScripts },
   { script: 'npm-run-all *', expected: sortedScripts },
+  { script: 'npm-run-all --parallel watch:*', expected: sortedScripts },
 
   // False positive
   { script: 'rm -rf dist/* && run-s lint:a lint:b', expected: unsortedScripts },
