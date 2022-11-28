@@ -2,6 +2,8 @@
 import fs from 'node:fs'
 import { globbySync } from 'globby'
 import sortPackageJson from './index.js'
+import * as yoctocolors from 'yoctocolors'
+import { diffLines } from 'diff'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
 
@@ -34,6 +36,20 @@ files.forEach((file) => {
     } else {
       fs.writeFileSync(file, sorted, 'utf8')
       console.log(`${file} is sorted!`)
+      const diff = diffLines(packageJson, sorted)
+      diff.forEach((part) => {
+        const partLineList = part.value.split('\n')
+        partLineList.forEach((line, index) => {
+          if ((part.added || part.removed) && index === partLineList.length - 1)
+            return
+          const colorValue = part.added
+            ? yoctocolors.green(`+${line}\n`)
+            : part.removed
+            ? yoctocolors.red(`-${line}\n`)
+            : yoctocolors.gray(` ${line}\n`)
+          process.stderr.write(colorValue)
+        })
+      })
     }
   }
 })
