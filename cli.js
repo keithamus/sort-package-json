@@ -1,12 +1,39 @@
 #!/usr/bin/env node
-import fs from 'node:fs'
 import { globbySync } from 'globby'
+import fs from 'node:fs'
 import sortPackageJson from './index.js'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
+const isHelpFlag = (argument) => argument === '--help' || argument === '-h'
+const isVersionFlag = (argument) =>
+  argument === '--version' || argument === '-V'
 
 const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)
+const isHelp = cliArguments.some(isHelpFlag)
+const isVersion = cliArguments.some(isVersionFlag)
+
+if (isHelp) {
+  console.log(
+    `Usage: sort-package-json [OPTION...] [FILE...]
+Sort npm package.json files. Default: ./package.json
+Strings passed as files are parsed as globs.
+
+  -c, --check                check if FILES are sorted
+  -q, --quiet                don't output success messages
+  -h, --help                 display this help and exit
+  -V, --version              display the version and exit
+  `,
+  )
+  process.exit(0)
+}
+
+if (isVersion) {
+  const packageBuffer = fs.readFileSync('./package.json')
+  const { version } = JSON.parse(packageBuffer)
+  console.log(`sort-package-json ${version}`)
+  process.exit(0)
+}
 
 const patterns = cliArguments.filter((argument) => !isCheckFlag(argument))
 
