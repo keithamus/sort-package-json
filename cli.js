@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import sortPackageJson from './index.js'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
+const isQuietFlag = (argument) => argument === '--quiet' || argument === '-q'
 const isHelpFlag = (argument) => argument === '--help' || argument === '-h'
 const isVersionFlag = (argument) =>
   argument === '--version' || argument === '-v'
@@ -56,6 +57,8 @@ if (files.length === 0) {
   stderr('No matching files.')
   process.exit(1)
 }
+
+if (isQuiet) console.log = function () {}
 
 let notSortedFiles = 0
 
