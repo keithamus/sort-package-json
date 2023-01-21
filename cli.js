@@ -30,9 +30,13 @@ Strings passed as files are parsed as globs.
 
 if (isVersion) {
   try {
+    const path = await import('node:path')
+
     const cliRealPath = fs.realpathSync(process.argv[1])
-    const cliParentDir = (await import('node:path')).dirname(cliRealPath)
-    const packageJsonBuffer = fs.readFileSync(`${cliParentDir}/package.json`)
+    const cliParentDir = path.dirname(cliRealPath)
+    const packageJsonBuffer = fs.readFileSync(
+      path.join(cliParentDir, 'package.json'),
+    )
     const { version } = JSON.parse(packageJsonBuffer)
 
     console.log(`sort-package-json ${version}`)
