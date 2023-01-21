@@ -4,9 +4,11 @@ import { globbySync } from 'globby'
 import sortPackageJson from './index.js'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
+const isQuietFlag = (argument) => argument === '--quiet' || argument === '-q'
 
 const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)
+const isQuiet = cliArguments.some(isQuietFlag)
 
 const patterns = cliArguments.filter((argument) => !isCheckFlag(argument))
 
@@ -20,6 +22,8 @@ if (files.length === 0) {
   console.log('No matching files.')
   process.exit(1)
 }
+
+if (isQuiet) console.log = function () {}
 
 let notSortedFiles = 0
 

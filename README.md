@@ -69,6 +69,15 @@ $ sort-package-json "**/package.json" --check
 # 2 of 5 matched files are not sorted.
 ```
 
+#### `--quiet` flag
+
+In order to silence any successful output, you can run CLI with the `--quiet` flag (or `-q`). This will stop the CLI from outputting if it runs successfully, but will still display errors if they occur. Exit codes will not change.
+
+```bash
+$ sort-package-json "**/package.json" --check --quiet
+$ sort-package-json "**/package.json" --quiet
+```
+
 ## API
 
 ### Install
