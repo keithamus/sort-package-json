@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { globbySync } from 'globby'
 import fs from 'node:fs'
+import path from 'node:path'
 import sortPackageJson from './index.js'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
@@ -29,9 +30,17 @@ Strings passed as files are parsed as globs.
 }
 
 if (isVersion) {
-  const packageBuffer = fs.readFileSync('./package.json')
-  const { version } = JSON.parse(packageBuffer)
-  console.log(`sort-package-json ${version}`)
+  try {
+    const cliRealPath = fs.realpathSync(process.argv[1])
+    const cliParentDir = path.dirname(cliRealPath)
+    const packageJsonBuffer = fs.readFileSync(`${cliParentDir}/package.json`)
+    const { version } = JSON.parse(packageJsonBuffer)
+
+    console.log(`sort-package-json ${version}`)
+  } catch {
+    // If anything goes wrong, fall back to 'unknown version'
+    console.log(`sort-package-json unknown version`)
+  }
   process.exit(0)
 }
 
