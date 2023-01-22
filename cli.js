@@ -8,7 +8,6 @@ const isQuietFlag = (argument) => argument === '--quiet' || argument === '-q'
 const isHelpFlag = (argument) => argument === '--help' || argument === '-h'
 const isVersionFlag = (argument) =>
   argument === '--version' || argument === '-v'
-const isQuietFlag = (argument) => argument === '--quiet' || argument === '-q'
 
 const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)
@@ -43,10 +42,29 @@ if (isVersion) {
   process.exit(0)
 }
 
+function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
+  if (isQuiet) return
+  const isTerminal = !!process.stdout.isTTY
+  if (isTerminal) {
+    console.log(outputIfTTY)
+  } else if (alwaysOutput !== null) {
+    console.log(alwaysOutput)
+  }
+}
+
+function stderr(outputIfTTY = '', alwaysOutput = outputIfTTY) {
+  if (isQuiet) return
+  const isTerminal = !!process.stdout.isTTY
+  if (isTerminal) {
+    console.error(outputIfTTY)
+  } else if (alwaysOutput !== null) {
+    console.error(alwaysOutput)
+  }
+}
+
 const patterns = cliArguments.filter(
   (argument) => !isCheckFlag(argument) && !isQuietFlag(argument),
 )
-
 if (!patterns.length) {
   patterns[0] = 'package.json'
 }
@@ -57,8 +75,6 @@ if (files.length === 0) {
   stderr('No matching files.')
   process.exit(1)
 }
-
-if (isQuiet) console.log = function () {}
 
 let notSortedFiles = 0
 
