@@ -22,7 +22,7 @@ Strings passed as files are parsed as globs.
   -c, --check                check if FILES are sorted
   -q, --quiet                don't output success messages
   -h, --help                 display this help and exit
-  -V, --version              display the version and exit
+  -v, --version              display the version and exit
   `,
   )
   process.exit(0)
