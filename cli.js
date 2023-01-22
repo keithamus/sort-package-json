@@ -6,7 +6,7 @@ import sortPackageJson from './index.js'
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
 const isHelpFlag = (argument) => argument === '--help' || argument === '-h'
 const isVersionFlag = (argument) =>
-  argument === '--version' || argument === '-V'
+  argument === '--version' || argument === '-v'
 
 const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)
