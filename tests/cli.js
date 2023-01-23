@@ -601,3 +601,79 @@ test('run `cli --check` on duplicate patterns without TTY', macro.testCLI, {
   message: 'Should not list `bad-1/package.json` more than once. Exit code 1',
   isTerminal: { stderr: false, stdout: false },
 })
+
+const badFormat = `{`
+
+test('run `cli --check` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--check'],
+  message: 'Should fail to check, but not end execution.',
+})
+
+test('run `cli --check --quiet` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--check', '--quiet'],
+  message: 'Should output error message, but not count.',
+})
+
+test('run `cli --check` on 1 non-json file without TTY', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--check'],
+  message: 'Should output filename on stderr.',
+  isTerminal: { stdout: false, stderr: false },
+})
+
+test('run `cli` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json'],
+  message: 'Should fail to check, but not end execution.',
+})
+
+test('run `cli --quiet` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--quiet'],
+  message: 'Should output error message',
+})
+
+test('run `cli` on 1 non-json file without TTY', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json'],
+  message: 'Should output filename on stderr.',
+  isTerminal: { stdout: false, stderr: false },
+})
