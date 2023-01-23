@@ -1,5 +1,5 @@
-import fs from 'node:fs'
 import test from 'ava'
+import fs from 'node:fs'
 import { cliScript, macro } from './_helpers.js'
 
 const badJson = {
@@ -28,6 +28,12 @@ test('run `cli --help --quiet`', macro.testCLI, {
   message: 'Should report help menu overriding quiet.',
 })
 
+test('run `cli --help` without tty', macro.testCLI, {
+  args: ['--help'],
+  message: 'Should report help menu regardless of tty.',
+  isTerminal: { stdout: false, stderr: false },
+})
+
 test('run `cli -h`', macro.testCLI, {
   args: ['-h'],
   message: 'Should support help alias.',
@@ -46,6 +52,12 @@ test('run `cli --version`', macro.testCLI, {
 test('run `cli --version --quiet`', macro.testCLI, {
   args: ['--version', '--quiet'],
   message: 'Should report version overriding quiet.',
+})
+
+test('run `cli --version` without tty', macro.testCLI, {
+  args: ['--version'],
+  message: 'Should report version number regardless of tty.',
+  isTerminal: { stdout: false, stderr: false },
 })
 
 test('run `cli -v`', macro.testCLI, {
