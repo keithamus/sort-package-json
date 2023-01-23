@@ -410,7 +410,7 @@ test(
       })),
     ],
     args: ['*/package.json', '--check'],
-    message: 'Should output bad files on stderr and exit code 2.',
+    message: 'Should output bad files on stdout and exit code 2.',
     isTerminal: { stderr: true, stdout: false },
   },
 )
