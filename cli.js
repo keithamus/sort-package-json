@@ -24,7 +24,6 @@ function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
 }
 
 function stderr(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  if (isQuiet) return
   const isTerminal = !!process.stdout.isTTY
   if (isTerminal) {
     console.error(outputIfTTY)
