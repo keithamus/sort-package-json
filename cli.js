@@ -43,6 +43,7 @@ Sort npm package.json files. Default: ./package.json
 Strings passed as files are parsed as globs.
 
   -c, --check                check if FILES are sorted
+  -q, --quiet                don't output success messages
   -h, --help                 display this help and exit
   -v, --version              display the version and exit
   `,
