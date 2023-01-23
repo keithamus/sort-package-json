@@ -80,8 +80,9 @@ files.forEach((file) => {
   try {
     sorted = sortPackageJson(packageJson)
   } catch (error) {
-    stderr(`could not sort ${file}`, file)
+    stderr(`could not ${isCheck ? 'check' : 'sort'} ${file}`, file)
     stderr(error.message, null)
+    notSortedFiles++
     return
   }
 
@@ -91,13 +92,13 @@ files.forEach((file) => {
       stdout(file)
     } else {
       fs.writeFileSync(file, sorted, 'utf8')
-      stdout(`${file} is sorted!`)
+      stdout(`${file} is sorted!`, file)
     }
   }
 })
 
 if (isCheck) {
-  stdout()
+  stdout('', null)
   if (notSortedFiles) {
     stdout(
       notSortedFiles === 1
