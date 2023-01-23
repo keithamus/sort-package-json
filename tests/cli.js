@@ -602,7 +602,7 @@ test('run `cli --check` on duplicate patterns without TTY', macro.testCLI, {
   isTerminal: { stderr: false, stdout: false },
 })
 
-const badFormat = `{`
+const badFormat = ''
 
 test('run `cli --check` on 1 non-json file', macro.testCLI, {
   fixtures: [
