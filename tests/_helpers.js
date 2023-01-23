@@ -121,8 +121,8 @@ function asItIs(t, { path, options }, excludeTypes = []) {
 }
 
 async function testCLI(t, { fixtures = [], args, message, isTerminal = {} }) {
-  isTerminal.stdout = isTerminal.stdout ?? true
-  isTerminal.stderr = isTerminal.stderr ?? true
+  if (isTerminal.stdout === undefined) isTerminal.stdout = true
+  if (isTerminal.stderr === undefined) isTerminal.stderr = true
 
   const cwd = tempy.directory()
 

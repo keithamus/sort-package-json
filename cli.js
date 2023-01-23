@@ -15,7 +15,7 @@ const isQuiet = cliArguments.some(isQuietFlag)
 
 function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
   if (isQuiet) return
-  const isTerminal = process.stdout.isTTY ?? Boolean(process.env.STDOUT_IS_TTY)
+  const isTerminal = process.stdout.isTTY || Boolean(process.env.STDOUT_IS_TTY)
   if (isTerminal) {
     console.log(outputIfTTY)
   } else if (alwaysOutput !== null) {
@@ -24,7 +24,7 @@ function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
 }
 
 function stderr(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  const isTerminal = process.stderr.isTTY ?? Boolean(process.env.STDERR_IS_TTY)
+  const isTerminal = process.stderr.isTTY || Boolean(process.env.STDERR_IS_TTY)
   if (isTerminal) {
     console.error(outputIfTTY)
   } else if (alwaysOutput !== null) {
