@@ -13,8 +13,24 @@ const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)
 const isQuiet = cliArguments.some(isQuietFlag)
 
-const stdout = isQuiet ? () => {} : console.log
-const stderr = console.error
+function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
+  if (isQuiet) return
+  const isTerminal = !!process.stdout.isTTY
+  if (isTerminal) {
+    console.log(outputIfTTY)
+  } else if (alwaysOutput !== null) {
+    console.log(alwaysOutput)
+  }
+}
+
+function stderr(outputIfTTY = '', alwaysOutput = outputIfTTY) {
+  const isTerminal = !!process.stderr.isTTY
+  if (isTerminal) {
+    console.error(outputIfTTY)
+  } else if (alwaysOutput !== null) {
+    console.error(alwaysOutput)
+  }
+}
 
 const isHelp = cliArguments.some(isHelpFlag)
 const isVersion = cliArguments.some(isVersionFlag)
@@ -40,25 +56,6 @@ if (isVersion) {
 
   console.log(`sort-package-json ${version}`)
   process.exit(0)
-}
-
-function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  if (isQuiet) return
-  const isTerminal = !!process.stdout.isTTY
-  if (isTerminal) {
-    console.log(outputIfTTY)
-  } else if (alwaysOutput !== null) {
-    console.log(alwaysOutput)
-  }
-}
-
-function stderr(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  const isTerminal = !!process.stdout.isTTY
-  if (isTerminal) {
-    console.error(outputIfTTY)
-  } else if (alwaysOutput !== null) {
-    console.error(alwaysOutput)
-  }
 }
 
 const patterns = cliArguments.filter(
