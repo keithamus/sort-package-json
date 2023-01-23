@@ -58,7 +58,9 @@ if (isVersion) {
   process.exit(0)
 }
 
-const patterns = cliArguments.filter((argument) => !isCheckFlag(argument))
+const patterns = cliArguments
+  .filter((argument) => !isCheckFlag(argument))
+  .filter((argument) => !isQuietFlag(argument))
 
 if (!patterns.length) {
   patterns[0] = 'package.json'
