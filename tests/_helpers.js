@@ -120,7 +120,10 @@ function asItIs(t, { path, options }, excludeTypes = []) {
   }
 }
 
-async function testCLI(t, { fixtures = [], args, message, isTerminal }) {
+async function testCLI(t, { fixtures = [], args, message, isTerminal = {} }) {
+  isTerminal.stdout ??= true
+  isTerminal.stderr ??= true
+
   const cwd = tempy.directory()
 
   fixtures = fixtures.map(({ file = 'package.json', content, expect }) => {
@@ -167,17 +170,14 @@ async function testCLI(t, { fixtures = [], args, message, isTerminal }) {
         expect,
       })),
       args,
+      isTerminal,
       result,
     },
     message,
   )
 }
 
-function runCLI({
-  args = [],
-  cwd = process.cwd(),
-  isTerminal = { stdout: true, stderr: true },
-}) {
+function runCLI({ args = [], cwd = process.cwd(), isTerminal }) {
   const env = { ...process.env }
   if (isTerminal.stdout) env.STDOUT_IS_TTY = 'true'
   if (isTerminal.stderr) env.STDERR_IS_TTY = 'true'
