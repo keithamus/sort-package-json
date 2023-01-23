@@ -15,7 +15,7 @@ const isQuiet = cliArguments.some(isQuietFlag)
 
 function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
   if (isQuiet) return
-  const isTerminal = !!process.stdout.isTTY
+  const isTerminal = process.stdout.isTTY ?? Boolean(process.env.STDOUT_IS_TTY)
   if (isTerminal) {
     console.log(outputIfTTY)
   } else if (alwaysOutput !== null) {
@@ -24,7 +24,7 @@ function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
 }
 
 function stderr(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  const isTerminal = !!process.stderr.isTTY
+  const isTerminal = process.stderr.isTTY ?? Boolean(process.env.STDERR_IS_TTY)
   if (isTerminal) {
     console.error(outputIfTTY)
   } else if (alwaysOutput !== null) {
@@ -76,7 +76,14 @@ let notSortedFiles = 0
 
 files.forEach((file) => {
   const packageJson = fs.readFileSync(file, 'utf8')
-  const sorted = sortPackageJson(packageJson)
+  let sorted = null
+  try {
+    sorted = sortPackageJson(packageJson)
+  } catch (error) {
+    stderr(`could not sort ${file}`, file)
+    stderr(error.message, null)
+    return
+  }
 
   if (sorted !== packageJson) {
     if (isCheck) {
@@ -96,13 +103,15 @@ if (isCheck) {
       notSortedFiles === 1
         ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
         : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
+      null,
     )
   } else {
     stdout(
       files.length === 1
         ? `${files.length} matched file is sorted.`
         : `${files.length} matched files are sorted.`,
+      null,
     )
   }
-  process.exit(notSortedFiles)
+  process.exit(Math.min(notSortedFiles, 255))
 }
