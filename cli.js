@@ -13,24 +13,8 @@ const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)
 const isQuiet = cliArguments.some(isQuietFlag)
 
-function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  if (isQuiet) return
-  const isTerminal = !!process.stdout.isTTY
-  if (isTerminal) {
-    console.log(outputIfTTY)
-  } else if (alwaysOutput !== null) {
-    console.log(alwaysOutput)
-  }
-}
-
-function stderr(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  const isTerminal = !!process.stderr.isTTY
-  if (isTerminal) {
-    console.error(outputIfTTY)
-  } else if (alwaysOutput !== null) {
-    console.error(alwaysOutput)
-  }
-}
+const stdout = isQuiet ? () => {} : console.log
+const stderr = console.error
 
 const isHelp = cliArguments.some(isHelpFlag)
 const isVersion = cliArguments.some(isVersionFlag)
