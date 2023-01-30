@@ -54,7 +54,7 @@ $ sort-package-json "package.json" "packages/*/package.json"
 
 #### `--check` flag
 
-When you want to check if your files are sorted, you can run CLI with the `--check` flag (or `-c`). This will output a list of not sorted files, if any. The exit code will also correspond to how many files are not sorted.
+When you want to check if your files are sorted, you can run CLI with the `--check` flag (or `-c`). This will output a list of not sorted files, if any. The exit code will also correspond to how many files are not sorted. The maximum possible value is 255.
 
 ```bash
 $ sort-package-json "**/package.json" --check
@@ -78,29 +78,9 @@ $ sort-package-json "**/package.json" --check --quiet
 $ sort-package-json "**/package.json" --quiet
 ```
 
-### Usage in scripts
-
-The CLI will automatically detect if being used in a redirect or pipeline and will output more useful information, such as file paths rather than error messages.
-
-In order to force output as if a tty was connected to stdout and/or stderr, set the environment variables `STDOUT_IS_TTY` or `STDERR_IS_TTY` to a non-empty string.
-
-If --quiet is selected, stdout will only have output when used with `--help` and `--version`
-
-- When sorting:
-
-  - Files are printed to stdout if they get sorted
-  - Stderr contains files which could not be sorted
-  - Exit code is number of files which failed during sorting. _Note: the maximum value is 255_
-
-- With --check:
-
-  - Files which aren't sorted are outputted to stdout
-  - Stderr contains files which could not be checked
-  - Exit code is number of files not sorted. _Note: files that can not be checked are included in this number. The maximum value is 255_
-
 ### --version and --help
 
-The --version (-v) and --help (-h) flags both stop other arguments from being processed. Each displays their information and exits with a 0 code. --quiet and TTY configuration will have no effect on these options
+The --version (-v) and --help (-h) flags both stop other arguments from being processed. Each displays their information and exits with a 0 code. --quiet will have no effect on these options
 
 ## API
 
@@ -170,7 +150,7 @@ If an array, sort keys in ordering of `options.sortOrder`.
 
 ```js
 const sorted = sortPackageJson(packageJsonObject, {
-  sortOrder: ['version']
+  sortOrder: ['version'],
 })
 
 console.log(Object.keys(sorted))
@@ -186,7 +166,7 @@ If a function, sort fields by [Array#sort(options.sortOrder)](https://developer.
 const sorted = sortPackageJson(packageJsonObject, {
   sortOrder(left, right) {
     return left.localeCompare(right)
-  }
+  },
 })
 
 console.log(Object.keys(sorted))
@@ -268,4 +248,3 @@ A lot of people who ask for configuration cite the use case that they simply don
 ### What?! Why would you want to do this?!
 
 Well, it's nice to have the keys of a package.json in a well sorted order. Almost everyone would agree having "name" at the top of a package.json is sensible (rather than sorted alphabetically or somewhere silly like the bottom), so why not the rest of the package.json?
-

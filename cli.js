@@ -13,24 +13,8 @@ const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)
 const isQuiet = cliArguments.some(isQuietFlag)
 
-function stdout(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  if (isQuiet) return
-  const isTerminal = process.stdout.isTTY || Boolean(process.env.STDOUT_IS_TTY)
-  if (isTerminal) {
-    console.log(outputIfTTY)
-  } else if (alwaysOutput !== null) {
-    console.log(alwaysOutput)
-  }
-}
-
-function stderr(outputIfTTY = '', alwaysOutput = outputIfTTY) {
-  const isTerminal = process.stderr.isTTY || Boolean(process.env.STDERR_IS_TTY)
-  if (isTerminal) {
-    console.error(outputIfTTY)
-  } else if (alwaysOutput !== null) {
-    console.error(alwaysOutput)
-  }
-}
+const stdout = isQuiet ? () => {} : console.log
+const stderr = isQuiet ? () => {} : console.error
 
 const isHelp = cliArguments.some(isHelpFlag)
 const isVersion = cliArguments.some(isVersionFlag)
@@ -77,8 +61,8 @@ let notSortedFiles = 0
 
 function handleError(error, file) {
   notSortedFiles++
-  stderr(`could not ${isCheck ? 'check' : 'sort'} ${file}`, file)
-  stderr(error.message, null)
+  stderr(`could not ${isCheck ? 'check' : 'sort'} ${file}`)
+  stderr(error.message)
 }
 
 files.forEach((file) => {
@@ -102,26 +86,24 @@ files.forEach((file) => {
         handleError(error, file)
         return
       }
-      stdout(`${file} is sorted!`, file)
+      stdout(`${file} is sorted!`)
     }
   }
 })
 
 if (isCheck) {
-  stdout('', null)
   if (notSortedFiles) {
+    stdout('')
     stdout(
       notSortedFiles === 1
         ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
         : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
-      null,
     )
   } else {
     stdout(
       files.length === 1
         ? `${files.length} matched file is sorted.`
         : `${files.length} matched files are sorted.`,
-      null,
     )
   }
 }
