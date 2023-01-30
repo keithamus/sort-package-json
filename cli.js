@@ -45,7 +45,7 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
       sorted = sortPackageJson(packageJson)
     } catch (e) {
       console.error(file)
-      
+
       printToStderr(e.message)
       continue
     }
