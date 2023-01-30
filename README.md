@@ -54,7 +54,7 @@ $ sort-package-json "package.json" "packages/*/package.json"
 
 #### `--check` flag
 
-When you want to check if your files are sorted, you can run CLI with the `--check` flag (or `-c`). This will output a list of not sorted files, if any. The exit code will also correspond to how many files are not sorted. The maximum possible value is 255.
+When you want to check if your files are sorted, you can run CLI with the `--check` flag (or `-c`). This will output a list of not sorted files, if any.
 
 ```bash
 $ sort-package-json "**/package.json" --check
@@ -71,16 +71,12 @@ $ sort-package-json "**/package.json" --check
 
 #### `--quiet` flag
 
-In order to silence any successful output, you can run CLI with the `--quiet` flag (or `-q`). This will stop the CLI from outputting if it runs successfully, but will still display errors if they occur. Exit codes will not change.
+In order to silence any successful output, you can run CLI with the `--quiet` flag (or `-q`). This will stop the CLI from outputting if it runs successfully, but won't effect error messages and the exit code.
 
 ```bash
 $ sort-package-json "**/package.json" --check --quiet
 $ sort-package-json "**/package.json" --quiet
 ```
-
-### --version and --help
-
-The --version (-v) and --help (-h) flags both stop other arguments from being processed. Each displays their information and exits with a 0 code. --quiet will have no effect on these options
 
 ## API
 
@@ -150,7 +146,7 @@ If an array, sort keys in ordering of `options.sortOrder`.
 
 ```js
 const sorted = sortPackageJson(packageJsonObject, {
-  sortOrder: ['version'],
+  sortOrder: ['version']
 })
 
 console.log(Object.keys(sorted))
@@ -166,7 +162,7 @@ If a function, sort fields by [Array#sort(options.sortOrder)](https://developer.
 const sorted = sortPackageJson(packageJsonObject, {
   sortOrder(left, right) {
     return left.localeCompare(right)
-  },
+  }
 })
 
 console.log(Object.keys(sorted))
@@ -206,20 +202,26 @@ _Alphabetically ordered._
 
 ## Automatically Sort
 
-The package.json file can be sorted automatically before committing, install `husky` and `lint-staged` and add the following to your `package.json` file:
+The package.json file can be sorted automatically before committing.
+
+```bash
+npm install husky lint-staged --save-dev
+npm pkg set scripts.prepare="husky install"
+npm run prepare
+npx husky add .husky/pre-commit "npx lint-staged"
+```
+
+Add the following to your `package.json` file
 
 ```json
 {
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "package.json": "sort-package-json"
   }
 }
 ```
+
+See [Husky](https://github.com/typicode/husky) and [lint-staged](https://github.com/okonet/lint-staged) for more information.
 
 ## PFAQ: Potential Frequently Asked Questions
 

@@ -4,8 +4,10 @@ import { detectNewlineGraceful as detectNewline } from 'detect-newline'
 import gitHooks from 'git-hooks-list'
 import isPlainObject from 'is-plain-obj'
 
-const hasOwnProperty = (object, property) =>
-  Object.prototype.hasOwnProperty.call(object, property)
+const hasOwn =
+  Object.hasOwn ||
+  // TODO: Remove this when we drop supported for Node.js v14
+  ((object, property) => Object.prototype.hasOwnProperty.call(object, property))
 const pipe =
   (fns) =>
   (x, ...args) =>
@@ -13,7 +15,7 @@ const pipe =
 const onArray = (fn) => (x) => Array.isArray(x) ? fn(x) : x
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
-const uniq = onStringArray((xs) => xs.filter((x, i) => i === xs.indexOf(x)))
+const uniq = onStringArray((xs) => [...new Set(xs)])
 const sortArray = onStringArray((array) => [...array].sort())
 const uniqAndSortArray = pipe([uniq, sortArray])
 const onObject =
@@ -22,13 +24,13 @@ const onObject =
     isPlainObject(x) ? fn(x, ...args) : x
 const sortObjectBy = (comparator, deep) => {
   const over = onObject((object) => {
-    object = sortObjectKeys(object, comparator)
     if (deep) {
-      for (const [key, value] of Object.entries(object)) {
-        object[key] = over(value)
-      }
+      object = Object.fromEntries(
+        Object.entries(object).map(([key, value]) => [key, over(value)]),
+      )
     }
-    return object
+
+    return sortObjectKeys(object, comparator)
   })
 
   return over
@@ -47,8 +49,8 @@ const sortDirectories = sortObjectBy([
 const overProperty =
   (property, over) =>
   (object, ...args) =>
-    hasOwnProperty(object, property)
-      ? Object.assign(object, { [property]: over(object[property], ...args) })
+    hasOwn(object, property)
+      ? { ...object, [property]: over(object[property], ...args) }
       : object
 const sortGitHooks = sortObjectBy(gitHooks)
 
@@ -143,8 +145,8 @@ const defaultNpmScripts = new Set([
 
 const hasDevDependency = (dependency, packageJson) => {
   return (
-    'devDependencies' in packageJson &&
-    !!packageJson.devDependencies[dependency]
+    hasOwn(packageJson, 'devDependencies') &&
+    hasOwn(packageJson.devDependencies, dependency)
   )
 }
 
@@ -165,12 +167,8 @@ const sortScripts = onObject((scripts, packageJson) => {
     keys.sort()
   }
 
-  const order = keys.reduce(
-    (order, key) =>
-      order.concat(
-        prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-      ),
-    [],
+  const order = keys.flatMap((key) =>
+    prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
   )
 
   return sortObjectKeys(scripts, order)
@@ -313,12 +311,9 @@ const fields = [
 
 const defaultSortOrder = fields.map(({ key }) => key)
 const overFields = pipe(
-  fields.reduce((fns, { key, over }) => {
-    if (over) {
-      fns.push(overProperty(key, over))
-    }
-    return fns
-  }, []),
+  fields
+    .map(({ key, over }) => (over ? overProperty(key, over) : undefined))
+    .filter(Boolean),
 )
 
 function editStringJSON(json, over) {
@@ -351,7 +346,7 @@ function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
     onObject((json) => {
-      let sortOrder = options.sortOrder ? options.sortOrder : defaultSortOrder
+      let sortOrder = options.sortOrder || defaultSortOrder
 
       if (Array.isArray(sortOrder)) {
         const keys = Object.keys(json)

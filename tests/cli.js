@@ -1,5 +1,5 @@
-import fs from 'node:fs'
 import test from 'ava'
+import fs from 'node:fs'
 import { cliScript, macro } from './_helpers.js'
 
 const badJson = {
@@ -23,14 +23,14 @@ test('run `cli --help`', macro.testCLI, {
   message: 'Should report help menu.',
 })
 
-test('run `cli -h`', macro.testCLI, {
-  args: ['-h'],
-  message: 'Should support help alias.',
-})
-
 test('run `cli --help --quiet`', macro.testCLI, {
   args: ['--help', '--quiet'],
   message: 'Should report help menu overriding quiet.',
+})
+
+test('run `cli -h`', macro.testCLI, {
+  args: ['-h'],
+  message: 'Should support help alias.',
 })
 
 test('run `cli --help` with other arguments', macro.testCLI, {
@@ -43,14 +43,14 @@ test('run `cli --version`', macro.testCLI, {
   message: 'Should report version number.',
 })
 
-test('run `cli -v`', macro.testCLI, {
-  args: ['-v'],
-  message: 'Should support version alias.',
-})
-
 test('run `cli --version --quiet`', macro.testCLI, {
   args: ['--version', '--quiet'],
   message: 'Should report version overriding quiet.',
+})
+
+test('run `cli -v`', macro.testCLI, {
+  args: ['-v'],
+  message: 'Should support version alias.',
 })
 
 test('run `cli --version` with other arguments', macro.testCLI, {
@@ -205,16 +205,6 @@ test('run `cli` on 2 bad files', macro.testCLI, {
   message: 'Should format 2 files.',
 })
 
-test('run `cli --quiet` on 2 bad files', macro.testCLI, {
-  fixtures: Array.from({ length: 2 }, (_, index) => ({
-    file: `bad-${index + 1}/package.json`,
-    content: badJson,
-    expect: goodJson,
-  })),
-  args: ['*/package.json', '--quiet'],
-  message: 'Should format 2 files without messages.',
-})
-
 test('run `cli --check` on 2 bad files', macro.testCLI, {
   fixtures: Array.from({ length: 2 }, (_, index) => ({
     file: `bad-${index + 1}/package.json`,
@@ -223,6 +213,16 @@ test('run `cli --check` on 2 bad files', macro.testCLI, {
   })),
   args: ['*/package.json', '--check'],
   message: 'Should report 2 files.',
+})
+
+test('run `cli --quiet` on 2 bad files', macro.testCLI, {
+  fixtures: Array.from({ length: 2 }, (_, index) => ({
+    file: `bad-${index + 1}/package.json`,
+    content: badJson,
+    expect: goodJson,
+  })),
+  args: ['*/package.json', '--quiet'],
+  message: 'Should format 2 files without messages.',
 })
 
 test('run `cli --check --quiet` on 2 bad files', macro.testCLI, {
