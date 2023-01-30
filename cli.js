@@ -26,9 +26,9 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
-function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit }) {
+function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
   const files = globbySync(patterns)
-  const printToStdout = shouldBeQuit ? () => {} : console.log
+  const printToStdout = shouldBeQuiet ? () => {} : console.log
 
   if (files.length === 0) {
     console.error('No matching files.')
@@ -93,13 +93,13 @@ function run() {
 
   const patterns = []
   let isCheck = false
-  let shouldBeQuit = false
+  let shouldBeQuiet = false
 
   for (const argument of cliArguments) {
     if (argument === '--check' || argument === '-c') {
       isCheck = true
     } else if (argument === '--quiet' || argument === '-q') {
-      shouldBeQuit = true
+      shouldBeQuiet = true
     } else {
       patterns.push(argument)
     }
@@ -109,7 +109,7 @@ function run() {
     patterns[0] = 'package.json'
   }
 
-  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit })
+  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet })
 }
 
 run()
