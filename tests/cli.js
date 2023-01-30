@@ -1,5 +1,5 @@
-import test from 'ava'
 import fs from 'node:fs'
+import test from 'ava'
 import { cliScript, macro } from './_helpers.js'
 
 const badJson = {

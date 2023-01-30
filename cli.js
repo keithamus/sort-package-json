@@ -4,10 +4,10 @@ import fs from 'node:fs'
 import sortPackageJson from './index.js'
 
 const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
-const isQuietFlag = (argument) => argument === '--quiet' || argument === '-q'
 const isHelpFlag = (argument) => argument === '--help' || argument === '-h'
 const isVersionFlag = (argument) =>
   argument === '--version' || argument === '-v'
+const isQuietFlag = (argument) => argument === '--quiet' || argument === '-q'
 
 const cliArguments = process.argv.slice(2)
 const isCheck = cliArguments.some(isCheckFlag)

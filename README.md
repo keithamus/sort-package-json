@@ -170,7 +170,7 @@ If an array, sort keys in ordering of `options.sortOrder`.
 
 ```js
 const sorted = sortPackageJson(packageJsonObject, {
-  sortOrder: ['version'],
+  sortOrder: ['version']
 })
 
 console.log(Object.keys(sorted))
@@ -186,7 +186,7 @@ If a function, sort fields by [Array#sort(options.sortOrder)](https://developer.
 const sorted = sortPackageJson(packageJsonObject, {
   sortOrder(left, right) {
     return left.localeCompare(right)
-  },
+  }
 })
 
 console.log(Object.keys(sorted))
@@ -268,3 +268,4 @@ A lot of people who ask for configuration cite the use case that they simply don
 ### What?! Why would you want to do this?!
 
 Well, it's nice to have the keys of a package.json in a well sorted order. Almost everyone would agree having "name" at the top of a package.json is sensible (rather than sorted alphabetically or somewhere silly like the bottom), so why not the rest of the package.json?
+
