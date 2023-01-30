@@ -71,7 +71,7 @@ $ sort-package-json "**/package.json" --check
 
 #### `--quiet` flag
 
-In order to silence any successful output, you can run CLI with the `--quiet` flag (or `-q`). This will stop the CLI from outputting if it runs successfully, but will still display errors if they occur. Exit codes will not change.
+In order to silence any successful output, you can run CLI with the `--quiet` flag (or `-q`). This will stop the CLI from outputting if it runs successfully, but won't effect error messages and the exit code.
 
 ```bash
 $ sort-package-json "**/package.json" --check --quiet
@@ -202,20 +202,26 @@ _Alphabetically ordered._
 
 ## Automatically Sort
 
-The package.json file can be sorted automatically before committing, install `husky` and `lint-staged` and add the following to your `package.json` file:
+The package.json file can be sorted automatically before committing.
+
+```bash
+npm install husky lint-staged --save-dev
+npm pkg set scripts.prepare="husky install"
+npm run prepare
+npx husky add .husky/pre-commit "npx lint-staged"
+```
+
+Add the following to your `package.json` file
 
 ```json
 {
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "package.json": "sort-package-json"
   }
 }
 ```
+
+See [Husky](https://github.com/typicode/husky) and [lint-staged](https://github.com/okonet/lint-staged) for more information.
 
 ## PFAQ: Potential Frequently Asked Questions
 
@@ -244,4 +250,3 @@ A lot of people who ask for configuration cite the use case that they simply don
 ### What?! Why would you want to do this?!
 
 Well, it's nice to have the keys of a package.json in a well sorted order. Almost everyone would agree having "name" at the top of a package.json is sensible (rather than sorted alphabetically or somewhere silly like the bottom), so why not the rest of the package.json?
-
