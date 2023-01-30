@@ -29,7 +29,6 @@ If file/glob is omitted, './package.json' file will be processed.
 function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
   const files = globbySync(patterns)
   const printToStdout = shouldBeQuiet ? () => {} : console.log
-  const printToStderr = shouldBeQuiet ? () => {} : console.error
 
   if (files.length === 0) {
     console.error('No matching files.')
@@ -45,7 +44,8 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
       sorted = sortPackageJson(packageJson)
     } catch (e) {
       console.error(file)
-      printToStderr(e.message)
+      
+      (e.message)
       continue
     }
     if (sorted !== packageJson) {
