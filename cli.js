@@ -32,7 +32,7 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
   const printToStderr = shouldBeQuiet ? () => {} : console.error
 
   if (files.length === 0) {
-    printToStderr('No matching files.')
+    console.error('No matching files.')
     process.exitCode = 2
     return
   }
@@ -44,6 +44,7 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
       packageJson = fs.readFileSync(file, 'utf8')
       sorted = sortPackageJson(packageJson)
     } catch (e) {
+      console.error(file)
       printToStderr(e.message)
       continue
     }
