@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import { globbySync } from 'globby'
-import fs from 'node:fs'
+import { globbyStream } from 'globby'
+import fs from 'node:fs/promises'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
 
-function showVersion() {
+async function showVersion() {
   const { name, version } = JSON.parse(
-    fs.readFileSync(new URL('package.json', import.meta.url)),
+    await fs.readFile(new URL('package.json', import.meta.url)),
   )
 
   console.log(`${name} ${version}`)
@@ -27,28 +27,29 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
-function sortPackageJsonFile(file, reporter, isCheck) {
-  const original = fs.readFileSync(file, 'utf8')
+async function sortPackageJsonFile(file, reporter, isCheck) {
+  const original = await fs.readFile(file, 'utf8')
   const sorted = sortPackageJson(original)
   if (sorted === original) {
     return reporter.reportNotChanged(file)
   }
 
   if (!isCheck) {
-    fs.writeFileSync(file, sorted)
+    await fs.writeFile(file, sorted)
   }
 
   reporter.reportChanged(file)
 }
 
-function sortPackageJsonFiles(patterns, options) {
-  const files = globbySync(patterns)
-  const reporter = new Reporter(files, options)
+async function sortPackageJsonFiles(patterns, options) {
+  const reporter = new Reporter(options)
   const { isCheck } = options
 
-  for (const file of files) {
+  for await (const file of globbyStream(patterns)) {
+    reporter.reportFound(file)
+
     try {
-      sortPackageJsonFile(file, reporter, isCheck)
+      await sortPackageJsonFile(file, reporter, isCheck)
     } catch (error) {
       reporter.reportFailed(file, error)
     }
@@ -57,7 +58,7 @@ function sortPackageJsonFiles(patterns, options) {
   reporter.printSummary()
 }
 
-function run() {
+async function run() {
   const cliArguments = process.argv.slice(2)
 
   if (
@@ -92,7 +93,7 @@ function run() {
     patterns[0] = 'package.json'
   }
 
-  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet })
+  await sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet })
 }
 
-run()
+await run()
