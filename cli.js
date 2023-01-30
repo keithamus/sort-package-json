@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { globbySync } from 'globby'
-import fs from 'node:fs'
+import { globbyStream } from 'globby'
+import fs from 'node:fs/promises'
 import sortPackageJson from './index.js'
 
-function showVersion() {
+async function showVersion() {
   const { name, version } = JSON.parse(
-    fs.readFileSync(new URL('package.json', import.meta.url)),
+    await fs.readFile(new URL('package.json', import.meta.url)),
   )
 
   console.log(`${name} ${version}`)
@@ -26,32 +26,36 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
-function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit }) {
-  const files = globbySync(patterns)
+async function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit }) {
   const printToStdout = shouldBeQuit ? () => {} : console.log
 
-  if (files.length === 0) {
+  let notSortedFiles = 0
+  let matchedFiles = 0
+  for await (const file of globbyStream(patterns)) {
+    matchedFiles++
+
+    const packageJson = await fs.readFile(file, 'utf8')
+    const sorted = sortPackageJson(packageJson)
+
+    if (sorted === packageJson) {
+      continue
+    }
+
+    notSortedFiles++
+
+    if (isCheck) {
+      printToStdout(file)
+      process.exitCode = 1
+    } else {
+      await fs.writeFile(file, sorted)
+      printToStdout(`${file} is sorted!`)
+    }
+  }
+
+  if (matchedFiles === 0) {
     console.error('No matching files.')
     process.exitCode = 2
     return
-  }
-
-  let notSortedFiles = 0
-  for (const file of files) {
-    const packageJson = fs.readFileSync(file, 'utf8')
-    const sorted = sortPackageJson(packageJson)
-
-    if (sorted !== packageJson) {
-      if (isCheck) {
-        notSortedFiles++
-        printToStdout(file)
-        process.exitCode = 1
-      } else {
-        fs.writeFileSync(file, sorted)
-
-        printToStdout(`${file} is sorted!`)
-      }
-    }
   }
 
   if (isCheck) {
@@ -61,14 +65,14 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit }) {
     if (notSortedFiles) {
       printToStdout(
         notSortedFiles === 1
-          ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
-          : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
+          ? `${notSortedFiles} of ${matchedFiles} matched file is not sorted.`
+          : `${notSortedFiles} of ${matchedFiles} matched files are not sorted.`,
       )
     } else {
       printToStdout(
-        files.length === 1
-          ? `${files.length} matched file is sorted.`
-          : `${files.length} matched files are sorted.`,
+        matchedFiles === 1
+          ? `${matchedFiles} matched file is sorted.`
+          : `${matchedFiles} matched files are sorted.`,
       )
     }
   }
@@ -109,7 +113,7 @@ function run() {
     patterns[0] = 'package.json'
   }
 
-  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit })
+  return sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit })
 }
 
-run()
+await run()
