@@ -3,91 +3,113 @@ import { globbySync } from 'globby'
 import fs from 'node:fs'
 import sortPackageJson from './index.js'
 
-const isCheckFlag = (argument) => argument === '--check' || argument === '-c'
-const isHelpFlag = (argument) => argument === '--help' || argument === '-h'
-const isVersionFlag = (argument) =>
-  argument === '--version' || argument === '-v'
-const isQuietFlag = (argument) => argument === '--quiet' || argument === '-q'
+function showVersion() {
+  const { name, version } = JSON.parse(
+    fs.readFileSync(new URL('package.json', import.meta.url)),
+  )
 
-const cliArguments = process.argv.slice(2)
-const isCheck = cliArguments.some(isCheckFlag)
-const isQuiet = cliArguments.some(isQuietFlag)
+  console.log(`${name} ${version}`)
+}
 
-const stdout = isQuiet ? () => {} : console.log
-const stderr = console.error
-
-const isHelp = cliArguments.some(isHelpFlag)
-const isVersion = cliArguments.some(isVersionFlag)
-
-if (isHelp) {
+function showHelpInformation() {
   console.log(
-    `Usage: sort-package-json [OPTION...] [FILE...]
-Sort npm package.json files. Default: ./package.json
-Strings passed as files are parsed as globs.
+    `Usage: sort-package-json [options] [file/glob ...]
 
-  -c, --check                check if FILES are sorted
-  -q, --quiet                don't output success messages
-  -h, --help                 display this help and exit
-  -v, --version              display the version and exit
+Sort package.json files.
+If file/glob is omitted, './package.json' file will be processed.
+
+  -c, --check   Check if files are sorted
+  -q, --quiet   Don't output success messages
+  -h, --help    Display this help
+  -v, --version Display the package version
   `,
   )
-  process.exit(0)
-}
-if (isVersion) {
-  const packageJsonUrl = new URL('package.json', import.meta.url)
-  const packageJsonBuffer = fs.readFileSync(packageJsonUrl)
-  const { version } = JSON.parse(packageJsonBuffer)
-
-  console.log(`sort-package-json ${version}`)
-  process.exit(0)
 }
 
-const patterns = cliArguments.filter(
-  (argument) => !isCheckFlag(argument) && !isQuietFlag(argument),
-)
+function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit }) {
+  const files = globbySync(patterns)
+  const printToStdout = shouldBeQuit ? () => {} : console.log
 
-if (!patterns.length) {
-  patterns[0] = 'package.json'
-}
+  if (files.length === 0) {
+    console.error('No matching files.')
+    process.exitCode = 2
+    return
+  }
 
-const files = globbySync(patterns)
+  let notSortedFiles = 0
+  for (const file of files) {
+    const packageJson = fs.readFileSync(file, 'utf8')
+    const sorted = sortPackageJson(packageJson)
 
-if (files.length === 0) {
-  stderr('No matching files.')
-  process.exit(1)
-}
+    if (sorted !== packageJson) {
+      if (isCheck) {
+        notSortedFiles++
+        printToStdout(file)
+        process.exitCode = 1
+      } else {
+        fs.writeFileSync(file, sorted)
 
-let notSortedFiles = 0
-
-files.forEach((file) => {
-  const packageJson = fs.readFileSync(file, 'utf8')
-  const sorted = sortPackageJson(packageJson)
-
-  if (sorted !== packageJson) {
-    if (isCheck) {
-      notSortedFiles++
-      stdout(file)
-    } else {
-      fs.writeFileSync(file, sorted, 'utf8')
-      stdout(`${file} is sorted!`)
+        printToStdout(`${file} is sorted!`)
+      }
     }
   }
-})
 
-if (isCheck) {
-  stdout()
-  if (notSortedFiles) {
-    stdout(
-      notSortedFiles === 1
-        ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
-        : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
-    )
-  } else {
-    stdout(
-      files.length === 1
-        ? `${files.length} matched file is sorted.`
-        : `${files.length} matched files are sorted.`,
-    )
+  if (isCheck) {
+    // Print a empty line
+    printToStdout()
+
+    if (notSortedFiles) {
+      printToStdout(
+        notSortedFiles === 1
+          ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
+          : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
+      )
+    } else {
+      printToStdout(
+        files.length === 1
+          ? `${files.length} matched file is sorted.`
+          : `${files.length} matched files are sorted.`,
+      )
+    }
   }
-  process.exit(notSortedFiles)
 }
+
+function run() {
+  const cliArguments = process.argv.slice(2)
+
+  if (
+    cliArguments.some((argument) => argument === '--help' || argument === '-h')
+  ) {
+    return showHelpInformation()
+  }
+
+  if (
+    cliArguments.some(
+      (argument) => argument === '--version' || argument === '-v',
+    )
+  ) {
+    return showVersion()
+  }
+
+  const patterns = []
+  let isCheck = false
+  let shouldBeQuit = false
+
+  for (const argument of cliArguments) {
+    if (argument === '--check' || argument === '-c') {
+      isCheck = true
+    } else if (argument === '--quiet' || argument === '-q') {
+      shouldBeQuit = true
+    } else {
+      patterns.push(argument)
+    }
+  }
+
+  if (!patterns.length) {
+    patterns[0] = 'package.json'
+  }
+
+  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuit })
+}
+
+run()
