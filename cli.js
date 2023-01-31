@@ -64,7 +64,7 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
 
   if (isCheck) {
     if (notSortedFiles) {
-      // Print a empty line only if already printed files
+      // Print an empty line only if already printed files
       printToStdout()
       printToStdout(
         notSortedFiles === 1
