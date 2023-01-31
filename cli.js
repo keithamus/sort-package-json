@@ -26,6 +26,11 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
+function setExitCode(code) {
+  if (process.exitCode === undefined || process.exitCode < code)
+    process.exitCode = code
+}
+
 function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
   const files = globbySync(patterns)
   const printToStdout = shouldBeQuiet ? () => {} : console.log
@@ -33,7 +38,7 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
 
   if (files.length === 0) {
     console.error('No matching files.')
-    process.exitCode = 2
+    setExitCode(2)
     return
   }
 
@@ -47,13 +52,14 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
       console.error(file)
 
       printToStderr(e.message)
+      setExitCode(2)
       continue
     }
     if (sorted !== packageJson) {
       if (isCheck) {
         notSortedFiles++
         printToStdout(file)
-        process.exitCode = 1
+        setExitCode(1)
       } else {
         fs.writeFileSync(file, sorted)
 
