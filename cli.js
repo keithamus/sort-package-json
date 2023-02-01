@@ -31,12 +31,11 @@ class Reporter {
   #options
   #status
   #logger
-  #files
 
   constructor(files, options) {
-    this.#files = files
     this.#options = options
     this.#status = {
+      matchedFilesCount: files.length,
       failedFilesCount: 0,
       wellSortedFilesCount: 0,
       changedFilesCount: 0,
@@ -74,15 +73,14 @@ class Reporter {
   }
 
   printSummary() {
-    const files = this.#files
+    const status = this.#status
 
-    if (files.length === 0) {
+    if (status.matchedFilesCount === 0) {
       console.error('No matching files.')
       process.exitCode = 2
       return
     }
 
-    const status = this.#status
     const { isCheck, isQuiet } = this.#options
 
     if (isCheck && status.changedFilesCount) {
@@ -98,7 +96,7 @@ class Reporter {
     }
 
     const summary = [
-      `Found ${files.length} files.`,
+      `Found ${status.matchedFilesCount} files.`,
       isCheck
         ? `${status.failedFilesCount} files could not be checked.`
         : `${status.failedFilesCount} files could not be sorted.`,
