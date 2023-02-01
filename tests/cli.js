@@ -1,5 +1,5 @@
-import fs from 'node:fs'
 import test from 'ava'
+import fs from 'node:fs'
 import { cliScript, macro } from './_helpers.js'
 
 const badJson = {
@@ -437,4 +437,54 @@ test('run `cli --check --quiet` on duplicate patterns', macro.testCLI, {
     '--quiet',
   ],
   message: 'Should not count `bad-1/package.json` more than once. Exit code 1',
+})
+
+const badFormat = ''
+
+test('run `cli --check` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--check'],
+  message: 'Should fail to check, but not end execution.',
+})
+
+test('run `cli --check --quiet` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--check', '--quiet'],
+  message: 'Should output error message, but not count.',
+})
+
+test('run `cli` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json'],
+  message: 'Should fail to check, but not end execution.',
+})
+
+test('run `cli --quiet` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--quiet'],
+  message: 'Should output error message',
 })

@@ -2,6 +2,7 @@
 import { globbySync } from 'globby'
 import fs from 'node:fs'
 import sortPackageJson from './index.js'
+import Reporter from './reporter.js'
 
 function showVersion() {
   const { name, version } = JSON.parse(
@@ -26,52 +27,34 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
-function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
+function sortPackageJsonFile(file, reporter, isCheck) {
+  const original = fs.readFileSync(file, 'utf8')
+  const sorted = sortPackageJson(original)
+  if (sorted === original) {
+    return reporter.reportNotChanged(file)
+  }
+
+  if (!isCheck) {
+    fs.writeFileSync(file, sorted)
+  }
+
+  reporter.reportChanged(file)
+}
+
+function sortPackageJsonFiles(patterns, options) {
   const files = globbySync(patterns)
-  const printToStdout = shouldBeQuiet ? () => {} : console.log
+  const reporter = new Reporter(files, options)
+  const { isCheck } = options
 
-  if (files.length === 0) {
-    console.error('No matching files.')
-    process.exitCode = 2
-    return
-  }
-
-  let notSortedFiles = 0
   for (const file of files) {
-    const packageJson = fs.readFileSync(file, 'utf8')
-    const sorted = sortPackageJson(packageJson)
-
-    if (sorted !== packageJson) {
-      if (isCheck) {
-        notSortedFiles++
-        printToStdout(file)
-        process.exitCode = 1
-      } else {
-        fs.writeFileSync(file, sorted)
-
-        printToStdout(`${file} is sorted!`)
-      }
+    try {
+      sortPackageJsonFile(file, reporter, isCheck)
+    } catch (error) {
+      reporter.reportFailed(file, error)
     }
   }
 
-  if (isCheck) {
-    // Print a empty line
-    printToStdout()
-
-    if (notSortedFiles) {
-      printToStdout(
-        notSortedFiles === 1
-          ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
-          : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
-      )
-    } else {
-      printToStdout(
-        files.length === 1
-          ? `${files.length} matched file is sorted.`
-          : `${files.length} matched files are sorted.`,
-      )
-    }
-  }
+  reporter.printSummary()
 }
 
 function run() {
