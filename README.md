@@ -31,7 +31,10 @@ $ cat package.json
 }
 
 $ npx sort-package-json
-package.json is sorted!
+# package.json is sorted!
+#
+# Found 1 file.
+# 1 file successfully sorted.
 
 $ cat package.json
 {
@@ -59,14 +62,16 @@ When you want to check if your files are sorted, you can run CLI with the `--che
 ```bash
 $ sort-package-json "**/package.json" --check
 
-# 5 matched files are sorted.
-
+# Found 5 files.
+# 5 files were already sorted.
 
 $ sort-package-json "**/package.json" --check
 # foo/package.json
 # bar/package.json
 
-# 2 of 5 matched files are not sorted.
+# Found 5 files.
+# 3 files were not sorted.
+# 2 files were already sorted.
 ```
 
 #### `--quiet` flag
