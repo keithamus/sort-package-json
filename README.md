@@ -1,6 +1,12 @@
 # Sort Package.json
 
-[![Build Status](https://travis-ci.org/keithamus/sort-package-json.svg)](https://travis-ci.org/keithamus/sort-package-json)
+[![Build Status][github_actions_badge]][github_actions_link]
+[![NPM Version][package_version_badge]][package_link]
+
+[package_version_badge]: https://img.shields.io/npm/v/sort-package-json.svg
+[package_link]: https://www.npmjs.com/package/sort-package-json
+[github_actions_badge]: https://img.shields.io/github/actions/workflow/status/keithamus/sort-package-json/pr.yml
+[github_actions_link]: https://github.com/keithamus/sort-package-json/actions?query=workflow%3ACI+branch%3Amain
 
 ## CLI
 
