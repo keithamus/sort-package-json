@@ -26,64 +26,87 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
-function setExitCode(code) {
-  if (process.exitCode === undefined || process.exitCode < code)
-    process.exitCode = code
-}
-
 function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
+  const status = isCheck
+    ? { failed: 0, sorted: 0, notSorted: 0, hasPrinted: false }
+    : { failed: 0, succeeded: 0, notChanged: 0, hasPrinted: false }
+
   const files = globbySync(patterns)
   const printToStdout = shouldBeQuiet ? () => {} : console.log
   const printToStderr = shouldBeQuiet ? () => {} : console.error
 
   if (files.length === 0) {
     console.error('No matching files.')
-    setExitCode(2)
+    process.exitCode = 2
     return
   }
 
-  let notSortedFiles = 0
+  function handleError({ file, error }) {
+    status.failed++
+    status.hasPrinted = true
+
+    console.error(file)
+    printToStderr(error.message)
+  }
+
   for (const file of files) {
     let packageJson, sorted
     try {
       packageJson = fs.readFileSync(file, 'utf8')
       sorted = sortPackageJson(packageJson)
-    } catch (e) {
-      console.error(file)
-
-      printToStderr(e.message)
-      setExitCode(2)
+    } catch (error) {
+      handleError({ file, error })
       continue
     }
-    if (sorted !== packageJson) {
-      if (isCheck) {
-        notSortedFiles++
-        printToStdout(file)
-        setExitCode(1)
-      } else {
-        fs.writeFileSync(file, sorted)
 
+    if (sorted === packageJson) {
+      // Already sorted
+      if (isCheck) status.sorted++
+      else status.notChanged++
+    } else if (isCheck) {
+      // Checking files, not already sorted
+      status.notSorted++
+      status.hasPrinted = true
+      printToStdout(file)
+    } else {
+      // Not check, not already sorted
+      try {
+        fs.writeFileSync(file, sorted)
+        status.succeeded++
+        status.hasPrinted = true
         printToStdout(`${file} is sorted!`)
+      } catch (error) {
+        handleError({ file, error })
+        continue
       }
     }
-  }
+  } // End loop
 
   if (isCheck) {
-    if (notSortedFiles) {
-      // Print an empty line only if already printed files
-      printToStdout()
-      printToStdout(
-        notSortedFiles === 1
-          ? `${notSortedFiles} of ${files.length} matched file is not sorted.`
-          : `${notSortedFiles} of ${files.length} matched files are not sorted.`,
-      )
-    } else {
-      printToStdout(
-        files.length === 1
-          ? `${files.length} matched file is sorted.`
-          : `${files.length} matched files are sorted.`,
-      )
+    const statusOutput =
+      `Found ${files.length} files.\n` +
+      `${status.failed} files could not be checked.\n` +
+      `${status.notSorted} files were not sorted.\n` +
+      `${status.sorted} files were already sorted.`
+    if (status.hasPrinted) printToStdout('')
+    printToStdout(statusOutput)
+
+    if (status.notSorted > 0) {
+      process.exitCode = 1
     }
+  } else {
+    const statusOutput =
+      `Found ${files.length} files.\n` +
+      `${status.failed} files could not be sorted.\n` +
+      `${status.succeeded} files successfully sorted.\n` +
+      `${status.notChanged} files were already sorted.`
+
+    if (status.hasPrinted) printToStdout('')
+    printToStdout(statusOutput)
+  }
+
+  if (status.failed > 0) {
+    process.exitCode = 2
   }
 }
 
