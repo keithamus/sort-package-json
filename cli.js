@@ -31,8 +31,10 @@ class Reporter {
   #options
   #status
   #logger
+  #files
 
-  constructor(options) {
+  constructor(files, options) {
+    this.#files = files
     this.#options = options
     this.#status = {
       failedFilesCount: 0,
@@ -71,7 +73,9 @@ class Reporter {
     this.#logger.error(error.message)
   }
 
-  printSummary(files) {
+  printSummary() {
+    const files = this.#files
+
     if (files.length === 0) {
       console.error('No matching files.')
       process.exitCode = 2
@@ -122,10 +126,10 @@ function sortPackageJsonFile(file, reporter, isCheck) {
   reporter.reportChanged(file)
 }
 
-function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
-  const reporter = new Reporter({ isCheck, shouldBeQuiet })
-
+function sortPackageJsonFiles(patterns, options) {
   const files = globbySync(patterns)
+  const reporter = new Reporter(files, options)
+  const { isCheck } = options
 
   for (const file of files) {
     try {
@@ -135,7 +139,7 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
     }
   }
 
-  reporter.printSummary(files)
+  reporter.printSummary()
 }
 
 function run() {
