@@ -45,7 +45,7 @@ function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
     status.failed++
     status.hasPrinted = true
 
-    console.error(file)
+    console.error('Error on: ' + file)
     printToStderr(error.message)
   }
 
