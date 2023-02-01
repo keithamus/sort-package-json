@@ -18,7 +18,7 @@ npm install --global sort-package-json
 
 ### Usage
 
-```bash
+```console
 $ cd my-project
 $ cat package.json
 {
@@ -31,10 +31,10 @@ $ cat package.json
 }
 
 $ npx sort-package-json
-# package.json is sorted!
-#
-# Found 1 file.
-# 1 file successfully sorted.
+package.json is sorted!
+
+Found 1 file.
+1 file successfully sorted.
 
 $ cat package.json
 {
@@ -59,19 +59,19 @@ $ sort-package-json "package.json" "packages/*/package.json"
 
 When you want to check if your files are sorted, you can run CLI with the `--check` flag (or `-c`). This will output a list of not sorted files, if any.
 
-```bash
+```console
 $ sort-package-json "**/package.json" --check
 
-# Found 5 files.
-# 5 files were already sorted.
+Found 5 files.
+5 files were already sorted.
 
 $ sort-package-json "**/package.json" --check
-# foo/package.json
-# bar/package.json
+foo/package.json
+bar/package.json
 
-# Found 5 files.
-# 3 files were not sorted.
-# 2 files were already sorted.
+Found 5 files.
+3 files were not sorted.
+2 files were already sorted.
 ```
 
 #### `--quiet` flag
