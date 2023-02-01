@@ -26,88 +26,116 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
-function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
-  const status = isCheck
-    ? { failed: 0, sorted: 0, notSorted: 0, hasPrinted: false }
-    : { failed: 0, succeeded: 0, notChanged: 0, hasPrinted: false }
+class Reporter {
+  #hasPrinted = false
+  #options
+  #status
+  #logger
 
-  const files = globbySync(patterns)
-  const printToStdout = shouldBeQuiet ? () => {} : console.log
-  const printToStderr = shouldBeQuiet ? () => {} : console.error
+  constructor(options) {
+    this.#options = options
+    this.#status = {
+      failedFilesCount: 0,
+      wellSortedFilesCount: 0,
+      changedFilesCount: 0,
+    }
 
-  if (files.length === 0) {
-    console.error('No matching files.')
-    process.exitCode = 2
-    return
+    this.#logger = options.shouldBeQuiet
+      ? { log() {}, error() {} }
+      : {
+          log: (...args) => {
+            this.#hasPrinted = true
+            console.log(...args)
+          },
+          error: (...args) => {
+            this.#hasPrinted = true
+            console.error(...args)
+          },
+        }
   }
 
-  function handleError({ file, error }) {
-    status.failed++
-    status.hasPrinted = true
+  // The file is well-sorted
+  reportNotChanged(/* file */) {
+    this.#status.wellSortedFilesCount++
+  }
+
+  reportChanged(file) {
+    this.#status.changedFilesCount++
+    this.#logger.log(this.#options.isCheck ? `${file}` : `${file} is sorted!`)
+  }
+
+  reportFailed(file, error) {
+    this.#status.failedFilesCount++
 
     console.error('Error on: ' + file)
-    printToStderr(error.message)
+    this.#logger.error(error.message)
   }
 
-  for (const file of files) {
-    let packageJson, sorted
-    try {
-      packageJson = fs.readFileSync(file, 'utf8')
-      sorted = sortPackageJson(packageJson)
-    } catch (error) {
-      handleError({ file, error })
-      continue
+  printSummary(files) {
+    if (files.length === 0) {
+      console.error('No matching files.')
+      process.exitCode = 2
+      return
     }
 
-    if (sorted === packageJson) {
-      // Already sorted
-      if (isCheck) status.sorted++
-      else status.notChanged++
-    } else if (isCheck) {
-      // Checking files, not already sorted
-      status.notSorted++
-      status.hasPrinted = true
-      printToStdout(file)
-    } else {
-      // Not check, not already sorted
-      try {
-        fs.writeFileSync(file, sorted)
-        status.succeeded++
-        status.hasPrinted = true
-        printToStdout(`${file} is sorted!`)
-      } catch (error) {
-        handleError({ file, error })
-        continue
-      }
-    }
-  } // End loop
+    const status = this.#status
+    const { isCheck, isQuiet } = this.#options
 
-  if (isCheck) {
-    const statusOutput =
-      `Found ${files.length} files.\n` +
-      `${status.failed} files could not be checked.\n` +
-      `${status.notSorted} files were not sorted.\n` +
-      `${status.sorted} files were already sorted.`
-    if (status.hasPrinted) printToStdout('')
-    printToStdout(statusOutput)
-
-    if (status.notSorted > 0) {
+    if (isCheck && status.changedFilesCount) {
       process.exitCode = 1
     }
-  } else {
-    const statusOutput =
-      `Found ${files.length} files.\n` +
-      `${status.failed} files could not be sorted.\n` +
-      `${status.succeeded} files successfully sorted.\n` +
-      `${status.notChanged} files were already sorted.`
 
-    if (status.hasPrinted) printToStdout('')
-    printToStdout(statusOutput)
+    if (status.failedFilesCount) {
+      process.exitCode = 2
+    }
+
+    if (isQuiet) {
+      return
+    }
+
+    const summary = [
+      `Found ${files.length} files.`,
+      isCheck
+        ? `${status.failedFilesCount} files could not be checked.`
+        : `${status.failedFilesCount} files could not be sorted.`,
+      isCheck
+        ? `${status.changedFilesCount} files were not sorted.`
+        : `${status.changedFilesCount} files successfully sorted.`,
+      `${status.wellSortedFilesCount} files were already sorted.`,
+    ].join('\n')
+
+    this.#logger.log((this.#hasPrinted ? '\n' : '') + summary)
+  }
+}
+
+function sortPackageJsonFile(file, reporter, isCheck) {
+  const original = fs.readFileSync(file, 'utf8')
+  const sorted = sortPackageJson(original)
+  if (sorted === original) {
+    return reporter.reportNotChanged(file)
   }
 
-  if (status.failed > 0) {
-    process.exitCode = 2
+  if (!isCheck) {
+    fs.writeFileSync(file, sorted)
   }
+
+  reporter.reportChanged(file)
+}
+
+function sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet }) {
+  const reporter = new Reporter({ isCheck, shouldBeQuiet })
+
+  const files = globbySync(patterns)
+
+  for (const file of files) {
+    try {
+      sortPackageJsonFile(file, reporter, isCheck)
+    } catch (error) {
+      reporter.reportFailed(file, error)
+    }
+  }
+
+  reporter.printSummary(files)
 }
 
 function run() {
