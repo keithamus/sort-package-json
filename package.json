@@ -24,7 +24,8 @@
   "files": [
     "index.js",
     "index.d.ts",
-    "cli.js"
+    "cli.js",
+    "reporter.js"
   ],
   "scripts": {
     "lint": "eslint .",
