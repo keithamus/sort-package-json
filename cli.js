@@ -26,6 +26,7 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
+const getFilesCountText = (count) => (count === 1 ? '1 file' : `${count} files`)
 class Reporter {
   #hasPrinted = false
   #options
@@ -73,9 +74,14 @@ class Reporter {
   }
 
   printSummary() {
-    const status = this.#status
+    const {
+      matchedFilesCount,
+      failedFilesCount,
+      changedFilesCount,
+      wellSortedFilesCount,
+    } = this.#status
 
-    if (status.matchedFilesCount === 0) {
+    if (matchedFilesCount === 0) {
       console.error('No matching files.')
       process.exitCode = 2
       return
@@ -83,11 +89,11 @@ class Reporter {
 
     const { isCheck, isQuiet } = this.#options
 
-    if (isCheck && status.changedFilesCount) {
+    if (isCheck && changedFilesCount) {
       process.exitCode = 1
     }
 
-    if (status.failedFilesCount) {
+    if (failedFilesCount) {
       process.exitCode = 2
     }
 
@@ -95,18 +101,46 @@ class Reporter {
       return
     }
 
-    const summary = [
-      `Found ${status.matchedFilesCount} files.`,
-      isCheck
-        ? `${status.failedFilesCount} files could not be checked.`
-        : `${status.failedFilesCount} files could not be sorted.`,
-      isCheck
-        ? `${status.changedFilesCount} files were not sorted.`
-        : `${status.changedFilesCount} files successfully sorted.`,
-      `${status.wellSortedFilesCount} files were already sorted.`,
-    ].join('\n')
+    const { log } = this.#logger
 
-    this.#logger.log((this.#hasPrinted ? '\n' : '') + summary)
+    // Print an empty line.
+    if (this.#hasPrinted) {
+      log()
+    }
+
+    // Matched files
+    log('Found %s.', getFilesCountText(matchedFilesCount))
+
+    // Failed files
+    if (failedFilesCount) {
+      log(
+        '%s could not be %s.',
+        getFilesCountText(failedFilesCount),
+        isCheck ? 'checked' : 'sorted',
+      )
+    }
+
+    // Changed files
+    if (changedFilesCount) {
+      if (isCheck) {
+        log(
+          '%s %s not sorted.',
+          getFilesCountText(changedFilesCount),
+          changedFilesCount === 1 ? 'was' : 'were',
+        )
+      } else {
+        log('%s successfully sorted.', getFilesCountText(changedFilesCount))
+      }
+    }
+
+    // Well-sorted files
+    if (wellSortedFilesCount) {
+      log(
+        '%s %s already sorted.',
+        getFilesCountText(wellSortedFilesCount),
+        wellSortedFilesCount === 1 ? 'was' : 'were',
+      )
+    }
   }
 }
 
