@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { globbySync } from 'globby'
 import fs from 'node:fs'
+import { parseArgs } from 'node:util'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
 
@@ -25,6 +26,25 @@ If file/glob is omitted, './package.json' file will be processed.
   -v, --version Display the package version
   `,
   )
+}
+
+function parseCliArguments() {
+  try {
+    return parseArgs({
+      options: {
+        check: { type: 'boolean', short: 'c' },
+        quiet: { type: 'boolean', short: 'q' },
+        version: { type: 'boolean', short: 'v' },
+        help: { type: 'boolean', short: 'h' },
+      },
+      allowPositionals: true,
+      strict: true,
+    })
+  } catch (err) {
+    const { message } = err
+    console.error(message)
+    process.exit(2)
+  }
 }
 
 function sortPackageJsonFile(file, reporter, isCheck) {
@@ -58,35 +78,19 @@ function sortPackageJsonFiles(patterns, options) {
 }
 
 function run() {
-  const cliArguments = process.argv.slice(2)
+  const cliArguments = parseCliArguments()
 
-  if (
-    cliArguments.some((argument) => argument === '--help' || argument === '-h')
-  ) {
+  if (cliArguments.values.help) {
     return showHelpInformation()
   }
 
-  if (
-    cliArguments.some(
-      (argument) => argument === '--version' || argument === '-v',
-    )
-  ) {
+  if (cliArguments.values.version) {
     return showVersion()
   }
 
-  const patterns = []
-  let isCheck = false
-  let shouldBeQuiet = false
-
-  for (const argument of cliArguments) {
-    if (argument === '--check' || argument === '-c') {
-      isCheck = true
-    } else if (argument === '--quiet' || argument === '-q') {
-      shouldBeQuiet = true
-    } else {
-      patterns.push(argument)
-    }
-  }
+  const patterns = cliArguments.positionals
+  const isCheck = !!cliArguments.values.check
+  const shouldBeQuiet = !!cliArguments.values.quiet
 
   if (!patterns.length) {
     patterns[0] = 'package.json'
