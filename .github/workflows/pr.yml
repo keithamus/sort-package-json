@@ -39,7 +39,7 @@ jobs:
         run: npm run lint
 
       - name: Check package.json
-        run: npm run sort-package-json -- check
+        run: npm run sort-package-json -- --check
 
       - name: Run Tests
         run: npm run test-coverage
