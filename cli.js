@@ -29,22 +29,17 @@ If file/glob is omitted, './package.json' file will be processed.
 }
 
 function parseCliArguments() {
-  try {
-    return parseArgs({
-      options: {
-        check: { type: 'boolean', short: 'c' },
-        quiet: { type: 'boolean', short: 'q' },
-        version: { type: 'boolean', short: 'v' },
-        help: { type: 'boolean', short: 'h' },
-      },
-      allowPositionals: true,
-      strict: true,
-    })
-  } catch (err) {
-    const { message } = err
-    console.error(message)
-    process.exit(2)
-  }
+  const { values: options, positionals: patterns } = parseArgs({
+    options: {
+      check: { type: 'boolean', short: 'c', default: false },
+      quiet: { type: 'boolean', short: 'q', default: false },
+      version: { type: 'boolean', short: 'v', default: false },
+      help: { type: 'boolean', short: 'h', default: false },
+    },
+    allowPositionals: true,
+    strict: true,
+  })
+  return { options, patterns }
 }
 
 function sortPackageJsonFile(file, reporter, isCheck) {
@@ -78,25 +73,34 @@ function sortPackageJsonFiles(patterns, options) {
 }
 
 function run() {
-  const cliArguments = parseCliArguments()
+  let options, patterns
+  try {
+    ;({ options, patterns } = parseCliArguments())
+  } catch (error) {
+    process.exitCode = 2
+    console.error(error.message)
+    if (error.code === 'ERR_PARSE_ARGS_UNKNOWN_OPTION') {
+      console.error(`Try 'sort-package-json --help' for more information.`)
+    }
+    return
+  }
 
-  if (cliArguments.values.help) {
+  if (options.help) {
     return showHelpInformation()
   }
 
-  if (cliArguments.values.version) {
+  if (options.version) {
     return showVersion()
   }
-
-  const patterns = cliArguments.positionals
-  const isCheck = !!cliArguments.values.check
-  const shouldBeQuiet = !!cliArguments.values.quiet
 
   if (!patterns.length) {
     patterns[0] = 'package.json'
   }
 
-  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet })
+  sortPackageJsonFiles(patterns, {
+    isCheck: options.check,
+    shouldBeQuiet: options.quiet,
+  })
 }
 
 run()
