@@ -83,6 +83,23 @@ test('run `cli -u` with unknown option', macro.testCLI, {
   message: 'Should report unknown option and suggest help.',
 })
 
+test('run `cli --no-version`', macro.testCLI, {
+  args: ['--no-version'],
+  message: 'Should report unknown option and suggest help.',
+})
+test('run `cli --no-check`', macro.testCLI, {
+  args: ['--no-check'],
+  message: 'Should report unknown option and suggest help.',
+})
+test('run `cli --no-quiet`', macro.testCLI, {
+  args: ['--no-version'],
+  message: 'Should report unknown option and suggest help.',
+})
+test('run `cli --no-help`', macro.testCLI, {
+  args: ['--no-check'],
+  message: 'Should report unknown option and suggest help.',
+})
+
 test('run `cli` with no patterns', macro.testCLI, {
   fixtures: [
     {
