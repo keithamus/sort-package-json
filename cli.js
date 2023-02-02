@@ -84,7 +84,10 @@ function run() {
   } catch (error) {
     process.exitCode = 2
     console.error(error.message)
-    if (error.code === 'ERR_PARSE_ARGS_UNKNOWN_OPTION') {
+    if (
+      error.code === 'ERR_PARSE_ARGS_UNKNOWN_OPTION' ||
+      error.code === 'ERR_PARSE_ARGS_INVALID_OPTION_VALUE'
+    ) {
       console.error(`Try 'sort-package-json --help' for more information.`)
     }
     return
