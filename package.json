@@ -20,7 +20,7 @@
   "type": "module",
   "exports": "./index.js",
   "types": "index.d.ts",
-  "bin": "cli.js------------",
+  "bin": "cli.js",
   "files": [
     "index.js",
     "index.d.ts",
@@ -42,14 +42,14 @@
     ]
   },
   "lint-staged": {
+    "package.json": [
+      "node cli.js"
+    ],
     "*.js": [
       "eslint --fix"
     ],
-    "**/*.{ts,md,json,md,yml}": [
-      "prettier --write"
-    ],
-    "package.json": [
-      "node cli.js"
+    "**/*,!*.js": [
+      "prettier --write --ignore-unkown"
     ]
   },
   "prettier": {
