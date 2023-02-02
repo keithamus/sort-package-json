@@ -39,6 +39,11 @@ function parseCliArguments() {
     allowPositionals: true,
     strict: true,
   })
+
+  if (!patterns.length) {
+    patterns[0] = 'package.json'
+  }
+
   return { options, patterns }
 }
 
@@ -91,10 +96,6 @@ function run() {
 
   if (options.version) {
     return showVersion()
-  }
-
-  if (!patterns.length) {
-    patterns[0] = 'package.json'
   }
 
   sortPackageJsonFiles(patterns, {
