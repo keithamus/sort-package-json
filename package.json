@@ -34,7 +34,7 @@
     "semantic-release": "semantic-release",
     "test": "ava && dtslint --localTs node_modules/typescript/lib",
     "test-coverage": "nyc ava",
-    "update-snapshots": "ava --update-snapshots && node cli.js \"package.json\" --quiet"
+    "update-snapshots": "ava --update-snapshots"
   },
   "commitlint": {
     "extends": [
