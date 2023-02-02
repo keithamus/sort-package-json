@@ -28,13 +28,13 @@
     "reporter.js"
   ],
   "scripts": {
-    "lint": "eslint .",
+    "fix": "eslint . --fix && prettier . \"!**/*.js\" --write && node cli.js \"package.json\"",
+    "lint": "eslint . && prettier . \"!**/*.js\" --check && node cli.js \"package.json\" --check",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
-    "sort-package-json": "node cli.js package.json --check",
     "test": "ava && dtslint --localTs node_modules/typescript/lib",
     "test-coverage": "nyc ava",
-    "update-snapshot": "ava -u && node cli.js package.json"
+    "update-snapshots": "ava --update-snapshots"
   },
   "commitlint": {
     "extends": [
@@ -42,14 +42,14 @@
     ]
   },
   "lint-staged": {
+    "package.json": [
+      "node cli.js"
+    ],
     "*.js": [
       "eslint --fix"
     ],
-    "*.ts": [
-      "prettier --write"
-    ],
-    "package.json": [
-      "node cli.js"
+    "**/*,!*.js": [
+      "prettier --write --ignore-unkown"
     ]
   },
   "prettier": {
