@@ -20,7 +20,7 @@
   "type": "module",
   "exports": "./index.js",
   "types": "index.d.ts",
-  "bin": "cli.js",
+  "bin": "cli.js------------",
   "files": [
     "index.js",
     "index.d.ts",
