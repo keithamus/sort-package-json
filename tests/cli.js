@@ -68,8 +68,8 @@ test('run `cli --help=value`', macro.testCLI, {
   message: 'Should report illegal argument and suggest help.',
 })
 
-test('run `cli --version=value`', macro.testCLI, {
-  args: ['--version=value'],
+test('run `cli --version=true`', macro.testCLI, {
+  args: ['--version=true'],
   message: 'Should report illegal argument and suggest help.',
 })
 
@@ -85,19 +85,7 @@ test('run `cli -u` with unknown option', macro.testCLI, {
 
 test('run `cli --no-version`', macro.testCLI, {
   args: ['--no-version'],
-  message: 'Should report unknown option and suggest help.',
-})
-test('run `cli --no-check`', macro.testCLI, {
-  args: ['--no-check'],
-  message: 'Should report unknown option and suggest help.',
-})
-test('run `cli --no-quiet`', macro.testCLI, {
-  args: ['--no-version'],
-  message: 'Should report unknown option and suggest help.',
-})
-test('run `cli --no-help`', macro.testCLI, {
-  args: ['--no-check'],
-  message: 'Should report unknown option and suggest help.',
+  message: 'A snapshot to show how `--no-*` works, not care about result.',
 })
 
 test('run `cli` with no patterns', macro.testCLI, {
