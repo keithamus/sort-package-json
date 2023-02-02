@@ -29,12 +29,10 @@ If file/glob is omitted, './package.json' file will be processed.
 }
 
 function parseCliArguments() {
-  const { values: originalOptions, positionals: patterns } = parseArgs({
+  const { values: options, positionals: patterns } = parseArgs({
     options: {
       check: { type: 'boolean', short: 'c', default: false },
       quiet: { type: 'boolean', short: 'q', default: false },
-      'no-check': { type: 'boolean', default: false },
-      'no-quiet': { type: 'boolean', default: false },
       version: { type: 'boolean', short: 'v', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
@@ -44,16 +42,6 @@ function parseCliArguments() {
 
   if (!patterns.length) {
     patterns[0] = 'package.json'
-  }
-
-  // support for negated options
-  const options = originalOptions
-  for (const key of Object.keys(originalOptions)) {
-    // no-check: true --> check: false
-    if (key.startsWith('no-') && originalOptions[key] === true) {
-      options[key.slice(3)] = false
-      delete options[key]
-    }
   }
 
   return { options, patterns }
