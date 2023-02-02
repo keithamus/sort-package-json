@@ -28,11 +28,10 @@
     "reporter.js"
   ],
   "scripts": {
-    "fix": "eslint . --fix && prettier . \"!**/*.js\" --write",
-    "lint": "eslint . && prettier . \"!**/*.js\" --check",
+    "fix": "eslint . --fix && prettier . \"!**/*.js\" --write && node cli.js \"package.json\"",
+    "lint": "eslint . && prettier . \"!**/*.js\" --check && node cli.js \"package.json\" --check",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
-    "sort-package-json": "node cli.js \"package.json\"",
     "test": "ava && dtslint --localTs node_modules/typescript/lib",
     "test-coverage": "nyc ava",
     "update-snapshots": "ava --update-snapshots && node cli.js \"package.json\" --quiet"
