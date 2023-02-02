@@ -31,10 +31,10 @@
     "lint": "eslint .",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
-    "sort-package-json": "node cli.js package.json --check",
+    "sort-package-json": "node cli.js \"package.json\" --check",
     "test": "ava && dtslint --localTs node_modules/typescript/lib",
     "test-coverage": "nyc ava",
-    "update-snapshots": "ava --update-snapshots && node cli.js package.json --quiet"
+    "update-snapshots": "ava --update-snapshots && node cli.js \"package.json\" --quiet"
   },
   "commitlint": {
     "extends": [
