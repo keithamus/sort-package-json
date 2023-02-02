@@ -157,7 +157,7 @@ If an array, sort keys in ordering of `options.sortOrder`.
 
 ```js
 const sorted = sortPackageJson(packageJsonObject, {
-  sortOrder: ['version']
+  sortOrder: ['version'],
 })
 
 console.log(Object.keys(sorted))
@@ -173,7 +173,7 @@ If a function, sort fields by [Array#sort(options.sortOrder)](https://developer.
 const sorted = sortPackageJson(packageJsonObject, {
   sortOrder(left, right) {
     return left.localeCompare(right)
-  }
+  },
 })
 
 console.log(Object.keys(sorted))

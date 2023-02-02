@@ -28,7 +28,8 @@
     "reporter.js"
   ],
   "scripts": {
-    "lint": "eslint .",
+    "fix": "eslint . --fix && prettier . \"!**/*.js\" --write",
+    "lint": "eslint . && prettier . \"!**/*.js\" --check",
     "prepare": "husky install",
     "semantic-release": "semantic-release",
     "sort-package-json": "node cli.js \"package.json\"",
@@ -45,7 +46,7 @@
     "*.js": [
       "eslint --fix"
     ],
-    "*.ts": [
+    "**/*.{ts,md,json,md,yml}": [
       "prettier --write"
     ],
     "package.json": [

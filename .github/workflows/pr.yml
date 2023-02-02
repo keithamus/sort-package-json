@@ -34,7 +34,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run ESLint
+      - name: Run ESLint and Prettier
         if: matrix.node_version == '18'
         run: npm run lint
 
