@@ -1,8 +1,8 @@
-import sortObjectKeys from 'sort-object-keys'
 import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
 import gitHooks from 'git-hooks-list'
 import isPlainObject from 'is-plain-obj'
+import sortObjectKeys from 'sort-object-keys'
 
 const hasOwn =
   Object.hasOwn ||
@@ -365,4 +365,4 @@ function sortPackageJson(jsonIsh, options = {}) {
 }
 
 export default sortPackageJson
-export { defaultSortOrder as sortOrder }
+export { sortPackageJson, defaultSortOrder as sortOrder }
