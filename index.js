@@ -365,4 +365,4 @@ function sortPackageJson(jsonIsh, options = {}) {
 }
 
 export default sortPackageJson
-export { defaultSortOrder as sortOrder }
+export { sortPackageJson, defaultSortOrder as sortOrder }
