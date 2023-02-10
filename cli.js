@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { globbySync } from 'globby'
 import fs from 'node:fs'
+import { parseArgs } from 'node:util'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
 
@@ -25,6 +26,25 @@ If file/glob is omitted, './package.json' file will be processed.
   -v, --version Display the package version
   `,
   )
+}
+
+function parseCliArguments() {
+  const { values: options, positionals: patterns } = parseArgs({
+    options: {
+      check: { type: 'boolean', short: 'c', default: false },
+      quiet: { type: 'boolean', short: 'q', default: false },
+      version: { type: 'boolean', short: 'v', default: false },
+      help: { type: 'boolean', short: 'h', default: false },
+    },
+    allowPositionals: true,
+    strict: true,
+  })
+
+  if (!patterns.length) {
+    patterns[0] = 'package.json'
+  }
+
+  return { options, patterns }
 }
 
 function sortPackageJsonFile(file, reporter, isCheck) {
@@ -58,41 +78,33 @@ function sortPackageJsonFiles(patterns, options) {
 }
 
 function run() {
-  const cliArguments = process.argv.slice(2)
+  let options, patterns
+  try {
+    ;({ options, patterns } = parseCliArguments())
+  } catch (error) {
+    process.exitCode = 2
+    console.error(error.message)
+    if (
+      error.code === 'ERR_PARSE_ARGS_UNKNOWN_OPTION' ||
+      error.code === 'ERR_PARSE_ARGS_INVALID_OPTION_VALUE'
+    ) {
+      console.error(`Try 'sort-package-json --help' for more information.`)
+    }
+    return
+  }
 
-  if (
-    cliArguments.some((argument) => argument === '--help' || argument === '-h')
-  ) {
+  if (options.help) {
     return showHelpInformation()
   }
 
-  if (
-    cliArguments.some(
-      (argument) => argument === '--version' || argument === '-v',
-    )
-  ) {
+  if (options.version) {
     return showVersion()
   }
 
-  const patterns = []
-  let isCheck = false
-  let shouldBeQuiet = false
-
-  for (const argument of cliArguments) {
-    if (argument === '--check' || argument === '-c') {
-      isCheck = true
-    } else if (argument === '--quiet' || argument === '-q') {
-      shouldBeQuiet = true
-    } else {
-      patterns.push(argument)
-    }
-  }
-
-  if (!patterns.length) {
-    patterns[0] = 'package.json'
-  }
-
-  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet })
+  sortPackageJsonFiles(patterns, {
+    isCheck: options.check,
+    shouldBeQuiet: options.quiet,
+  })
 }
 
 run()
