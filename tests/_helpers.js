@@ -120,7 +120,7 @@ function asItIs(t, { path, options }, excludeTypes = []) {
   }
 }
 
-async function testCLI(t, { fixtures = [], args, message }) {
+async function testCLI(t, { fixtures = [], args, message, stdin }) {
   const cwd = tempy.directory()
 
   fixtures = fixtures.map(({ file = 'package.json', content, expect }) => {
@@ -145,6 +145,7 @@ async function testCLI(t, { fixtures = [], args, message }) {
     args,
     cwd,
     message,
+    stdin,
   })
 
   for (const fixture of fixtures) {
@@ -172,11 +173,19 @@ async function testCLI(t, { fixtures = [], args, message }) {
   )
 }
 
-function runCLI({ args = [], cwd = process.cwd() }) {
+function runCLI({ args = [], cwd = process.cwd(), stdin }) {
   return new Promise((resolve) => {
-    execFile('node', [cliScript, ...args], { cwd }, (error, stdout, stderr) => {
-      resolve({ errorCode: error && error.code, stdout, stderr })
-    })
+    const cp = execFile(
+      'node',
+      [cliScript, ...args],
+      { cwd },
+      (error, stdout, stderr) => {
+        resolve({ errorCode: error && error.code, stdout, stderr })
+      },
+    )
+    if (stdin) {
+      cp.stdin.end(stdin)
+    }
   })
 }
 

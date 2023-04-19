@@ -1,6 +1,4 @@
 import test from 'ava'
-import getStream from 'get-stream'
-import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import { cliScript, macro } from './_helpers.js'
 
@@ -491,10 +489,8 @@ test('run `cli --quiet` on 1 non-json file', macro.testCLI, {
   message: 'Should output error message',
 })
 
-test('run `cli --stdin` piping a json file from stdin', async (t) => {
-  const cp = spawn('node', ['cli.js', '--stdin'])
-  cp.stdin.end(`{\n  "description": "Description",\n  "name": "Name"\n}\n`)
-
-  const out = await getStream(cp.stdout)
-  t.is(out, `{\n  "name": "Name",\n  "description": "Description"\n}\n`)
+test('run `cli --stdin` with input from stdin', macro.testCLI, {
+  args: ['--stdin'],
+  message: 'Should output sorted json',
+  stdin: `{\n  "description": "Description",\n  "name": "Name"\n}\n`,
 })
