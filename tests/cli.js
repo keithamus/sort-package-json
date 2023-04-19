@@ -498,5 +498,5 @@ test('run `cli --stdin` with input from stdin', macro.testCLI, {
 test('run `cli --stdin` with input from stdin with \\r\\n', macro.testCLI, {
   args: ['--stdin'],
   message: 'The line feed should be CRLF in output',
-  stdin: `{\n  "description": "Description",\n  "name": "Name"\n}\r\n`,
+  stdin: `{\r\n  "description": "Description",\r\n  "name": "Name"\r\n}\r\n`,
 })
