@@ -494,3 +494,9 @@ test('run `cli --stdin` with input from stdin', macro.testCLI, {
   message: 'Should output sorted json',
   stdin: `{\n  "description": "Description",\n  "name": "Name"\n}\n`,
 })
+
+test('run `cli --stdin` with input from stdin with \\r\\n', macro.testCLI, {
+  args: ['--stdin'],
+  message: 'The line feed should be CRLF in output',
+  stdin: `{\n  "description": "Description",\n  "name": "Name"\n}\r\n`,
+})
