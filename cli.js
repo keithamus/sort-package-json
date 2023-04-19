@@ -60,7 +60,7 @@ function sortPackageJsonFiles(patterns, options) {
 }
 
 async function sortPackageJsonFromStdin() {
-  console.log(sortPackageJson(await getStdin()))
+  process.stdout.write(sortPackageJson(await getStdin()))
 }
 
 function run() {

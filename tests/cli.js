@@ -493,8 +493,8 @@ test('run `cli --quiet` on 1 non-json file', macro.testCLI, {
 
 test('run `cli --stdin` piping a json file from stdin', async (t) => {
   const cp = spawn('node', ['cli.js', '--stdin'])
-  cp.stdin.end(`{\n  "description": "Description",\n  "name": "Name"\n}\n\n`)
+  cp.stdin.end(`{\n  "description": "Description",\n  "name": "Name"\n}\n`)
 
   const out = await getStream(cp.stdout)
-  t.is(out, `{\n  "name": "Name",\n  "description": "Description"\n}\n\n`)
+  t.is(out, `{\n  "name": "Name",\n  "description": "Description"\n}\n`)
 })
