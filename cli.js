@@ -4,6 +4,18 @@ import fs from 'node:fs'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
 
+/** @param {import("node:stream").Stream} stream */
+async function streamToString(stream) {
+  // see https://stackoverflow.com/a/63361543/6051261
+  const chunks = []
+
+  for await (const chunk of stream) {
+    chunks.push(Buffer.from(chunk))
+  }
+
+  return Buffer.concat(chunks).toString('utf-8')
+}
+
 function showVersion() {
   const { name, version } = JSON.parse(
     fs.readFileSync(new URL('package.json', import.meta.url)),
@@ -23,6 +35,7 @@ If file/glob is omitted, './package.json' file will be processed.
   -q, --quiet   Don't output success messages
   -h, --help    Display this help
   -v, --version Display the package version
+  --stdin       Reads package.json from stdin
   `,
   )
 }
@@ -57,6 +70,10 @@ function sortPackageJsonFiles(patterns, options) {
   reporter.printSummary()
 }
 
+async function sortPackageJsonFromStdin() {
+  console.log(sortPackageJson(await streamToString(process.stdin)))
+}
+
 function run() {
   const cliArguments = process.argv.slice(2)
 
@@ -72,6 +89,10 @@ function run() {
     )
   ) {
     return showVersion()
+  }
+
+  if (cliArguments.some((argument) => argument === '--stdin')) {
+    return sortPackageJsonFromStdin()
   }
 
   const patterns = []
