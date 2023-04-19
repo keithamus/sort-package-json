@@ -24,7 +24,7 @@ If file/glob is omitted, './package.json' file will be processed.
   -q, --quiet   Don't output success messages
   -h, --help    Display this help
   -v, --version Display the package version
-  --stdin       Reads package.json from stdin
+  --stdin       Read package.json from stdin
   `,
   )
 }
