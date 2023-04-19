@@ -1,20 +1,9 @@
 #!/usr/bin/env node
 import { globbySync } from 'globby'
 import fs from 'node:fs'
+import getStdin from 'get-stdin'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
-
-/** @param {import("node:stream").Stream} stream */
-async function streamToString(stream) {
-  // see https://stackoverflow.com/a/63361543/6051261
-  const chunks = []
-
-  for await (const chunk of stream) {
-    chunks.push(Buffer.from(chunk))
-  }
-
-  return Buffer.concat(chunks).toString('utf-8')
-}
 
 function showVersion() {
   const { name, version } = JSON.parse(
@@ -71,7 +60,7 @@ function sortPackageJsonFiles(patterns, options) {
 }
 
 async function sortPackageJsonFromStdin() {
-  console.log(sortPackageJson(await streamToString(process.stdin)))
+  console.log(sortPackageJson(await getStdin(process.stdin)))
 }
 
 function run() {

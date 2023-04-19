@@ -69,6 +69,7 @@
   "dependencies": {
     "detect-indent": "^7.0.1",
     "detect-newline": "^4.0.0",
+    "get-stdin": "^9.0.0",
     "git-hooks-list": "^3.0.0",
     "globby": "^13.1.2",
     "is-plain-obj": "^4.1.0",
