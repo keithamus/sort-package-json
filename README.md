@@ -89,7 +89,7 @@ $ sort-package-json "**/package.json" --check --quiet
 $ sort-package-json "**/package.json" --quiet
 ```
 
-### `--stdin` flag
+#### `--stdin` flag
 
 To read from `stdin` and output the result to `stdout` use the `--stdin` flag.
 
