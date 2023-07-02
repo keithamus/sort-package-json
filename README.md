@@ -89,6 +89,14 @@ $ sort-package-json "**/package.json" --check --quiet
 $ sort-package-json "**/package.json" --quiet
 ```
 
+### `--stdin` flag
+
+To read from `stdin` and output the result to `stdout` use the `--stdin` flag.
+
+```bash
+$ cat package.json | sort-package-json --stdin
+```
+
 ## API
 
 ### Install

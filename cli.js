@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { globbySync } from 'globby'
 import fs from 'node:fs'
+import getStdin from 'get-stdin'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
 
@@ -23,6 +24,7 @@ If file/glob is omitted, './package.json' file will be processed.
   -q, --quiet   Don't output success messages
   -h, --help    Display this help
   -v, --version Display the package version
+  --stdin       Read package.json from stdin
   `,
   )
 }
@@ -57,6 +59,10 @@ function sortPackageJsonFiles(patterns, options) {
   reporter.printSummary()
 }
 
+async function sortPackageJsonFromStdin() {
+  process.stdout.write(sortPackageJson(await getStdin()))
+}
+
 function run() {
   const cliArguments = process.argv.slice(2)
 
@@ -72,6 +78,10 @@ function run() {
     )
   ) {
     return showVersion()
+  }
+
+  if (cliArguments.some((argument) => argument === '--stdin')) {
+    return sortPackageJsonFromStdin()
   }
 
   const patterns = []
