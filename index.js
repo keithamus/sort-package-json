@@ -254,6 +254,7 @@ const fields = [
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
   { key: 'lint-staged' },
+  { key: 'nano-staged' },
   { key: 'config', over: sortObject },
   { key: 'nodemonConfig', over: sortObject },
   { key: 'browserify', over: sortObject },

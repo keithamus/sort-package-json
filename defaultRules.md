@@ -60,6 +60,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | pre-commit            |                                                                                |
 | commitlint            | Key sort                                                                       |
 | lint-staged           |                                                                                |
+| nano-staged           |                                                                                |
 | config                | Key sort                                                                       |
 | nodemonConfig         | Key sort                                                                       |
 | browserify            | Key sort                                                                       |
