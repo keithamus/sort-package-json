@@ -214,6 +214,7 @@ const fields = [
   { key: 'exports' },
   { key: 'main' },
   { key: 'svelte' },
+  { key: 'bun' },
   { key: 'umd:main' },
   { key: 'jsdelivr' },
   { key: 'unpkg' },
