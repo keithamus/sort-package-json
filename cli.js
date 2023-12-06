@@ -29,9 +29,9 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
-function sortPackageJsonFile(file, reporter, isCheck) {
+function sortPackageJsonFile(file, reporter, isCheck, sortUsingNpmV7Ording) {
   const original = fs.readFileSync(file, 'utf8')
-  const sorted = sortPackageJson(original)
+  const sorted = sortPackageJson(original, { sortUsingNpmV7Ording })
   if (sorted === original) {
     return reporter.reportNotChanged(file)
   }
@@ -46,11 +46,11 @@ function sortPackageJsonFile(file, reporter, isCheck) {
 function sortPackageJsonFiles(patterns, options) {
   const files = globbySync(patterns)
   const reporter = new Reporter(files, options)
-  const { isCheck } = options
+  const { isCheck, sortUsingNpmV7Ording } = options
 
   for (const file of files) {
     try {
-      sortPackageJsonFile(file, reporter, isCheck)
+      sortPackageJsonFile(file, reporter, isCheck, sortUsingNpmV7Ording)
     } catch (error) {
       reporter.reportFailed(file, error)
     }
@@ -87,12 +87,15 @@ function run() {
   const patterns = []
   let isCheck = false
   let shouldBeQuiet = false
+  let sortUsingNpmV7Ording = false
 
   for (const argument of cliArguments) {
     if (argument === '--check' || argument === '-c') {
       isCheck = true
     } else if (argument === '--quiet' || argument === '-q') {
       shouldBeQuiet = true
+    } else if (argument === "--npm-sort-ordering") {
+      sortUsingNpmV7Ording = true
     } else {
       patterns.push(argument)
     }
@@ -102,7 +105,7 @@ function run() {
     patterns[0] = 'package.json'
   }
 
-  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet })
+  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet, sortUsingNpmV7Ording })
 }
 
 run()

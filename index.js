@@ -35,6 +35,18 @@ const sortObjectBy = (comparator, deep) => {
 
   return over
 }
+
+let sortUsingNpmV7Ording = false
+
+const nonLocalCompare = (left, right) => left < right ? -1 : left === right ? 0 : 1;
+
+const sortDependenciesObject = sortObjectBy((left, right) => {
+  if (sortUsingNpmV7Ording) {
+    return left.localeCompare(right, "en")
+  }
+
+  return nonLocalCompare(left, right)
+})
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
@@ -279,13 +291,13 @@ const fields = [
   { key: 'c8', over: sortObject },
   { key: 'tap', over: sortObject },
   { key: 'resolutions', over: sortObject },
-  { key: 'dependencies', over: sortObject },
-  { key: 'devDependencies', over: sortObject },
+  { key: 'dependencies', over: sortDependenciesObject },
+  { key: 'devDependencies', over: sortDependenciesObject },
   { key: 'dependenciesMeta', over: sortObjectBy(undefined, true) },
-  { key: 'peerDependencies', over: sortObject },
+  { key: 'peerDependencies', over: sortDependenciesObject },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
-  { key: 'optionalDependencies', over: sortObject },
+  { key: 'optionalDependencies', over: sortDependenciesObject },
   { key: 'bundledDependencies', over: uniqAndSortArray },
   { key: 'bundleDependencies', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
@@ -344,6 +356,8 @@ const partition = (array, predicate) =>
     [[], []],
   )
 function sortPackageJson(jsonIsh, options = {}) {
+  sortUsingNpmV7Ording = !!options.sortUsingNpmV7Ording
+
   return editStringJSON(
     jsonIsh,
     onObject((json) => {
