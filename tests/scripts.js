@@ -68,3 +68,20 @@ for (const field of ['scripts', 'betterScripts']) {
     },
   })
 }
+
+for (const field of ['scripts', 'betterScripts']) {
+  test(`${field} when npm-run-all2 is not a dev dependency`, macro.sortObject, {
+    value: { [field]: fixture },
+    expect: { [field]: expectAllSorted },
+  })
+  test(`${field} when npm-run-all2 is a dev dependency`, macro.sortObject, {
+    value: {
+      [field]: fixture,
+      devDependencies: { 'npm-run-all2': '^1.0.0' },
+    },
+    expect: {
+      [field]: expectPreAndPostSorted,
+      devDependencies: { 'npm-run-all2': '^1.0.0' },
+    },
+  })
+}

@@ -163,7 +163,10 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
-  if (!hasDevDependency('npm-run-all', packageJson)) {
+  if (
+    !hasDevDependency('npm-run-all', packageJson) &&
+    !hasDevDependency('npm-run-all2', packageJson)
+  ) {
     keys.sort()
   }
 
