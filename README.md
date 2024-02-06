@@ -266,6 +266,151 @@ The lack of configuration here is a feature, not a bug. The intent of this tool 
 
 A lot of people who ask for configuration cite the use case that they simply don't like the given order that exists and want to make sweeping changes. To me this seems far better suited to simply making a fork of this project as then you can go far further than specifying configuration.
 
+### What is the order this package defaults to?
+
+The default order is exported as a `sortOrder` object.
+
+<details>
+<summary>Properties mentioned in the npm docs</summary>
+
+1. `name`
+1. `version`
+1. `private`
+1. `description`
+1. `keywords`
+1. `homepage`
+1. `bugs`
+1. `repository`
+1. `funding`
+1. `license`
+1. `author`
+1. `contributors`
+1. `main`
+1. `browser`
+1. `bin`
+1. `man`
+1. `directories`
+1. `files`
+1. `workspaces`
+1. `scripts`
+1. `config`
+1. `dependencies`
+1. `engines`
+1. `os`
+1. `cpu`
+
+</details>
+
+<details>
+<summary>Full list of recognized properties</summary>
+
+1. `$schema`
+1. `name`
+1. `displayName`
+1. `version`
+1. `private`
+1. `description`
+1. `categories`
+1. `keywords`
+1. `homepage`
+1. `bugs`
+1. `repository`
+1. `funding`
+1. `license`
+1. `qna`
+1. `author`
+1. `maintainers`
+1. `contributors`
+1. `publisher`
+1. `sideEffects`
+1. `type`
+1. `imports`
+1. `exports`
+1. `main`
+1. `svelte`
+1. `umd:main`
+1. `jsdelivr`
+1. `unpkg`
+1. `module`
+1. `source`
+1. `jsnext:main`
+1. `browser`
+1. `react-native`
+1. `types`
+1. `typesVersions`
+1. `typings`
+1. `style`
+1. `example`
+1. `examplestyle`
+1. `assets`
+1. `bin`
+1. `man`
+1. `directories`
+1. `files`
+1. `workspaces`
+1. `binary`
+1. `scripts`
+1. `betterScripts`
+1. `contributes`
+1. `activationEvents`
+1. `husky`
+1. `simple-git-hooks`
+1. `pre-commit`
+1. `commitlint`
+1. `lint-staged`
+1. `nano-staged`
+1. `config`
+1. `nodemonConfig`
+1. `browserify`
+1. `babel`
+1. `browserslist`
+1. `xo`
+1. `prettier`
+1. `eslintConfig`
+1. `eslintIgnore`
+1. `npmpkgjsonlint`
+1. `npmPackageJsonLintConfig`
+1. `npmpackagejsonlint`
+1. `release`
+1. `remarkConfig`
+1. `stylelint`
+1. `ava`
+1. `jest`
+1. `jest-junit`
+1. `jest-stare`
+1. `mocha`
+1. `nyc`
+1. `c8`
+1. `tap`
+1. `resolutions`
+1. `dependencies`
+1. `devDependencies`
+1. `dependenciesMeta`
+1. `peerDependencies`
+1. `peerDependenciesMeta`
+1. `optionalDependencies`
+1. `bundledDependencies`
+1. `bundleDependencies`
+1. `extensionPack`
+1. `extensionDependencies`
+1. `flat`
+1. `packageManager`
+1. `engines`
+1. `engineStrict`
+1. `volta`
+1. `languageName`
+1. `os`
+1. `cpu`
+1. `preferGlobal`
+1. `publishConfig`
+1. `icon`
+1. `badges`
+1. `galleryBanner`
+1. `preview`
+1. `markdown'`
+
+</details>
+
 ### What?! Why would you want to do this?!
 
 Well, it's nice to have the keys of a package.json in a well sorted order. Almost everyone would agree having "name" at the top of a package.json is sensible (rather than sorted alphabetically or somewhere silly like the bottom), so why not the rest of the package.json?
