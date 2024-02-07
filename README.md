@@ -407,7 +407,7 @@ The default order is exported as a `sortOrder` object.
 1. `badges`
 1. `galleryBanner`
 1. `preview`
-1. `markdown'`
+1. `markdown`
 
 </details>
 
