@@ -188,6 +188,44 @@ console.log(Object.keys(sorted))
 
 // -> [ 'dependencies', 'name', 'version' ]
 ```
+## Tools Integration
+
+### trunk check
+
+[trunk check](https://docs.trunk.io/docs) is an extendable superlinter with a builtin language 
+server and pre-existing issue detection. sort-package-json 
+is integrated [here](https://github.com/trunk-io/plugins/tree/main/linters/sort-package-json).
+
+Once you have [initialized trunk in your repo](https://docs.trunk.io/docs/check-get-started), 
+to enable the latest sort-package-json version, just run:
+
+```shell
+trunk check enable sort-package-json
+```
+
+or if you'd like a specific version:
+```shell
+trunk check enable sort-package-json@2.1.0
+```
+or modify `.trunk/trunk.yaml` in your repo to contain:
+
+```yaml
+ lint:
+   enabled:
+     - sort-package-json@2.1.0
+```
+
+Then just run:
+```bash
+trunk check
+```
+and it will check your modified files via sort-package-json, if applicable, and show you the results. 
+Trunk also will detect preexisting issues and highlight only the newly added sort-package-json issues. 
+For more information, check the [trunk docs](https://docs.trunk.io/docs/check).
+
+You can also see sort-package-json issues inline in VS Code via the
+[Trunk VS Code extension](https://marketplace.visualstudio.com/items?itemName=trunk.io).
+
 
 ## Related tools
 
