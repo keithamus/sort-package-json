@@ -79,6 +79,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | mocha                 | Key sort                                                                       |
 | nyc                   | Key sort                                                                       |
 | tap                   | Key sort                                                                       |
+| oclif                 | Key sort (deep)                                                                |
 | resolutions           | Key sort                                                                       |
 | dependencies          | Key sort                                                                       |
 | devDependencies       | Key sort                                                                       |

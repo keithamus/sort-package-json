@@ -281,6 +281,7 @@ const fields = [
   { key: 'nyc', over: sortObject },
   { key: 'c8', over: sortObject },
   { key: 'tap', over: sortObject },
+  { key: 'oclif', over: sortObjectBy(undefined, true) },
   { key: 'resolutions', over: sortObject },
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
