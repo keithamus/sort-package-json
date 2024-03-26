@@ -263,15 +263,14 @@ test('pnpm', macro.sortObject, {
   path: 'pnpm',
   value: {
     overrides: {
-      'aws-sdk@2.1133.0': '2.1370.0',
-      'react-native-notifications@^4.3.5': '4.3.5',
-      'antd@^3.26.20': '3.26.20',
+      'aws-sdk@1.2345.0': '1.123.0',
+      'react-native-notifications@^3.4.5': '3.4.5',
+      'antd@^2.23.4': '2.23.4',
     },
     patchedDependencies: {
-      'esbuild-sass-plugin@2.10.0':
-        '.yarn/patches/esbuild-sass-plugin-npm-2.10.0-721e293088.patch',
-      'domino@2.1.6': '.yarn/patches/domino-npm-2.1.6-b0dc3de857.patch',
-      'es5-ext@0.10.62': '.yarn/patches/es5-ext-npm-0.10.62-f20aca46cb.patch',
+      'esbuild-sass-plugin@1.20.0': 'foo.patch',
+      'domino@4.5.6': 'bar.patch',
+      'es5-ext@0.12.3': 'baz.patch',
     },
     packageExtensions: {
       '@rjsf/core': {
@@ -290,9 +289,9 @@ test('pnpm', macro.sortObject, {
   expect: {
     allowNonAppliedPatches: true,
     overrides: {
-      'antd@^3.26.20': '3.26.20',
-      'aws-sdk@2.1133.0': '2.1370.0',
-      'react-native-notifications@^4.3.5': '4.3.5',
+      'antd@^2.23.4': '2.23.4',
+      'aws-sdk@1.2345.0': '1.123.0',
+      'react-native-notifications@^3.4.5': '3.4.5',
     },
     packageExtensions: {
       '@rjsf/core': {
@@ -307,10 +306,9 @@ test('pnpm', macro.sortObject, {
       },
     },
     patchedDependencies: {
-      'domino@2.1.6': '.yarn/patches/domino-npm-2.1.6-b0dc3de857.patch',
-      'es5-ext@0.10.62': '.yarn/patches/es5-ext-npm-0.10.62-f20aca46cb.patch',
-      'esbuild-sass-plugin@2.10.0':
-        '.yarn/patches/esbuild-sass-plugin-npm-2.10.0-721e293088.patch',
+      'domino@4.5.6': 'bar.patch',
+      'es5-ext@0.12.3': 'baz.patch',
+      'esbuild-sass-plugin@1.20.0': 'foo.patch',
     },
   },
 })
