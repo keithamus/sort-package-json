@@ -312,6 +312,7 @@ const fields = [
   /* vscode */ { key: 'galleryBanner', over: sortObject },
   /* vscode */ { key: 'preview' },
   /* vscode */ { key: 'markdown' },
+  { key: 'pnpm', over: sortObjectBy(undefined, true) },
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)

@@ -211,6 +211,7 @@ console.log(Object.keys(sorted))
 - [node-pre-gyp](https://github.com/mapbox/node-pre-gyp)
 - [npm-package-json-lint](https://npmpackagejsonlint.org/)
 - [oclif](https://oclif.io/)
+- [pnpm](https://pnpm.io/)
 - [Prettier](https://prettier.io/)
 - [remark](https://remark.js.org/)
 - [semantic-release](https://github.com/semantic-release/semantic-release)
@@ -409,6 +410,7 @@ The default order is exported as a `sortOrder` object.
 1. `galleryBanner`
 1. `preview`
 1. `markdown`
+1. `pnpm`
 
 </details>
 

@@ -258,3 +258,59 @@ test('badges', (t) => {
     'Should sort `badges[]`',
   )
 })
+
+test('pnpm', macro.sortObject, {
+  path: 'pnpm',
+  value: {
+    overrides: {
+      'aws-sdk@2.1133.0': '2.1370.0',
+      'react-native-notifications@^4.3.5': '4.3.5',
+      'antd@^3.26.20': '3.26.20',
+    },
+    patchedDependencies: {
+      'esbuild-sass-plugin@2.10.0':
+        '.yarn/patches/esbuild-sass-plugin-npm-2.10.0-721e293088.patch',
+      'domino@2.1.6': '.yarn/patches/domino-npm-2.1.6-b0dc3de857.patch',
+      'es5-ext@0.10.62': '.yarn/patches/es5-ext-npm-0.10.62-f20aca46cb.patch',
+    },
+    packageExtensions: {
+      '@rjsf/core': {
+        dependencies: {
+          tslib: '*',
+        },
+      },
+      'follow-redirects': {
+        dependencies: {
+          debug: '4.3.4',
+        },
+      },
+    },
+    allowNonAppliedPatches: true,
+  },
+  expect: {
+    allowNonAppliedPatches: true,
+    overrides: {
+      'antd@^3.26.20': '3.26.20',
+      'aws-sdk@2.1133.0': '2.1370.0',
+      'react-native-notifications@^4.3.5': '4.3.5',
+    },
+    packageExtensions: {
+      '@rjsf/core': {
+        dependencies: {
+          tslib: '*',
+        },
+      },
+      'follow-redirects': {
+        dependencies: {
+          debug: '4.3.4',
+        },
+      },
+    },
+    patchedDependencies: {
+      'domino@2.1.6': '.yarn/patches/domino-npm-2.1.6-b0dc3de857.patch',
+      'es5-ext@0.10.62': '.yarn/patches/es5-ext-npm-0.10.62-f20aca46cb.patch',
+      'esbuild-sass-plugin@2.10.0':
+        '.yarn/patches/esbuild-sass-plugin-npm-2.10.0-721e293088.patch',
+    },
+  },
+})
