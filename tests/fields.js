@@ -258,3 +258,57 @@ test('badges', (t) => {
     'Should sort `badges[]`',
   )
 })
+
+test('pnpm', macro.sortObject, {
+  path: 'pnpm',
+  value: {
+    overrides: {
+      'aws-sdk@1.2345.0': '1.123.0',
+      'react-native-notifications@^3.4.5': '3.4.5',
+      'antd@^2.23.4': '2.23.4',
+    },
+    patchedDependencies: {
+      'esbuild-sass-plugin@1.20.0': 'foo.patch',
+      'domino@4.5.6': 'bar.patch',
+      'es5-ext@0.12.3': 'baz.patch',
+    },
+    packageExtensions: {
+      '@rjsf/core': {
+        dependencies: {
+          tslib: '*',
+        },
+      },
+      'follow-redirects': {
+        dependencies: {
+          debug: '4.3.4',
+        },
+      },
+    },
+    allowNonAppliedPatches: true,
+  },
+  expect: {
+    allowNonAppliedPatches: true,
+    overrides: {
+      'antd@^2.23.4': '2.23.4',
+      'aws-sdk@1.2345.0': '1.123.0',
+      'react-native-notifications@^3.4.5': '3.4.5',
+    },
+    packageExtensions: {
+      '@rjsf/core': {
+        dependencies: {
+          tslib: '*',
+        },
+      },
+      'follow-redirects': {
+        dependencies: {
+          debug: '4.3.4',
+        },
+      },
+    },
+    patchedDependencies: {
+      'domino@4.5.6': 'bar.patch',
+      'es5-ext@0.12.3': 'baz.patch',
+      'esbuild-sass-plugin@1.20.0': 'foo.patch',
+    },
+  },
+})
