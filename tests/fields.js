@@ -263,9 +263,13 @@ test('pnpm', macro.sortObject, {
   path: 'pnpm',
   value: {
     overrides: {
+      '@react-stately/selection@~3.10.3': '3.10.3',
       'aws-sdk@1.2345.0': '1.123.0',
       'react-native-notifications@^3.4.5': '3.4.5',
       'antd@^2.23.4': '2.23.4',
+      '@react-stately/select@~3.1.3': '3.1.3',
+      '@react-stately/selection@~3.7.0': '3.7.0',
+      '@react-stately/select@3': '3.3.1',
     },
     patchedDependencies: {
       'esbuild-sass-plugin@1.20.0': 'foo.patch',
@@ -289,9 +293,18 @@ test('pnpm', macro.sortObject, {
   expect: {
     allowNonAppliedPatches: true,
     overrides: {
+      '@react-stately/select@3': '3.3.1',
+      '@react-stately/select@~3.1.3': '3.1.3',
+      '@react-stately/selection@~3.7.0': '3.7.0',
+      '@react-stately/selection@~3.10.3': '3.10.3',
       'antd@^2.23.4': '2.23.4',
       'aws-sdk@1.2345.0': '1.123.0',
       'react-native-notifications@^3.4.5': '3.4.5',
+    },
+    patchedDependencies: {
+      'domino@4.5.6': 'bar.patch',
+      'es5-ext@0.12.3': 'baz.patch',
+      'esbuild-sass-plugin@1.20.0': 'foo.patch',
     },
     packageExtensions: {
       '@rjsf/core': {
@@ -304,11 +317,6 @@ test('pnpm', macro.sortObject, {
           debug: '4.3.4',
         },
       },
-    },
-    patchedDependencies: {
-      'domino@4.5.6': 'bar.patch',
-      'es5-ext@0.12.3': 'baz.patch',
-      'esbuild-sass-plugin@1.20.0': 'foo.patch',
     },
   },
 })
