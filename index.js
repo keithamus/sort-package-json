@@ -64,7 +64,7 @@ const sortObjectBySemver = sortObjectBy((a, b) => {
     ) {
       return { name: specifier }
     }
-    const splitIndex = atMatches.at(-1).index
+    const splitIndex = atMatches.pop().index
     return {
       name: specifier.substring(0, splitIndex),
       range: specifier.substring(splitIndex + 1),
