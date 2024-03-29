@@ -270,6 +270,9 @@ test('pnpm', macro.sortObject, {
       '@react-stately/select@~3.1.3': '3.1.3',
       '@react-stately/selection@~3.7.0': '3.7.0',
       '@react-stately/select@3': '3.3.1',
+      '@react-aria/selection@3.10.1>@react-stately/selection': '3.10.3',
+      '@react-aria/selection@3.10.1>@react-aria/focus': '3.8.0',
+      '@react-aria/selection@3.5.1>@react-stately/selection': '3.10.3',
     },
     patchedDependencies: {
       'esbuild-sass-plugin@1.20.0': 'foo.patch',
@@ -293,6 +296,9 @@ test('pnpm', macro.sortObject, {
   expect: {
     allowNonAppliedPatches: true,
     overrides: {
+      '@react-aria/selection@3.5.1>@react-stately/selection': '3.10.3',
+      '@react-aria/selection@3.10.1>@react-aria/focus': '3.8.0',
+      '@react-aria/selection@3.10.1>@react-stately/selection': '3.10.3',
       '@react-stately/select@3': '3.3.1',
       '@react-stately/select@~3.1.3': '3.1.3',
       '@react-stately/selection@~3.7.0': '3.7.0',

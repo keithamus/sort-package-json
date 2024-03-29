@@ -57,21 +57,31 @@ const sortGitHooks = sortObjectBy(gitHooks)
 
 const sortObjectBySemver = sortObjectBy((a, b) => {
   const parseNameAndVersionRange = (specifier) => {
-    const atMatches = [...specifier.matchAll('@')]
+    const [nameAndVersion, childName] = specifier.split('>')
+    const atMatches = [...nameAndVersion.matchAll('@')]
     if (
       !atMatches.length ||
       (atMatches.length === 1 && atMatches[0].index === 0)
     ) {
-      return { name: specifier }
+      return { name: specifier, childName }
     }
     const splitIndex = atMatches.pop().index
     return {
-      name: specifier.substring(0, splitIndex),
-      range: specifier.substring(splitIndex + 1),
+      name: nameAndVersion.substring(0, splitIndex),
+      range: nameAndVersion.substring(splitIndex + 1),
+      childName,
     }
   }
-  const { name: aName, range: aRange } = parseNameAndVersionRange(a)
-  const { name: bName, range: bRange } = parseNameAndVersionRange(b)
+  const {
+    name: aName,
+    range: aRange,
+    childDep: aChildDep,
+  } = parseNameAndVersionRange(a)
+  const {
+    name: bName,
+    range: bRange,
+    childDep: bChildDep,
+  } = parseNameAndVersionRange(b)
 
   if (aName !== bName) {
     return aName.localeCompare(bName)
@@ -81,6 +91,13 @@ const sortObjectBySemver = sortObjectBy((a, b) => {
   }
   if (!bRange) {
     return 1
+  }
+  if (aRange === bRange && (aChildDep || bChildDep)) {
+    if (aChildDep) {
+      return aChildDep.localeCompare(bChildDep)
+    } else {
+      return -1
+    }
   }
   return semver.compare(semver.minVersion(aRange), semver.minVersion(bRange))
 })
