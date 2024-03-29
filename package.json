@@ -18,19 +18,33 @@
   "license": "MIT",
   "author": "Keith Cirkel <npm@keithcirkel.co.uk> (http://keithcirkel.co.uk/)",
   "type": "module",
-  "exports": "./index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./cjs/index.js"
+      }
+    }
+  },
   "types": "index.d.ts",
   "bin": "cli.js",
   "files": [
+    "cjs",
     "index.js",
     "index.d.ts",
     "cli.js",
     "reporter.js"
   ],
   "scripts": {
+    "build": "esbuild index.js --bundle --platform=node --alias:git-hooks-list=./git-hooks-list_shim.cjs --outfile=./cjs/index.js && ncp package.cjs.json ./cjs/package.json",
     "fix": "eslint . --fix && prettier . \"!**/*.js\" --write && node cli.js \"package.json\"",
     "lint": "eslint . && prettier . \"!**/*.js\" --check && node cli.js \"package.json\" --check",
     "prepare": "husky install",
+    "prepublishOnly": "npm run build",
     "semantic-release": "semantic-release",
     "test": "ava && dtslint --localTs node_modules/typescript/lib",
     "test-coverage": "nyc ava",
@@ -82,6 +96,7 @@
     "del": "^7.0.0",
     "dot-prop": "^7.2.0",
     "dtslint": "^4.2.1",
+    "esbuild": "^0.20.2",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^17.0.0",
@@ -92,6 +107,7 @@
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "make-dir": "^3.1.0",
+    "ncp": "^2.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "resolve": "^1.22.1",
