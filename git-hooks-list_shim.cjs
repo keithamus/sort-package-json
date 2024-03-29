@@ -1,2 +1,2 @@
-const gitHooksList = require('git-hooks-list');
-module.exports = gitHooksList;
+const gitHooksList = require('git-hooks-list')
+module.exports = gitHooksList
