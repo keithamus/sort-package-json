@@ -3,6 +3,7 @@ import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
 import gitHooks from 'git-hooks-list'
 import isPlainObject from 'is-plain-obj'
+import semver from 'semver'
 
 const hasOwn =
   Object.hasOwn ||
@@ -53,6 +54,38 @@ const overProperty =
       ? { ...object, [property]: over(object[property], ...args) }
       : object
 const sortGitHooks = sortObjectBy(gitHooks)
+
+const sortObjectBySemver = sortObjectBy((a, b) => {
+  const parseNameAndVersionRange = (specifier) => {
+    // Ignore anything after > & rely on fallback alphanumeric sorting for that
+    const [nameAndVersion] = specifier.split('>')
+    const atMatches = [...nameAndVersion.matchAll('@')]
+    if (
+      !atMatches.length ||
+      (atMatches.length === 1 && atMatches[0].index === 0)
+    ) {
+      return { name: specifier }
+    }
+    const splitIndex = atMatches.pop().index
+    return {
+      name: nameAndVersion.substring(0, splitIndex),
+      range: nameAndVersion.substring(splitIndex + 1),
+    }
+  }
+  const { name: aName, range: aRange } = parseNameAndVersionRange(a)
+  const { name: bName, range: bRange } = parseNameAndVersionRange(b)
+
+  if (aName !== bName) {
+    return aName.localeCompare(bName)
+  }
+  if (!aRange) {
+    return -1
+  }
+  if (!bRange) {
+    return 1
+  }
+  return semver.compare(semver.minVersion(aRange), semver.minVersion(bRange))
+})
 
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
 const eslintBaseConfigProperties = [
@@ -127,6 +160,29 @@ const sortPrettierConfig = onObject(
 )
 
 const sortVolta = sortObjectBy(['node', 'npm', 'yarn'])
+
+const pnpmBaseConfigProperties = [
+  'peerDependencyRules',
+  'neverBuiltDependencies',
+  'onlyBuiltDependencies',
+  'onlyBuiltDependenciesFile',
+  'allowedDeprecatedVersions',
+  'allowNonAppliedPatches',
+  'updateConfig',
+  'auditConfig',
+  'requiredScripts',
+  'supportedArchitectures',
+  'overrides',
+  'patchedDependencies',
+  'packageExtensions',
+]
+
+const sortPnpmConfig = onObject(
+  pipe([
+    sortObjectBy(pnpmBaseConfigProperties, true),
+    overProperty('overrides', sortObjectBySemver),
+  ]),
+)
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -312,7 +368,7 @@ const fields = [
   /* vscode */ { key: 'galleryBanner', over: sortObject },
   /* vscode */ { key: 'preview' },
   /* vscode */ { key: 'markdown' },
-  { key: 'pnpm', over: sortObjectBy(undefined, true) },
+  { key: 'pnpm', over: sortPnpmConfig },
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
