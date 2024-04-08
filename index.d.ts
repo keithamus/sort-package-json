@@ -4,6 +4,19 @@ type ComparatorFunction = (left: string, right: string) => number
 
 interface Options {
   readonly sortOrder?: readonly string[] | ComparatorFunction
+
+  /**
+   * When `true`, sort using `localCompare` using the region `"en"`.
+   * When `false`, sort using normal `<`, `===`, and `>` operators.
+   * 
+   * This is useful when using `npm` with version `>=7.0.0` since that is how it sorts:
+   *  - `dependencies`
+   *  - `devDependencies`
+   *  - `peerDependencies`
+   *  - `optionalDependencies`
+   * @default false
+   */
+  readonly sortUsingNpmV7Ording?: boolean;
 }
 
 interface SortPackageJson {
