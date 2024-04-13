@@ -20,7 +20,7 @@ test('main', (t) => {
   t.is(
     sortPackageJson(JSON.stringify(packageJson, null, 4)),
     '{\n    "name": "sort-package-json",\n    "version": "1.0.0"\n}',
-    'Detect tab indent',
+    'Detect indent',
   )
   t.is(
     sortPackageJson(JSON.stringify(packageJson, null, '\t')),
