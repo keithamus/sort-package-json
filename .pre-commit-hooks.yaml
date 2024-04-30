@@ -1,0 +1,6 @@
+- id: sort-package-json
+  name: sort-package-json
+  description: Sort package.json file
+  entry: npx sort-package-json
+  language: system
+  files: '\bpackage\.json$'
