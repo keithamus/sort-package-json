@@ -380,12 +380,14 @@ const overFields = pipe(
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
-    const { indent } = detectIndent(json)
+    const { indent, type } = detectIndent(json)
     const endCharacters = json.slice(-1) === '\n' ? '\n' : ''
     const newline = detectNewline(json)
     json = JSON.parse(json)
 
-    let result = JSON.stringify(over(json), null, indent) + endCharacters
+    let result =
+      JSON.stringify(over(json), null, type === 'tab' ? '\t' : indent) +
+      endCharacters
     if (newline === '\r\n') {
       result = result.replace(/\n/g, newline)
     }
