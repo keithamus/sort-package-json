@@ -55,23 +55,24 @@ const overProperty =
       : object
 const sortGitHooks = sortObjectBy(gitHooks)
 
-const sortObjectBySemver = sortObjectBy((a, b) => {
-  const parseNameAndVersionRange = (specifier) => {
-    // Ignore anything after > & rely on fallback alphanumeric sorting for that
-    const [nameAndVersion] = specifier.split('>')
-    const atMatches = [...nameAndVersion.matchAll('@')]
-    if (
-      !atMatches.length ||
-      (atMatches.length === 1 && atMatches[0].index === 0)
-    ) {
-      return { name: specifier }
-    }
-    const splitIndex = atMatches.pop().index
-    return {
-      name: nameAndVersion.substring(0, splitIndex),
-      range: nameAndVersion.substring(splitIndex + 1),
-    }
+const parseNameAndVersionRange = (specifier) => {
+  // Ignore anything after > & rely on fallback alphanumeric sorting for that
+  const [nameAndVersion] = specifier.split('>')
+  const atMatches = [...nameAndVersion.matchAll('@')]
+  if (
+    !atMatches.length ||
+    (atMatches.length === 1 && atMatches[0].index === 0)
+  ) {
+    return { name: specifier }
   }
+  const splitIndex = atMatches.pop().index
+  return {
+    name: nameAndVersion.substring(0, splitIndex),
+    range: nameAndVersion.substring(splitIndex + 1),
+  }
+}
+
+const sortObjectBySemver = sortObjectBy((a, b) => {
   const { name: aName, range: aRange } = parseNameAndVersionRange(a)
   const { name: bName, range: bRange } = parseNameAndVersionRange(b)
 
@@ -87,24 +88,24 @@ const sortObjectBySemver = sortObjectBy((a, b) => {
   return semver.compare(semver.minVersion(aRange), semver.minVersion(bRange))
 })
 
-const sortObjectByIdent = (a, b) => {
-  const getIdent = (ident) => {
-    const parts = ident.split('@')
+const getPackageName = (ident) => {
+  const parts = ident.split('@')
 
-    if (ident.startsWith('@')) {
-      // Handle cases where ident starts with '@'
-      return parts.length > 2 ? parts.slice(0, -1).join('@') : ident
-    }
-
-    // Handle cases where ident doesn't start with '@'
-    return parts.length > 1 ? parts.slice(0, -1).join('@') : ident
+  if (ident.startsWith('@')) {
+    // Handle cases where package name starts with '@'
+    return parts.length > 2 ? parts.slice(0, -1).join('@') : ident
   }
 
-  const identA = getIdent(a)
-  const identB = getIdent(b)
+  // Handle cases where package name doesn't start with '@'
+  return parts.length > 1 ? parts.slice(0, -1).join('@') : ident
+}
 
-  if (identA < identB) return -1
-  if (identA > identB) return 1
+const sortObjectByIdent = (a, b) => {
+  const PackageNameA = getPackageName(a)
+  const PackageNameB = getPackageName(b)
+
+  if (PackageNameA < PackageNameB) return -1
+  if (PackageNameA > PackageNameB) return 1
   return 0
 }
 
