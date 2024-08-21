@@ -87,6 +87,27 @@ const sortObjectBySemver = sortObjectBy((a, b) => {
   return semver.compare(semver.minVersion(aRange), semver.minVersion(bRange))
 })
 
+const sortObjectByIdent = (a, b) => {
+  const getIdent = (ident) => {
+    const parts = ident.split('@')
+
+    if (ident.startsWith('@')) {
+      // Handle cases where ident starts with '@'
+      return parts.length > 2 ? parts.slice(0, -1).join('@') : ident
+    }
+
+    // Handle cases where ident doesn't start with '@'
+    return parts.length > 1 ? parts.slice(0, -1).join('@') : ident
+  }
+
+  const identA = getIdent(a)
+  const identB = getIdent(b)
+
+  if (identA < identB) return -1
+  if (identA > identB) return 1
+  return 0
+}
+
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
 const eslintBaseConfigProperties = [
   // `files` and `excludedFiles` are only on `overrides[]`
@@ -341,7 +362,7 @@ const fields = [
   { key: 'resolutions', over: sortObject },
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
-  { key: 'dependenciesMeta', over: sortObjectBy(undefined, true) },
+  { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
   { key: 'peerDependencies', over: sortObject },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
