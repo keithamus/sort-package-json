@@ -59,6 +59,40 @@ function sortObjectAlphabetically(t, options = {}) {
   }
 }
 
+function sortObjectWithRangeAlphabetically(t, options = {}) {
+  const { maxDepth = 1, expect } = options
+
+  for (let depth = 1; depth < maxDepth + 1; depth++) {
+    sortObject(t, {
+      ...options,
+      value: keysToObject(
+        [
+          '@z-package@1.2.3',
+          'c-package@1.2.3',
+          'b-package-package@1.2.3',
+          '@a-package@1.2.3',
+          'b-package@1.2.3',
+          '@b-package',
+        ],
+        depth,
+      ),
+      expect:
+        expect ||
+        keysToObject(
+          [
+            '@a-package@1.2.3',
+            '@b-package',
+            '@z-package@1.2.3',
+            'b-package@1.2.3',
+            'b-package-package@1.2.3',
+            'c-package@1.2.3',
+          ],
+          depth,
+        ),
+    })
+  }
+}
+
 function sortObject(
   t,
   {
@@ -211,6 +245,7 @@ export const macro = {
   sortObject,
   asItIs,
   sortObjectAlphabetically,
+  sortObjectWithRangeAlphabetically,
   testCLI,
   uniqueArray,
   uniqueAndSort,
