@@ -14,12 +14,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
 
-      # https://github.com/bahmutov/npm-install/issues/103#issuecomment-931226602
-      - name: Update NPM
-        run: npm install --global npm
-
       - name: Install dependencies
-        run: npm ci
+        run: npm i
 
       - name: Release
         env:
