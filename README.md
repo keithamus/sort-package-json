@@ -97,6 +97,12 @@ To read from `stdin` and output the result to `stdout` use the `--stdin` flag.
 $ cat package.json | sort-package-json --stdin
 ```
 
+This can, for instance, be used to generate a diff before changing `package.json`.
+
+```bash
+$ ( PKG="./package.json" ; cat "${PKG?}" | sort-package-json --stdin | diff "${PKG?}" - ; )
+```
+
 ## API
 
 ### Install
