@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { globbySync } from 'globby'
+import { globSync } from 'tinyglobby'
 import fs from 'node:fs'
 import getStdin from 'get-stdin'
 import sortPackageJson from './index.js'
@@ -44,7 +44,7 @@ function sortPackageJsonFile(file, reporter, isCheck) {
 }
 
 function sortPackageJsonFiles(patterns, options) {
-  const files = globbySync(patterns)
+  const files = globSync(patterns)
   const reporter = new Reporter(files, options)
   const { isCheck } = options
 
