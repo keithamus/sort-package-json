@@ -6,7 +6,7 @@ interface Options {
   readonly sortOrder?: readonly string[] | ComparatorFunction
 }
 
-interface SortPackageJson {
+export interface SortPackageJson {
   /**
    * Sort packageJson object.
    *
