@@ -77,7 +77,7 @@ const sortObjectBySemver = sortObjectBy((a, b) => {
   const { name: bName, range: bRange } = parseNameAndVersionRange(b)
 
   if (aName !== bName) {
-    return aName.localeCompare(bName)
+    return aName > bName ? 1 : -1
   }
   if (!aRange) {
     return -1

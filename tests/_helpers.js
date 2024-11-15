@@ -53,8 +53,8 @@ function sortObjectAlphabetically(t, options = {}) {
   for (let depth = 1; depth < maxDepth + 1; depth++) {
     sortObject(t, {
       ...options,
-      value: keysToObject(['z', 'a'], depth),
-      expect: expect || keysToObject(['a', 'z'], depth),
+      value: keysToObject(['z', 'e', 'ch', 'a'], depth),
+      expect: expect || keysToObject(['a', 'ch', 'e', 'z'], depth),
     })
   }
 }
@@ -73,6 +73,10 @@ function sortObjectWithRangeAlphabetically(t, options = {}) {
           '@a-package@1.2.3',
           'b-package@1.2.3',
           '@b-package',
+          '@e-package@1.2.3',
+          '@ch-package@1.2.3',
+          'e-package@1.2.3',
+          'ch-package@1.2.3',
         ],
         depth,
       ),
@@ -82,10 +86,14 @@ function sortObjectWithRangeAlphabetically(t, options = {}) {
           [
             '@a-package@1.2.3',
             '@b-package',
+            '@ch-package@1.2.3',
+            '@e-package@1.2.3',
             '@z-package@1.2.3',
             'b-package@1.2.3',
             'b-package-package@1.2.3',
             'c-package@1.2.3',
+            'ch-package@1.2.3',
+            'e-package@1.2.3',
           ],
           depth,
         ),
