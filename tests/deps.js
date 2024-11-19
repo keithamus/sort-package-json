@@ -44,3 +44,10 @@ test('dependenciesMetaRange', macro.sortObjectWithRangeAlphabetically, {
   // TODO: don't use snapshot, find a esaier way for review
   expect: 'snapshot',
 })
+
+test('pnpm.overrides', macro.sortObjectWithRangeAlphabetically, {
+  path: 'pnpm.overrides',
+  maxDepth: 2,
+  // TODO: don't use snapshot, find a esaier way for review
+  expect: 'snapshot',
+})
