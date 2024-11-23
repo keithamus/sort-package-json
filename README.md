@@ -59,6 +59,8 @@ CLI also supports multi file paths or [`glob`](https://github.com/sindresorhus/g
 $ sort-package-json "my-package/package.json" "other-package/package.json"
 
 $ sort-package-json "package.json" "packages/*/package.json"
+
+$ sort-package-json "package.json" "packages/*/package.json" --ignore "packages/one-package"
 ```
 
 #### `--check` flag

@@ -500,3 +500,8 @@ test('run `cli --stdin` with input from stdin with \\r\\n', macro.testCLI, {
   message: 'The line feed should be CRLF in output',
   stdin: `{\r\n  "description": "Description",\r\n  "name": "Name"\r\n}\r\n`,
 })
+
+test('run `cli --ignore=abc`', macro.testCLI, {
+  args: ['--ignore=abc'],
+  message: 'Should not fail on adding ignore pattern',
+})

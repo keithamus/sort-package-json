@@ -23,6 +23,7 @@ If file/glob is omitted, './package.json' file will be processed.
   -c, --check   Check if files are sorted
   -q, --quiet   Don't output success messages
   -h, --help    Display this help
+  -i, --ignore  An array of glob patterns to ignore
   -v, --version Display the package version
   --stdin       Read package.json from stdin
   `,
@@ -43,11 +44,13 @@ function sortPackageJsonFile(file, reporter, isCheck) {
   reporter.reportChanged(file)
 }
 
-function sortPackageJsonFiles(patterns, options) {
-  const files = globSync(patterns)
+function sortPackageJsonFiles(patterns, { ignore, ...options }) {
+  performance.mark('start')
+  const files = globSync(patterns, { ignore })
   const reporter = new Reporter(files, options)
   const { isCheck } = options
 
+  performance.mark('sorting')
   for (const file of files) {
     try {
       sortPackageJsonFile(file, reporter, isCheck)
@@ -55,8 +58,15 @@ function sortPackageJsonFiles(patterns, options) {
       reporter.reportFailed(file, error)
     }
   }
-
+  performance.mark('finish')
   reporter.printSummary()
+  if (process.env.DEBUG) {
+    console.log([
+      performance.measure('Glob Search', 'start', 'sorting'),
+      performance.measure('Sorting', 'sorting', 'finish'),
+      performance.measure('Total', 'start', 'finish'),
+    ])
+  }
 }
 
 async function sortPackageJsonFromStdin() {
@@ -64,7 +74,10 @@ async function sortPackageJsonFromStdin() {
 }
 
 function run() {
-  const cliArguments = process.argv.slice(2)
+  const cliArguments = process.argv
+    .slice(2)
+    .map((arg) => arg.split('='))
+    .flat()
 
   if (
     cliArguments.some((argument) => argument === '--help' || argument === '-h')
@@ -85,14 +98,22 @@ function run() {
   }
 
   const patterns = []
+  const ignore = []
   let isCheck = false
   let shouldBeQuiet = false
 
+  let lastArg
   for (const argument of cliArguments) {
+    if (lastArg === '--ignore' || lastArg === '-i') {
+      ignore.push(argument)
+      continue
+    }
     if (argument === '--check' || argument === '-c') {
       isCheck = true
     } else if (argument === '--quiet' || argument === '-q') {
       shouldBeQuiet = true
+    } else if (argument === '--ignore' || argument === '-i') {
+      lastArg = argument
     } else {
       patterns.push(argument)
     }
@@ -102,7 +123,11 @@ function run() {
     patterns[0] = 'package.json'
   }
 
-  sortPackageJsonFiles(patterns, { isCheck, shouldBeQuiet })
+  if (!ignore.length) {
+    ignore[0] = 'node_modules'
+  }
+
+  sortPackageJsonFiles(patterns, { ignore, isCheck, shouldBeQuiet })
 }
 
 run()
