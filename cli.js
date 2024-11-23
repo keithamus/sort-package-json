@@ -96,6 +96,7 @@ function run() {
   for (const argument of cliArguments) {
     if (lastArg === '--ignore' || lastArg === '-i') {
       ignore.push(argument)
+      lastArg = undefined
       continue
     }
     if (argument === '--check' || argument === '-c') {
