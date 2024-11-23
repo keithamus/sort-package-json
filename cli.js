@@ -45,12 +45,10 @@ function sortPackageJsonFile(file, reporter, isCheck) {
 }
 
 function sortPackageJsonFiles(patterns, { ignore, ...options }) {
-  performance.mark('start')
   const files = globSync(patterns, { ignore })
   const reporter = new Reporter(files, options)
   const { isCheck } = options
 
-  performance.mark('sorting')
   for (const file of files) {
     try {
       sortPackageJsonFile(file, reporter, isCheck)
@@ -58,15 +56,7 @@ function sortPackageJsonFiles(patterns, { ignore, ...options }) {
       reporter.reportFailed(file, error)
     }
   }
-  performance.mark('finish')
   reporter.printSummary()
-  if (process.env.DEBUG) {
-    console.log([
-      performance.measure('Glob Search', 'start', 'sorting'),
-      performance.measure('Sorting', 'sorting', 'finish'),
-      performance.measure('Total', 'start', 'finish'),
-    ])
-  }
 }
 
 async function sortPackageJsonFromStdin() {
