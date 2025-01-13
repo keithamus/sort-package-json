@@ -85,3 +85,46 @@ for (const field of ['scripts', 'betterScripts']) {
     },
   })
 }
+
+for (const field of ['scripts', 'betterScripts']) {
+  test(`${field} sort pre/post scripts with colon together`, macro.sortObject, {
+    value: {
+      [field]: {
+        prebuild: 'run-s prebuild:*',
+        build: 'run-s build:*',
+        postbuild: 'run-s prebuild:*',
+        'build:bar': 'node bar.js',
+        'build:baz': 'node baz.js',
+        'build:foo': 'node foo.js',
+        'd-unrelated': '..',
+        'e-unrelated': '..',
+        'f-unrelated': '..',
+        'postbuild:1': 'node prebuild.js 1',
+        'postbuild:2': 'node prebuild.js 2',
+        'postbuild:3': 'node prebuild.js 3',
+        'prebuild:1': 'node prebuild.js 1',
+        'prebuild:2': 'node prebuild.js 2',
+        'prebuild:3': 'node prebuild.js 3',
+      },
+    },
+    expect: {
+      [field]: {
+        prebuild: 'run-s prebuild:*',
+        'prebuild:1': 'node prebuild.js 1',
+        'prebuild:2': 'node prebuild.js 2',
+        'prebuild:3': 'node prebuild.js 3',
+        build: 'run-s build:*',
+        'build:bar': 'node bar.js',
+        'build:baz': 'node baz.js',
+        'build:foo': 'node foo.js',
+        postbuild: 'run-s prebuild:*',
+        'postbuild:1': 'node prebuild.js 1',
+        'postbuild:2': 'node prebuild.js 2',
+        'postbuild:3': 'node prebuild.js 3',
+        'd-unrelated': '..',
+        'e-unrelated': '..',
+        'f-unrelated': '..',
+      },
+    },
+  })
+}
