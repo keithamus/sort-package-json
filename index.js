@@ -343,6 +343,7 @@ const fields = [
   },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
+  /* vscode */ { key: 'l10n' },
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents', over: uniq },
   { key: 'husky', over: overProperty('hooks', sortGitHooks) },
