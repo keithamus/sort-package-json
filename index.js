@@ -284,7 +284,7 @@ const fields = [
   { key: 'name' },
   /* vscode */ { key: 'displayName' },
   { key: 'version' },
-  { key: 'stableVersion' },
+  /* yarn */ { key: 'stableVersion' },
   { key: 'private' },
   { key: 'description' },
   /* vscode */ { key: 'categories', over: uniq },
