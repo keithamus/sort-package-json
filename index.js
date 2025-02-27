@@ -270,6 +270,166 @@ const sortScripts = onObject((scripts, packageJson) => {
   return sortObjectKeys(scripts, order)
 })
 
+/**
+ * Sorts an array in relative terms defined by the `order`
+ *
+ * The effect of relative sort is that keys not in the `order` will be kept
+ * in the order they were in the original array unless it is shifted to
+ * accommodate a key in the `order`
+ */
+const relativeOrderSort = (list, order) => {
+  const orderMap = new Map(order.map((key, index) => [key, index]))
+  let closestIndex = 0
+  for (const item of list) {
+    if (orderMap.has(item)) {
+      closestIndex = orderMap.get(item)
+    } else {
+      orderMap.set(item, closestIndex)
+    }
+  }
+  return list.sort((a, b) => {
+    const aIndex = orderMap.get(a)
+    const bIndex = orderMap.get(b)
+    return aIndex - bIndex
+  })
+}
+
+const withLastKey = (keyName, { [keyName]: keyValue, ...rest }) => ({
+  ...rest,
+  [keyName]: keyValue,
+})
+
+const sortConditionObject = (conditionObject) => {
+  const bundler = [
+    'vite',
+    'rollup',
+    'webpack',
+
+    /**
+     * Bun is a target environment and a bundler
+     * so it must come before other target environments
+     * and reference syntaxes
+     */
+    // bun
+    'bun',
+    'macro',
+
+    /**
+     * Deno is a target environment and a bundler
+     * so it must come before other target environments
+     * and reference syntaxes
+     */
+    'deno',
+  ]
+
+  const implementationVariants = ['react-server']
+
+  const referenceSyntax = [
+    /**
+     * 'types' condition must come before `import` or `require`, as typescript
+     * will use those if encountered first.
+     */
+    'types',
+
+    /**
+     * 'script' condition must come before 'module' condition, as 'script'
+     * may also be used by bundlers but in more specific conditions than
+     * 'module'
+     */
+    'script',
+    'esmodules',
+    /**
+     * 'module' condition must come before 'import'. import may include pure node ESM modules
+     * that are only compatible with node environments, while 'module' may be
+     * used by bundlers and leverage other bundler features
+     */
+    'module',
+    'import',
+    'require',
+    'style',
+    'stylus',
+    'sass',
+    'asset',
+  ]
+
+  const targetEnvironment = [
+    'browser',
+    'electron',
+    'node',
+    'react-native',
+    'worker',
+    'worklet',
+  ]
+
+  const environment = ['development', 'test', 'production']
+
+  const order = relativeOrderSort(Object.keys(conditionObject), [
+    /**
+     * Bundler conditions are generally more important than other conditions
+     * because they leverage code that will not work outside of the
+     * bundler environment
+     */
+    ...bundler,
+    /**
+     * Implementation variants need to be placed before "reference syntax" and
+     * "target environments" because similar to "bundler" conditions,
+     * they only work in specific environments and may expose code overrides
+     * for any of the conditions in "reference syntax" and "target environments"
+     */
+    ...implementationVariants,
+    ...referenceSyntax,
+    ...targetEnvironment,
+    ...environment,
+  ])
+  return withLastKey('default', sortObjectKeys(conditionObject, order))
+}
+
+const sortPathLikeObjectWithWildcards = onObject((object) => {
+  // Replace all '*' with the highest possible unicode character
+  // To force all wildcards to be at the end, but relative to
+  // the path they are in
+  const wildcard = '\u{10FFFF}'
+  const sortableWildcardPaths = new Map()
+  const sortablePath = (path) => {
+    if (sortableWildcardPaths.has(path)) return sortableWildcardPaths.get(path)
+    const wildcardWeightedPath = path.replace(/\*/g, wildcard)
+    sortableWildcardPaths.set(path, wildcardWeightedPath)
+    return wildcardWeightedPath
+  }
+  return sortObjectKeys(object, (a, b) => {
+    return sortablePath(a).localeCompare(sortablePath(b))
+  })
+})
+
+const sortExportsOrImports = onObject((exportOrImports) => {
+  const exportsWithSortedChildren = Object.fromEntries(
+    Object.entries(exportOrImports).map(([key, value]) => {
+      return [key, sortExportsOrImports(value)]
+    }),
+  )
+
+  const keys = Object.keys(exportsWithSortedChildren)
+  let isConditionObject = true
+  let isPathLikeObject = true
+  for (const key of keys) {
+    const keyIsPathLike = key.startsWith('.') || key.startsWith('#')
+
+    isConditionObject &&= !keyIsPathLike
+    isPathLikeObject &&= keyIsPathLike
+  }
+
+  if (isConditionObject) {
+    return sortConditionObject(exportsWithSortedChildren)
+  }
+
+  if (isPathLikeObject) {
+    return sortPathLikeObjectWithWildcards(exportsWithSortedChildren)
+  }
+
+  // Object is improperly formatted. Leave it alone
+  return exportOrImports
+})
+
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
 // Supported fields:
@@ -306,8 +466,8 @@ const fields = [
   /* vscode */ { key: 'publisher' },
   { key: 'sideEffects' },
   { key: 'type' },
-  { key: 'imports' },
-  { key: 'exports' },
+  { key: 'imports', over: sortExportsOrImports },
+  { key: 'exports', over: sortExportsOrImports },
   { key: 'main' },
   { key: 'svelte' },
   { key: 'umd:main' },
