@@ -294,10 +294,13 @@ const relativeOrderSort = (list, order) => {
   })
 }
 
-const withLastKey = (keyName, { [keyName]: keyValue, ...rest }) => ({
-  ...rest,
-  [keyName]: keyValue,
-})
+const withLastKey = (keyName, { [keyName]: keyValue, ...rest }) =>
+  typeof keyValue !== 'undefined'
+    ? {
+        ...rest,
+        [keyName]: keyValue,
+      }
+    : rest
 
 const sortConditionObject = (conditionObject) => {
   const bundler = [
