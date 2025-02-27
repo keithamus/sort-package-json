@@ -310,7 +310,6 @@ const sortConditionObject = (conditionObject) => {
      * so it must come before other target environments
      * and reference syntaxes
      */
-    // bun
     'bun',
     'macro',
 
