@@ -416,8 +416,8 @@ const sortExportsOrImports = onObject((exportOrImports) => {
   for (const key of keys) {
     const keyIsPathLike = key.startsWith('.') || key.startsWith('#')
 
-    isConditionObject &&= !keyIsPathLike
-    isPathLikeObject &&= keyIsPathLike
+    isConditionObject = isConditionObject && !keyIsPathLike
+    isPathLikeObject = isPathLikeObject && keyIsPathLike
   }
 
   if (isConditionObject) {
