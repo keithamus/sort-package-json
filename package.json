@@ -91,8 +91,8 @@
     "tinyglobby": "^0.2.9"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.1.2",
-    "@commitlint/config-conventional": "^17.1.0",
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
     "ava": "^4.3.3",
     "del": "^7.0.0",
     "dot-prop": "^7.2.0",
