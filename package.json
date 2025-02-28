@@ -41,7 +41,7 @@
   ],
   "scripts": {
     "build": "esbuild index.js --bundle --platform=node --alias:git-hooks-list=./git-hooks-list_shim.cjs --outfile=./cjs/index.js && ncp package.cjs.json ./cjs/package.json",
-    "fix": "eslint . --fix && prettier . \"!**/*.js\" --write && node cli.js \"package.json\"",
+    "fix": "eslint . --fix && prettier . --write && node cli.js \"package.json\"",
     "lint": "eslint . && prettier . \"!**/*.js\" --check && node cli.js \"package.json\" --check",
     "prepare": "husky install",
     "prepublishOnly": "npm run build",
