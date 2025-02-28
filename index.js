@@ -386,7 +386,6 @@ const sortConditionObject = (conditionObject) => {
      *  - 'require'
      *  - 'node'
      *  - 'browser'
-     *  - 'deno'
      *
      * and any other environment condition that can be targeted by typescript
      */
