@@ -303,7 +303,7 @@ const withLastKey = (keyName, { [keyName]: keyValue, ...rest }) =>
     : rest
 
 const sortConditionObject = (conditionObject) => {
-  const bundler = [
+  const bundlerConditions = [
     'vite',
     'rollup',
     'webpack',
@@ -319,20 +319,21 @@ const sortConditionObject = (conditionObject) => {
     /**
      * Deno is a target environment and a bundler
      * so it must come before other target environments
-     * and reference syntaxes
+     * and reference syntaxes.
+     *
+     * It also must come before typescript conditions since deno
+     * can perform its own type checking (without using tsc) using
+     * this condition, and it will require different types if using
+     * deno specific APIs.
      */
     'deno',
   ]
 
-  const implementationVariants = ['react-server']
+  const typescriptConditions = ['types']
 
-  const referenceSyntax = [
-    /**
-     * 'types' condition must come before `import` or `require`, as typescript
-     * will use those if encountered first.
-     */
-    'types',
+  const implementationVariantConditions = ['react-server']
 
+  const referenceSyntaxConditions = [
     /**
      * 'script' condition must come before 'module' condition, as 'script'
      * may also be used by bundlers but in more specific conditions than
@@ -346,6 +347,7 @@ const sortConditionObject = (conditionObject) => {
      * used by bundlers and leverage other bundler features
      */
     'module',
+    'module-sync',
     'import',
     'require',
     'style',
@@ -354,7 +356,7 @@ const sortConditionObject = (conditionObject) => {
     'asset',
   ]
 
-  const targetEnvironment = [
+  const targetEnvironmentConditions = [
     'browser',
     'electron',
     'node',
@@ -363,25 +365,40 @@ const sortConditionObject = (conditionObject) => {
     'worklet',
   ]
 
-  const environment = ['development', 'test', 'production']
+  const environmentConditions = ['test', 'development', 'production']
 
   const order = relativeOrderSort(Object.keys(conditionObject), [
+    /**
+     * Environment conditions at the top as they are generally used to override
+     * default behavior based on the environment
+     */
+    ...environmentConditions,
     /**
      * Bundler conditions are generally more important than other conditions
      * because they leverage code that will not work outside of the
      * bundler environment
      */
-    ...bundler,
+    ...bundlerConditions,
+    /**
+     * Typescript conditions must come before
+     *  - 'import'
+     *  - 'require'
+     *  - 'node'
+     *  - 'browser'
+     *  - 'deno'
+     *
+     * and any other environment condition that can be targeted by typescript
+     */
+    ...typescriptConditions,
     /**
      * Implementation variants need to be placed before "reference syntax" and
      * "target environments" because similar to "bundler" conditions,
      * they only work in specific environments and may expose code overrides
      * for any of the conditions in "reference syntax" and "target environments"
      */
-    ...implementationVariants,
-    ...referenceSyntax,
-    ...targetEnvironment,
-    ...environment,
+    ...implementationVariantConditions,
+    ...targetEnvironmentConditions,
+    ...referenceSyntaxConditions,
   ])
   return withLastKey('default', sortObjectKeys(conditionObject, order))
 }
