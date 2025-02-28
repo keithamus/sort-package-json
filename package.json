@@ -40,7 +40,7 @@
     "reporter.js"
   ],
   "scripts": {
-    "build": "esbuild index.js --bundle --platform=node --alias:git-hooks-list=./git-hooks-list_shim.cjs --outfile=./cjs/index.js && ncp package.cjs.json ./cjs/package.json",
+    "build": "esbuild index.js --bundle --platform=node --outfile=./cjs/index.js && ncp package.cjs.json ./cjs/package.json",
     "fix": "eslint . --fix && prettier . \"!**/*.js\" --write && node cli.js \"package.json\"",
     "lint": "eslint . && prettier . \"!**/*.js\" --check && node cli.js \"package.json\" --check",
     "prepare": "husky install",
@@ -84,7 +84,7 @@
     "detect-indent": "^7.0.1",
     "detect-newline": "^4.0.0",
     "get-stdin": "^9.0.0",
-    "git-hooks-list": "^3.0.0",
+    "git-hooks-list": "^4.0.0",
     "is-plain-obj": "^4.1.0",
     "semver": "^7.6.0",
     "sort-object-keys": "^1.1.3",
