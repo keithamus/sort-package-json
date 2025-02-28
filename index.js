@@ -313,8 +313,8 @@ const sortConditionObject = (conditionObject) => {
      * so it must come before other target environments
      * and reference syntaxes
      */
-    'bun',
     'macro',
+    'bun',
 
     /**
      * Deno is a target environment and a bundler
