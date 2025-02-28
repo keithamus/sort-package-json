@@ -347,9 +347,9 @@ const sortConditionObject = (conditionObject) => {
      * used by bundlers and leverage other bundler features
      */
     'module',
-    'module-sync',
     'import',
     'require',
+    'module-sync',
     'style',
     'stylus',
     'sass',
@@ -359,6 +359,7 @@ const sortConditionObject = (conditionObject) => {
   const targetEnvironmentConditions = [
     'browser',
     'electron',
+    'node-addons',
     'node',
     'react-native',
     'worker',
