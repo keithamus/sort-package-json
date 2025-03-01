@@ -14,10 +14,6 @@ jobs:
         node_version:
           - '22'
           - '20'
-          - '18'
-          - '16'
-          - '14'
-          - '12'
     name: Node.js ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
