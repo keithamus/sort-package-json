@@ -67,14 +67,14 @@ function sortObjectWithRangeAlphabetically(t, options = {}) {
       ...options,
       value: keysToObject(
         [
-          '@z-package@1.2.3',
+          '@z-package/package@1.2.3',
           'c-package@1.2.3',
           'b-package-package@1.2.3',
-          '@a-package@1.2.3',
+          '@a-package/package@1.2.3',
           'b-package@1.2.3',
-          '@b-package',
-          '@e-package@1.2.3',
-          '@ch-package@1.2.3',
+          '@b-package/package',
+          '@e-package/package@1.2.3',
+          '@ch-package/package@1.2.3',
           'e-package@1.2.3',
           'ch-package@1.2.3',
         ],
@@ -84,11 +84,11 @@ function sortObjectWithRangeAlphabetically(t, options = {}) {
         expect ||
         keysToObject(
           [
-            '@a-package@1.2.3',
-            '@b-package',
-            '@ch-package@1.2.3',
-            '@e-package@1.2.3',
-            '@z-package@1.2.3',
+            '@a-package/package@1.2.3',
+            '@b-package/package',
+            '@ch-package/package@1.2.3',
+            '@e-package/package@1.2.3',
+            '@z-package/package@1.2.3',
             'b-package@1.2.3',
             'b-package-package@1.2.3',
             'c-package@1.2.3',
