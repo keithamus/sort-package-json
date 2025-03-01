@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { execFile } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { getProperty, setProperty } from 'dot-prop'
-import tempy from 'tempy'
+import * as tempy from 'tempy'
 import makeDir from 'make-dir'
 import { deleteSync } from 'del'
 import sortPackageJson from '../index.js'
@@ -163,7 +163,7 @@ function asItIs(t, { path, options }, excludeTypes = []) {
 }
 
 async function testCLI(t, { fixtures = [], args, message, stdin }) {
-  const cwd = tempy.directory()
+  const cwd = tempy.temporaryDirectory()
 
   fixtures = fixtures.map(({ file = 'package.json', content, expect }) => {
     const absolutePath = path.join(cwd, file)
