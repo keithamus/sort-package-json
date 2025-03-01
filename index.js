@@ -302,6 +302,14 @@ const withLastKey = (keyName, { [keyName]: keyValue, ...rest }) =>
       }
     : rest
 
+const withFirstKey = (keyName, { [keyName]: keyValue, ...rest }) =>
+  typeof keyValue !== 'undefined'
+    ? {
+        [keyName]: keyValue,
+        ...rest,
+      }
+    : rest
+
 const sortConditionObject = (conditionObject) => {
   /**
    * Sources:
@@ -312,8 +320,6 @@ const sortConditionObject = (conditionObject) => {
    * - Bun macro condition: https://bun.sh/docs/bundler/macros#export-condition-macro
    */
   const bundlerConditions = ['vite', 'rollup', 'webpack']
-
-  const typescriptConditions = ['types']
 
   const serverVariantConditions = ['react-server']
   const edgeConditions = [
@@ -328,6 +334,7 @@ const sortConditionObject = (conditionObject) => {
   ]
 
   const referenceSyntaxConditions = [
+    'svelte',
     'asset',
     'sass',
     'stylus',
@@ -355,13 +362,13 @@ const sortConditionObject = (conditionObject) => {
   ]
 
   const targetEnvironmentConditions = [
-    'browser',
     /**
      * bun macro condition must come before 'bun'
      */
     'macro',
     'bun',
     'deno',
+    'browser',
     'electron',
     'kiesel', // https://runtime-keys.proposal.wintercg.org/#kiesel
     'node-addons',
@@ -380,16 +387,6 @@ const sortConditionObject = (conditionObject) => {
      * default behavior based on the environment
      */
     ...environmentConditions,
-    /**
-     * Typescript conditions must come before
-     *  - 'import'
-     *  - 'require'
-     *  - 'node'
-     *  - 'browser'
-     *
-     * and any other environment condition that can be targeted by typescript
-     */
-    ...typescriptConditions,
     /**
      * Bundler conditions are generally more important than other conditions
      * because they leverage code that will not work outside of the
@@ -411,7 +408,10 @@ const sortConditionObject = (conditionObject) => {
     ...targetEnvironmentConditions,
     ...referenceSyntaxConditions,
   ])
-  return withLastKey('default', sortObjectKeys(conditionObject, order))
+  return withFirstKey(
+    'types',
+    withLastKey('default', sortObjectKeys(conditionObject, order)),
+  )
 }
 
 const sortPathLikeObjectWithWildcards = onObject((object) => {
