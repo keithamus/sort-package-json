@@ -6,6 +6,7 @@ import isPlainObject from 'is-plain-obj'
 import semver from 'semver'
 
 const hasOwn =
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- will enable later
   Object.hasOwn ||
   // TODO: Remove this when we drop supported for Node.js v14
   ((object, property) => Object.prototype.hasOwnProperty.call(object, property))
@@ -13,7 +14,7 @@ const pipe =
   (fns) =>
   (x, ...args) =>
     fns.reduce((result, fn) => fn(result, ...args), x)
-const onArray = (fn) => (x) => Array.isArray(x) ? fn(x) : x
+const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => [...new Set(xs)])
@@ -248,24 +249,9 @@ const sortScripts = onObject((scripts, packageJson) => {
     keys.sort()
   }
 
-  const scriptsKeyMap = new Map()
-
-  keys
-    .flatMap((key) =>
-      prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-    )
-    .forEach((key) => {
-      const [prefix] = key.split(':')
-      const keySet = scriptsKeyMap.has(prefix)
-        ? scriptsKeyMap.get(prefix)
-        : new Set()
-      scriptsKeyMap.set(prefix, keySet.add(key))
-    })
-
-  const order = [...scriptsKeyMap.values()].flat().reduce((keys, keySet) => {
-    keys.push(...keySet)
-    return keys
-  }, [])
+  const order = keys.flatMap((key) =>
+    prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+  )
 
   return sortObjectKeys(scripts, order)
 })
