@@ -318,9 +318,9 @@ const sortConditionObject = (conditionObject) => {
   const serverVariantConditions = ['react-server']
   const edgeConditions = [
     'azion',
+    'edge-light',
     'edge-routine',
     'fastly',
-    'edge-light',
     'lagon',
     'netlify',
     'wasmer',
