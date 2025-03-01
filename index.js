@@ -289,7 +289,7 @@ const relativeOrderSort = (list, order) => {
     }
     return []
   })
-  const sortedIndexes = indexes.toSorted((a, b) => {
+  const sortedIndexes = [...indexes].sort((a, b) => {
     const aIndex = orderMap.get(list[a])
     const bIndex = orderMap.get(list[b])
     return aIndex - bIndex
