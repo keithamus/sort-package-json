@@ -249,24 +249,9 @@ const sortScripts = onObject((scripts, packageJson) => {
     keys.sort()
   }
 
-  const scriptsKeyMap = new Map()
-
-  keys
-    .flatMap((key) =>
-      prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-    )
-    .forEach((key) => {
-      const [prefix] = key.split(':')
-      const keySet = scriptsKeyMap.has(prefix)
-        ? scriptsKeyMap.get(prefix)
-        : new Set()
-      scriptsKeyMap.set(prefix, keySet.add(key))
-    })
-
-  const order = [...scriptsKeyMap.values()].flat().reduce((keys, keySet) => {
-    keys.push(...keySet)
-    return keys
-  }, [])
+  const order = keys.flatMap((key) =>
+    prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+  )
 
   return sortObjectKeys(scripts, order)
 })
