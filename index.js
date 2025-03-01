@@ -6,6 +6,7 @@ import isPlainObject from 'is-plain-obj'
 import semver from 'semver'
 
 const hasOwn =
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- will enable later
   Object.hasOwn ||
   // TODO: Remove this when we drop supported for Node.js v14
   ((object, property) => Object.prototype.hasOwnProperty.call(object, property))
@@ -13,7 +14,7 @@ const pipe =
   (fns) =>
   (x, ...args) =>
     fns.reduce((result, fn) => fn(result, ...args), x)
-const onArray = (fn) => (x) => Array.isArray(x) ? fn(x) : x
+const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => [...new Set(xs)])
@@ -89,23 +90,17 @@ const sortObjectBySemver = sortObjectBy((a, b) => {
 })
 
 const getPackageName = (ident) => {
-  const parts = ident.split('@')
-
-  if (ident.startsWith('@')) {
-    // Handle cases where package name starts with '@'
-    return parts.length > 2 ? parts.slice(0, -1).join('@') : ident
-  }
-
-  // Handle cases where package name doesn't start with '@'
-  return parts.length > 1 ? parts.slice(0, -1).join('@') : ident
+  const index = ident.indexOf('@', ident.startsWith('@') ? 1 : 0)
+  // This should not happen, unless user manually edit the package.json file
+  return index === -1 ? ident : ident.slice(0, index)
 }
 
 const sortObjectByIdent = (a, b) => {
-  const PackageNameA = getPackageName(a)
-  const PackageNameB = getPackageName(b)
+  const packageNameA = getPackageName(a)
+  const packageNameB = getPackageName(b)
 
-  if (PackageNameA < PackageNameB) return -1
-  if (PackageNameA > PackageNameB) return 1
+  if (packageNameA < packageNameB) return -1
+  if (packageNameA > packageNameB) return 1
   return 0
 }
 
@@ -248,24 +243,9 @@ const sortScripts = onObject((scripts, packageJson) => {
     keys.sort()
   }
 
-  const scriptsKeyMap = new Map()
-
-  keys
-    .flatMap((key) =>
-      prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
-    )
-    .forEach((key) => {
-      const [prefix] = key.split(':')
-      const keySet = scriptsKeyMap.has(prefix)
-        ? scriptsKeyMap.get(prefix)
-        : new Set()
-      scriptsKeyMap.set(prefix, keySet.add(key))
-    })
-
-  const order = [...scriptsKeyMap.values()].flat().reduce((keys, keySet) => {
-    keys.push(...keySet)
-    return keys
-  }, [])
+  const order = keys.flatMap((key) =>
+    prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
+  )
 
   return sortObjectKeys(scripts, order)
 })
