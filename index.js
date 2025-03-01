@@ -303,37 +303,35 @@ const withLastKey = (keyName, { [keyName]: keyValue, ...rest }) =>
     : rest
 
 const sortConditionObject = (conditionObject) => {
-  const bundlerConditions = [
-    'vite',
-    'rollup',
-    'webpack',
-
-    /**
-     * Bun is a target environment and a bundler
-     * so it must come before other target environments
-     * and reference syntaxes
-     */
-    'macro',
-    'bun',
-
-    /**
-     * Deno is a target environment and a bundler
-     * so it must come before other target environments
-     * and reference syntaxes.
-     *
-     * It also must come before typescript conditions since deno
-     * can perform its own type checking (without using tsc) using
-     * this condition, and it will require different types if using
-     * deno specific APIs.
-     */
-    'deno',
-  ]
+  /**
+   * Sources:
+   * - WinterCG maintained list of standard runtime keys: https://runtime-keys.proposal.wintercg.org
+   * - Node.js conditional exports: https://nodejs.org/api/packages.html#conditional-exports
+   * - Webpack conditions: https://webpack.js.org/guides/package-exports/#conditions
+   * - Bun condition: https://bun.sh/docs/runtime/modules#importing-packages
+   * - Bun macro condition: https://bun.sh/docs/bundler/macros#export-condition-macro
+   */
+  const bundlerConditions = ['vite', 'rollup', 'webpack']
 
   const typescriptConditions = ['types']
 
-  const implementationVariantConditions = ['react-server']
+  const serverVariantConditions = ['react-server']
+  const edgeConditions = [
+    'azion',
+    'edge-routine',
+    'fastly',
+    'edge-light',
+    'lagon',
+    'netlify',
+    'wasmer',
+    'workerd',
+  ]
 
   const referenceSyntaxConditions = [
+    'asset',
+    'sass',
+    'stylus',
+    'style',
     /**
      * 'script' condition must come before 'module' condition, as 'script'
      * may also be used by bundlers but in more specific conditions than
@@ -348,19 +346,27 @@ const sortConditionObject = (conditionObject) => {
      */
     'module',
     'import',
-    'require',
+    /**
+     * `module-sync` condition must come before `require` condition and after
+     * `import`.
+     */
     'module-sync',
-    'style',
-    'stylus',
-    'sass',
-    'asset',
+    'require',
   ]
 
   const targetEnvironmentConditions = [
     'browser',
+    /**
+     * bun macro condition must come before 'bun'
+     */
+    'macro',
+    'bun',
+    'deno',
     'electron',
+    'kiesel', // https://runtime-keys.proposal.wintercg.org/#kiesel
     'node-addons',
     'node',
+    'moddable', // https://runtime-keys.proposal.wintercg.org/#moddable
     'react-native',
     'worker',
     'worklet',
@@ -375,12 +381,6 @@ const sortConditionObject = (conditionObject) => {
      */
     ...environmentConditions,
     /**
-     * Bundler conditions are generally more important than other conditions
-     * because they leverage code that will not work outside of the
-     * bundler environment
-     */
-    ...bundlerConditions,
-    /**
      * Typescript conditions must come before
      *  - 'import'
      *  - 'require'
@@ -391,12 +391,23 @@ const sortConditionObject = (conditionObject) => {
      */
     ...typescriptConditions,
     /**
-     * Implementation variants need to be placed before "reference syntax" and
+     * Bundler conditions are generally more important than other conditions
+     * because they leverage code that will not work outside of the
+     * bundler environment
+     */
+    ...bundlerConditions,
+    /**
+     * Edge runtimes are often variants of other target environments, so they must come
+     * before the target environment conditions
+     */
+    ...edgeConditions,
+    /**
+     * Server variants need to be placed before "reference syntax" and
      * "target environments" because similar to "bundler" conditions,
      * they only work in specific environments and may expose code overrides
      * for any of the conditions in "reference syntax" and "target environments"
      */
-    ...implementationVariantConditions,
+    ...serverVariantConditions,
     ...targetEnvironmentConditions,
     ...referenceSyntaxConditions,
   ])
