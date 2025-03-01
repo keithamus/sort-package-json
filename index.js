@@ -6,6 +6,7 @@ import isPlainObject from 'is-plain-obj'
 import semver from 'semver'
 
 const hasOwn =
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- will enable later
   Object.hasOwn ||
   // TODO: Remove this when we drop supported for Node.js v14
   ((object, property) => Object.prototype.hasOwnProperty.call(object, property))
@@ -13,7 +14,7 @@ const pipe =
   (fns) =>
   (x, ...args) =>
     fns.reduce((result, fn) => fn(result, ...args), x)
-const onArray = (fn) => (x) => Array.isArray(x) ? fn(x) : x
+const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => [...new Set(xs)])
