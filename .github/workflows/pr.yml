@@ -8,38 +8,29 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-latest"
-          # - "macos-latest"
-          # - "windows-latest"
+          - 'ubuntu-latest'
+          # - 'macos-latest'
+          # - 'windows-latest'
         node_version:
-          - "18"
-          - "16"
-          - "14"
-          - "12"
+          - '22'
+          - '20'
     name: Node.js ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
-
-      # https://github.com/bahmutov/npm-install/issues/103#issuecomment-931226602
-      - name: Update NPM
-        run: npm install --global npm@8
 
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run ESLint
-        if: matrix.node_version == '18'
+      - name: Lint
+        if: matrix.node_version == '22'
         run: npm run lint
-
-      - name: Check package.json
-        run: npm run sort-package-json
 
       - name: Run Tests
         run: npm run test-coverage

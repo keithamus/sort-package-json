@@ -60,6 +60,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | pre-commit            |                                                                                |
 | commitlint            | Key sort                                                                       |
 | lint-staged           |                                                                                |
+| nano-staged           |                                                                                |
 | config                | Key sort                                                                       |
 | nodemonConfig         | Key sort                                                                       |
 | browserify            | Key sort                                                                       |
@@ -78,6 +79,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | mocha                 | Key sort                                                                       |
 | nyc                   | Key sort                                                                       |
 | tap                   | Key sort                                                                       |
+| oclif                 | Key sort (deep)                                                                |
 | resolutions           | Key sort                                                                       |
 | dependencies          | Key sort                                                                       |
 | devDependencies       | Key sort                                                                       |
@@ -104,6 +106,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | galleryBanner         | Key sort                                                                       |
 | preview               |                                                                                |
 | markdown              |                                                                                |
+| pnpm                  | Key sort (deep)                                                                |
 
 ## Special Rules
 

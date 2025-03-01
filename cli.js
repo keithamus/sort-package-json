@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-import { globbySync } from 'globby'
+import { globSync } from 'tinyglobby'
 import fs from 'node:fs'
+// eslint-disable-next-line n/no-unsupported-features/node-builtins
 import { parseArgs } from 'node:util'
+import getStdin from 'get-stdin'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
 
@@ -23,7 +25,9 @@ If file/glob is omitted, './package.json' file will be processed.
   -c, --check   Check if files are sorted
   -q, --quiet   Don't output success messages
   -h, --help    Display this help
+  -i, --ignore  An array of glob patterns to ignore
   -v, --version Display the package version
+  --stdin       Read package.json from stdin
   `,
   )
 }
@@ -33,6 +37,13 @@ function parseCliArguments() {
     options: {
       check: { type: 'boolean', short: 'c', default: false },
       quiet: { type: 'boolean', short: 'q', default: false },
+      stdin: { type: 'boolean', default: false },
+      ignore: {
+        type: 'string',
+        short: 'i',
+        multiple: true,
+        default: ['node_modules/**'],
+      },
       version: { type: 'boolean', short: 'v', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
@@ -40,7 +51,7 @@ function parseCliArguments() {
     strict: true,
   })
 
-  if (!patterns.length) {
+  if (patterns.length === 0) {
     patterns[0] = 'package.json'
   }
 
@@ -61,8 +72,9 @@ function sortPackageJsonFile(file, reporter, isCheck) {
   reporter.reportChanged(file)
 }
 
-function sortPackageJsonFiles(patterns, options) {
-  const files = globbySync(patterns)
+function sortPackageJsonFiles(patterns, { ignore, ...options }) {
+  const files = globSync(patterns, { ignore })
+
   const reporter = new Reporter(files, options)
   const { isCheck } = options
 
@@ -73,8 +85,11 @@ function sortPackageJsonFiles(patterns, options) {
       reporter.reportFailed(file, error)
     }
   }
-
   reporter.printSummary()
+}
+
+async function sortPackageJsonFromStdin() {
+  process.stdout.write(sortPackageJson(await getStdin()))
 }
 
 function run() {
@@ -101,7 +116,12 @@ function run() {
     return showVersion()
   }
 
+  if (options.stdin) {
+    return sortPackageJsonFromStdin()
+  }
+
   sortPackageJsonFiles(patterns, {
+    ignore: options.ignore,
     isCheck: options.check,
     shouldBeQuiet: options.quiet,
   })

@@ -535,3 +535,20 @@ test('run `cli --quiet` on 1 non-json file', macro.testCLI, {
   args: ['*/package.json', '--quiet'],
   message: 'Should output error message',
 })
+
+test('run `cli --stdin` with input from stdin', macro.testCLI, {
+  args: ['--stdin'],
+  message: 'Should output sorted json',
+  stdin: `{\n  "description": "Description",\n  "name": "Name"\n}\n`,
+})
+
+test('run `cli --stdin` with input from stdin with \\r\\n', macro.testCLI, {
+  args: ['--stdin'],
+  message: 'The line feed should be CRLF in output',
+  stdin: `{\r\n  "description": "Description",\r\n  "name": "Name"\r\n}\r\n`,
+})
+
+test('run `cli --ignore=abc`', macro.testCLI, {
+  args: ['--ignore=abc'],
+  message: 'Should not fail on adding ignore pattern',
+})

@@ -3,8 +3,10 @@ import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
 import gitHooks from 'git-hooks-list'
 import isPlainObject from 'is-plain-obj'
+import semver from 'semver'
 
 const hasOwn =
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- will enable later
   Object.hasOwn ||
   // TODO: Remove this when we drop supported for Node.js v14
   ((object, property) => Object.prototype.hasOwnProperty.call(object, property))
@@ -12,7 +14,7 @@ const pipe =
   (fns) =>
   (x, ...args) =>
     fns.reduce((result, fn) => fn(result, ...args), x)
-const onArray = (fn) => (x) => Array.isArray(x) ? fn(x) : x
+const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => [...new Set(xs)])
@@ -53,6 +55,60 @@ const overProperty =
       ? { ...object, [property]: over(object[property], ...args) }
       : object
 const sortGitHooks = sortObjectBy(gitHooks)
+
+const parseNameAndVersionRange = (specifier) => {
+  // Ignore anything after > & rely on fallback alphanumeric sorting for that
+  const [nameAndVersion] = specifier.split('>')
+  const atMatches = [...nameAndVersion.matchAll('@')]
+  if (
+    !atMatches.length ||
+    (atMatches.length === 1 && atMatches[0].index === 0)
+  ) {
+    return { name: specifier }
+  }
+  const splitIndex = atMatches.pop().index
+  return {
+    name: nameAndVersion.substring(0, splitIndex),
+    range: nameAndVersion.substring(splitIndex + 1),
+  }
+}
+
+const sortObjectBySemver = sortObjectBy((a, b) => {
+  const { name: aName, range: aRange } = parseNameAndVersionRange(a)
+  const { name: bName, range: bRange } = parseNameAndVersionRange(b)
+
+  if (aName !== bName) {
+    return aName.localeCompare(bName, 'en')
+  }
+  if (!aRange) {
+    return -1
+  }
+  if (!bRange) {
+    return 1
+  }
+  return semver.compare(semver.minVersion(aRange), semver.minVersion(bRange))
+})
+
+const getPackageName = (ident) => {
+  const parts = ident.split('@')
+
+  if (ident.startsWith('@')) {
+    // Handle cases where package name starts with '@'
+    return parts.length > 2 ? parts.slice(0, -1).join('@') : ident
+  }
+
+  // Handle cases where package name doesn't start with '@'
+  return parts.length > 1 ? parts.slice(0, -1).join('@') : ident
+}
+
+const sortObjectByIdent = (a, b) => {
+  const PackageNameA = getPackageName(a)
+  const PackageNameB = getPackageName(b)
+
+  if (PackageNameA < PackageNameB) return -1
+  if (PackageNameA > PackageNameB) return 1
+  return 0
+}
 
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
 const eslintBaseConfigProperties = [
@@ -128,6 +184,29 @@ const sortPrettierConfig = onObject(
 
 const sortVolta = sortObjectBy(['node', 'npm', 'yarn'])
 
+const pnpmBaseConfigProperties = [
+  'peerDependencyRules',
+  'neverBuiltDependencies',
+  'onlyBuiltDependencies',
+  'onlyBuiltDependenciesFile',
+  'allowedDeprecatedVersions',
+  'allowNonAppliedPatches',
+  'updateConfig',
+  'auditConfig',
+  'requiredScripts',
+  'supportedArchitectures',
+  'overrides',
+  'patchedDependencies',
+  'packageExtensions',
+]
+
+const sortPnpmConfig = onObject(
+  pipe([
+    sortObjectBy(pnpmBaseConfigProperties, true),
+    overProperty('overrides', sortObjectBySemver),
+  ]),
+)
+
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
   'install',
@@ -163,7 +242,10 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
-  if (!hasDevDependency('npm-run-all', packageJson)) {
+  if (
+    !hasDevDependency('npm-run-all', packageJson) &&
+    !hasDevDependency('npm-run-all2', packageJson)
+  ) {
     keys.sort()
   }
 
@@ -188,6 +270,7 @@ const fields = [
   { key: 'name' },
   /* vscode */ { key: 'displayName' },
   { key: 'version' },
+  /* yarn */ { key: 'stableVersion' },
   { key: 'private' },
   { key: 'description' },
   /* vscode */ { key: 'categories', over: uniq },
@@ -247,6 +330,7 @@ const fields = [
   },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
+  /* vscode */ { key: 'l10n' },
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents', over: uniq },
   { key: 'husky', over: overProperty('hooks', sortGitHooks) },
@@ -254,6 +338,7 @@ const fields = [
   { key: 'pre-commit' },
   { key: 'commitlint', over: sortObject },
   { key: 'lint-staged' },
+  { key: 'nano-staged' },
   { key: 'config', over: sortObject },
   { key: 'nodemonConfig', over: sortObject },
   { key: 'browserify', over: sortObject },
@@ -277,10 +362,11 @@ const fields = [
   { key: 'nyc', over: sortObject },
   { key: 'c8', over: sortObject },
   { key: 'tap', over: sortObject },
+  { key: 'oclif', over: sortObjectBy(undefined, true) },
   { key: 'resolutions', over: sortObject },
   { key: 'dependencies', over: sortObject },
   { key: 'devDependencies', over: sortObject },
-  { key: 'dependenciesMeta', over: sortObjectBy(undefined, true) },
+  { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
   { key: 'peerDependencies', over: sortObject },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
@@ -307,6 +393,7 @@ const fields = [
   /* vscode */ { key: 'galleryBanner', over: sortObject },
   /* vscode */ { key: 'preview' },
   /* vscode */ { key: 'markdown' },
+  { key: 'pnpm', over: sortPnpmConfig },
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
@@ -318,12 +405,14 @@ const overFields = pipe(
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
-    const { indent } = detectIndent(json)
+    const { indent, type } = detectIndent(json)
     const endCharacters = json.slice(-1) === '\n' ? '\n' : ''
     const newline = detectNewline(json)
     json = JSON.parse(json)
 
-    let result = JSON.stringify(over(json), null, indent) + endCharacters
+    let result =
+      JSON.stringify(over(json), null, type === 'tab' ? '\t' : indent) +
+      endCharacters
     if (newline === '\r\n') {
       result = result.replace(/\n/g, newline)
     }
@@ -365,4 +454,4 @@ function sortPackageJson(jsonIsh, options = {}) {
 }
 
 export default sortPackageJson
-export { defaultSortOrder as sortOrder }
+export { sortPackageJson, defaultSortOrder as sortOrder }
