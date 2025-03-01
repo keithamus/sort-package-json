@@ -283,15 +283,24 @@ const relativeOrderSort = (list, order) => {
       return [key, index]
     }),
   )
-
-  return list.sort((a, b) => {
-    if (!orderMap.has(a) && !orderMap.has(b)) {
-      return 0
+  const indexes = list.flatMap((item, i) => {
+    if (orderMap.has(item)) {
+      return i
     }
-    const aIndex = orderMap.get(a)
-    const bIndex = orderMap.get(b)
+    return []
+  })
+  const sortedIndexes = indexes.toSorted((a, b) => {
+    const aIndex = orderMap.get(list[a])
+    const bIndex = orderMap.get(list[b])
     return aIndex - bIndex
   })
+
+  const copy = [...list]
+  sortedIndexes.forEach((desiredIndex, thisIndex) => {
+    copy[indexes[thisIndex]] = list[desiredIndex]
+  })
+
+  return copy
 }
 
 const withLastKey = (keyName, { [keyName]: keyValue, ...rest }) =>
