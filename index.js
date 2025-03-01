@@ -104,48 +104,6 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
-// https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
-const eslintBaseConfigProperties = [
-  // `files` and `excludedFiles` are only on `overrides[]`
-  // for easier sort `overrides[]`,
-  // add them to here, so we don't need sort `overrides[]` twice
-  'files',
-  'excludedFiles',
-  // baseConfig
-  'env',
-  'parser',
-  'parserOptions',
-  'settings',
-  'plugins',
-  'extends',
-  'rules',
-  'overrides',
-  'globals',
-  'processor',
-  'noInlineConfig',
-  'reportUnusedDisableDirectives',
-]
-const sortEslintConfig = onObject(
-  pipe([
-    sortObjectBy(eslintBaseConfigProperties),
-    overProperty('env', sortObject),
-    overProperty('globals', sortObject),
-    overProperty(
-      'overrides',
-      onArray((overrides) => overrides.map(sortEslintConfig)),
-    ),
-    overProperty('parserOptions', sortObject),
-    overProperty(
-      'rules',
-      sortObjectBy(
-        (rule1, rule2) =>
-          rule1.split('/').length - rule2.split('/').length ||
-          rule1.localeCompare(rule2),
-      ),
-    ),
-    overProperty('settings', sortObject),
-  ]),
-)
 const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 
 const sortPrettierConfig = onObject(
@@ -340,8 +298,6 @@ const fields = [
   { key: 'browserslist' },
   { key: 'xo', over: sortObject },
   { key: 'prettier', over: sortPrettierConfig },
-  { key: 'eslintConfig', over: sortEslintConfig },
-  { key: 'eslintIgnore' },
   { key: 'npmpkgjsonlint', over: sortObject },
   { key: 'npmPackageJsonLintConfig', over: sortObject },
   { key: 'npmpackagejsonlint', over: sortObject },

@@ -210,7 +210,6 @@ console.log(Object.keys(sorted))
 - [Browserify](http://browserify.org/)
 - [c8](https://github.com/bcoe/c8)
 - [commitlint](https://commitlint.js.org/)
-- [ESLint](https://eslint.org/)
 - [Husky](https://github.com/typicode/husky)
 - [Istanbul](https://istanbul.js.org/)
 - [Jest](https://jestjs.io/)
@@ -376,8 +375,6 @@ The default order is exported as a `sortOrder` object.
 1. `browserslist`
 1. `xo`
 1. `prettier`
-1. `eslintConfig`
-1. `eslintIgnore`
 1. `npmpkgjsonlint`
 1. `npmPackageJsonLintConfig`
 1. `npmpackagejsonlint`

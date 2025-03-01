@@ -68,8 +68,6 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | browserslist          |                                                                                |
 | xo                    | Key sort                                                                       |
 | prettier              | [Prettier sort](#prettier)                                                     |
-| eslintConfig          | [ESLint sort](#eslint)                                                         |
-| eslintIgnore          |                                                                                |
 | npmpackagejsonlint    | Key sort (also recognizes: npmPackageJsonLintConfig, npmpkgjsonlint)           |
 | release               | Key sort                                                                       |
 | remarkConfig          | Key sort                                                                       |
