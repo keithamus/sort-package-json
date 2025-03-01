@@ -397,15 +397,15 @@ const sortConditionObject = (conditionObject) => {
      */
     ...bundlerConditions,
     /**
-     * Edge runtimes are often variants of other target environments, so they must come
+     * Edge run-times are often variants of other target environments, so they must come
      * before the target environment conditions
      */
     ...edgeConditions,
     /**
-     * Server variants need to be placed before "reference syntax" and
-     * "target environments" because similar to "bundler" conditions,
-     * they only work in specific environments and may expose code overrides
-     * for any of the conditions in "reference syntax" and "target environments"
+     * Server variants need to be placed before `referenceSyntaxConditions` and
+     * `targetEnvironmentConditions` since they may use multiple syntaxes and target
+     * environments. They should also go after `edgeConditions`
+     * to allow custom implementations per edge runtime.
      */
     ...serverVariantConditions,
     ...targetEnvironmentConditions,
