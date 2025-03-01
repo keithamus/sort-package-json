@@ -278,16 +278,16 @@ const sortScripts = onObject((scripts, packageJson) => {
  * accommodate a key in the `order`
  */
 const relativeOrderSort = (list, order) => {
-  const orderMap = new Map(order.map((key, index) => [key, index]))
-  let closestIndex = 0
-  for (const item of list) {
-    if (orderMap.has(item)) {
-      closestIndex = orderMap.get(item)
-    } else {
-      orderMap.set(item, closestIndex)
-    }
-  }
+  const orderMap = new Map(
+    order.map((key, index) => {
+      return [key, index]
+    }),
+  )
+
   return list.sort((a, b) => {
+    if (!orderMap.has(a) && !orderMap.has(b)) {
+      return 0
+    }
     const aIndex = orderMap.get(a)
     const bIndex = orderMap.get(b)
     return aIndex - bIndex
