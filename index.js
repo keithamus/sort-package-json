@@ -37,6 +37,18 @@ const sortObjectBy = (comparator, deep) => {
 
   return over
 }
+const objectGroupBy =
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- will enable later
+  Object.groupBy ||
+  ((array, callback) => {
+    const result = Object.create(null)
+    for (const value of array) {
+      const key = callback(value)
+      result[key] ??= []
+      result[key].push(value)
+    }
+    return result
+  })
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
@@ -250,6 +262,52 @@ const sortScripts = onObject((scripts, packageJson) => {
   return sortObjectKeys(scripts, order)
 })
 
+const sortExports = onObject((exports) => {
+  const { paths = [], conditions = [] } = objectGroupBy(
+    Object.keys(exports),
+    (key) => (key.startsWith('.') ? 'paths' : 'conditions'),
+  )
+
+  // Move `types` to top
+  {
+    const index = conditions.indexOf('types')
+    if (index !== -1) {
+      conditions.splice(index, 1)
+      conditions.unshift('types')
+    }
+  }
+
+  // Move `default` to bottom
+  {
+    const index = conditions.indexOf('default')
+    if (index !== -1) {
+      conditions.splice(index, 1)
+      conditions.push('default')
+    }
+  }
+
+  // Move `module-sync` above `require`
+  {
+    const requireConditionIndex = conditions.indexOf('require')
+
+    if (requireConditionIndex !== -1) {
+      const moduleSyncConditionIndex = conditions.indexOf(
+        'module-sync',
+        requireConditionIndex,
+      )
+
+      if (moduleSyncConditionIndex !== -1) {
+        conditions.splice(moduleSyncConditionIndex, 1)
+        conditions.splice(requireConditionIndex, 1, 'module-sync', 'require')
+      }
+    }
+  }
+
+  return Object.fromEntries(
+    [...paths, ...conditions].map((key) => [key, sortExports(exports[key])]),
+  )
+})
+
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
 // Supported fields:
@@ -288,7 +346,7 @@ const fields = [
   { key: 'sideEffects' },
   { key: 'type' },
   { key: 'imports' },
-  { key: 'exports' },
+  { key: 'exports', over: sortExports },
   { key: 'main' },
   { key: 'svelte' },
   { key: 'umd:main' },
