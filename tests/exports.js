@@ -8,7 +8,6 @@ for (const deep of [false, true]) {
     const exports = {
       unknown: './unknown.unknown',
       './path-not-really-makes-no-sense': {},
-      import: './import.mjs',
       types: './types.d.ts',
     }
 
@@ -24,7 +23,6 @@ for (const deep of [false, true]) {
       unknown: './unknown.unknown',
       './path-not-really-makes-no-sense': {},
       default: './default.js',
-      import: './import.mjs',
     }
 
     test(`'default' condition should be last${titleSuffix}`, macro.sortObject, {
