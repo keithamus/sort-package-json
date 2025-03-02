@@ -44,8 +44,11 @@ const objectGroupBy =
     const result = Object.create(null)
     for (const value of array) {
       const key = callback(value)
-      result[key] ??= []
-      result[key].push(value)
+      if (result[key]) {
+        result[key].push(value)
+      } else {
+        result[key] = [value]
+      }
     }
     return result
   })

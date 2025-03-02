@@ -53,3 +53,12 @@ for (const deep of [false, true]) {
     )
   }
 }
+
+test(`Only 'module-sync' and 'require'`, macro.sortObject, {
+  path: 'exports',
+  expect: 'snapshot',
+  value: {
+    require: './require.cjs',
+    'module-sync': './module-sync.mjs',
+  },
+})
