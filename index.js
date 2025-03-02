@@ -274,7 +274,7 @@ const sortExports = onObject((exports) => {
   // Move `types` to top
   {
     const index = conditions.indexOf('types')
-    if (index !== -1) {
+    if (index > 0) {
       conditions.splice(index, 1)
       conditions.unshift('types')
     }

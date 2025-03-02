@@ -23,7 +23,7 @@ for (const deep of [false, true]) {
     const exports = {
       unknown: './unknown.unknown',
       './path-not-really-makes-no-sense': {},
-      default: './types.d.ts',
+      default: './default.js',
       import: './import.mjs',
     }
 
@@ -54,11 +54,38 @@ for (const deep of [false, true]) {
   }
 }
 
+test(`Only 'types'`, macro.sortObject, {
+  path: 'exports',
+  expect: 'snapshot',
+  value: {
+    types: './types.d.ts',
+  },
+})
+
+test(`Only 'default'`, macro.sortObject, {
+  path: 'exports',
+  expect: 'snapshot',
+  value: {
+    default: './default.js',
+  },
+})
+
 test(`Only 'module-sync' and 'require'`, macro.sortObject, {
   path: 'exports',
   expect: 'snapshot',
   value: {
     require: './require.cjs',
     'module-sync': './module-sync.mjs',
+  },
+})
+
+test(`Well formed`, macro.sortObject, {
+  path: 'exports',
+  expect: 'snapshot',
+  value: {
+    types: './types.d.ts',
+    'module-sync': './module-sync.mjs',
+    require: './require.cjs',
+    default: './default.js',
   },
 })
