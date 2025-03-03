@@ -289,23 +289,6 @@ const sortExports = onObject((exports) => {
     }
   }
 
-  // Move `module-sync` above `require`
-  {
-    const requireConditionIndex = conditions.indexOf('require')
-
-    if (requireConditionIndex !== -1) {
-      const moduleSyncConditionIndex = conditions.indexOf(
-        'module-sync',
-        requireConditionIndex,
-      )
-
-      if (moduleSyncConditionIndex !== -1) {
-        conditions.splice(moduleSyncConditionIndex, 1)
-        conditions.splice(requireConditionIndex, 1, 'module-sync', 'require')
-      }
-    }
-  }
-
   return Object.fromEntries(
     [...paths, ...conditions].map((key) => [key, sortExports(exports[key])]),
   )
