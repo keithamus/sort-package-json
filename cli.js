@@ -1,15 +1,14 @@
 #!/usr/bin/env node
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import streamConsumers from 'node:stream/consumers'
 import { parseArgs } from 'node:util'
-import { globSync } from 'tinyglobby'
+import { glob } from 'tinyglobby'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
+import packageJson from './package.json' with { type: 'json' }
 
 function showVersion() {
-  const { name, version } = JSON.parse(
-    fs.readFileSync(new URL('package.json', import.meta.url)),
-  )
+  const { name, version } = packageJson
 
   console.log(`${name} ${version}`)
 }
@@ -57,33 +56,36 @@ function parseCliArguments() {
   return { options, patterns }
 }
 
-function sortPackageJsonFile(file, reporter, isCheck) {
-  const original = fs.readFileSync(file, 'utf8')
+async function sortPackageJsonFile(file, reporter, isCheck) {
+  const original = await fs.readFile(file, 'utf8')
   const sorted = sortPackageJson(original)
   if (sorted === original) {
     return reporter.reportNotChanged(file)
   }
 
   if (!isCheck) {
-    fs.writeFileSync(file, sorted)
+    await fs.writeFile(file, sorted)
   }
 
   reporter.reportChanged(file)
 }
 
-function sortPackageJsonFiles(patterns, { ignore, ...options }) {
-  const files = globSync(patterns, { ignore })
+async function sortPackageJsonFiles(patterns, { ignore, ...options }) {
+  const files = await glob(patterns, { ignore })
 
-  const reporter = new Reporter(files, options)
+  const reporter = new Reporter(options)
   const { isCheck } = options
 
   for (const file of files) {
+    reporter.reportFound(file)
+
     try {
-      sortPackageJsonFile(file, reporter, isCheck)
+      await sortPackageJsonFile(file, reporter, isCheck)
     } catch (error) {
       reporter.reportFailed(file, error)
     }
   }
+
   reporter.printSummary()
 }
 
@@ -93,7 +95,7 @@ async function sortPackageJsonFromStdin() {
   )
 }
 
-function run() {
+async function run() {
   let options, patterns
   try {
     ;({ options, patterns } = parseCliArguments())
@@ -121,11 +123,11 @@ function run() {
     return sortPackageJsonFromStdin()
   }
 
-  sortPackageJsonFiles(patterns, {
+  await sortPackageJsonFiles(patterns, {
     ignore: options.ignore,
     isCheck: options.check,
     shouldBeQuiet: options.quiet,
   })
 }
 
-run()
+await run()
