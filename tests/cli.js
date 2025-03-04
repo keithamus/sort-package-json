@@ -1,5 +1,5 @@
-import fs from 'node:fs'
 import test from 'ava'
+import fs from 'node:fs'
 import { cliScript, macro } from './_helpers.js'
 
 const badJson = {
@@ -63,6 +63,31 @@ test('run `cli --help` with `--version`', macro.testCLI, {
   message: 'Should prioritize help over version.',
 })
 
+test('run `cli --help=value`', macro.testCLI, {
+  args: ['--help=value'],
+  message: 'Should report illegal argument and suggest help.',
+})
+
+test('run `cli --version=true`', macro.testCLI, {
+  args: ['--version=true'],
+  message: 'Should report illegal argument and suggest help.',
+})
+
+test('run `cli --unknown-option`', macro.testCLI, {
+  args: ['--unknown-option'],
+  message: 'Should report unknown option and suggest help.',
+})
+
+test('run `cli -u` with unknown option', macro.testCLI, {
+  args: ['-u'],
+  message: 'Should report unknown option and suggest help.',
+})
+
+test('run `cli --no-version`', macro.testCLI, {
+  args: ['--no-version'],
+  message: 'A snapshot to show how `--no-*` works, not care about result.',
+})
+
 test('run `cli` with no patterns', macro.testCLI, {
   fixtures: [
     {
@@ -87,6 +112,11 @@ test('run `cli --quiet` with no patterns', macro.testCLI, {
   message: 'Should format package.json without message.',
 })
 
+test('run `cli --quiet=value`', macro.testCLI, {
+  args: ['--quiet=value'],
+  message: 'Should report illegal argument and suggest help.',
+})
+
 test('run `cli -q` with no patterns', macro.testCLI, {
   fixtures: [
     {
@@ -109,6 +139,11 @@ test('run `cli --check` with no patterns', macro.testCLI, {
   ],
   args: ['--check'],
   message: 'Should not sort package.json',
+})
+
+test('run `cli --check=value`', macro.testCLI, {
+  args: ['--check=value'],
+  message: 'Should report illegal argument and suggest help.',
 })
 
 test('run `cli --check --quiet` with no patterns', macro.testCLI, {
@@ -145,6 +180,18 @@ test('run `cli -c -q` with no patterns', macro.testCLI, {
   ],
   args: ['-c', '-q'],
   message: 'Should support `-q` alias',
+})
+
+test('run `cli -cq` with no patterns', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'package.json',
+      content: badJson,
+      expect: badJson,
+    },
+  ],
+  args: ['-cq'],
+  message: 'Should support option aggregation',
 })
 
 test('run `cli` on 1 bad file', macro.testCLI, {
@@ -437,4 +484,71 @@ test('run `cli --check --quiet` on duplicate patterns', macro.testCLI, {
     '--quiet',
   ],
   message: 'Should not count `bad-1/package.json` more than once. Exit code 1',
+})
+
+const badFormat = ''
+
+test('run `cli --check` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--check'],
+  message: 'Should fail to check, but not end execution.',
+})
+
+test('run `cli --check --quiet` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--check', '--quiet'],
+  message: 'Should output error message, but not count.',
+})
+
+test('run `cli` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json'],
+  message: 'Should fail to check, but not end execution.',
+})
+
+test('run `cli --quiet` on 1 non-json file', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'notJson/package.json',
+      content: badFormat,
+      expect: badFormat,
+    },
+  ],
+  args: ['*/package.json', '--quiet'],
+  message: 'Should output error message',
+})
+
+test('run `cli --stdin` with input from stdin', macro.testCLI, {
+  args: ['--stdin'],
+  message: 'Should output sorted json',
+  stdin: `{\n  "description": "Description",\n  "name": "Name"\n}\n`,
+})
+
+test('run `cli --stdin` with input from stdin with \\r\\n', macro.testCLI, {
+  args: ['--stdin'],
+  message: 'The line feed should be CRLF in output',
+  stdin: `{\r\n  "description": "Description",\r\n  "name": "Name"\r\n}\r\n`,
+})
+
+test('run `cli --ignore=abc`', macro.testCLI, {
+  args: ['--ignore=abc'],
+  message: 'Should not fail on adding ignore pattern',
 })

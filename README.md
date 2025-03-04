@@ -1,6 +1,12 @@
 # Sort Package.json
 
-[![Build Status](https://travis-ci.org/keithamus/sort-package-json.svg)](https://travis-ci.org/keithamus/sort-package-json)
+[![Build Status][github_actions_badge]][github_actions_link]
+[![NPM Version][package_version_badge]][package_link]
+
+[package_version_badge]: https://img.shields.io/npm/v/sort-package-json.svg
+[package_link]: https://www.npmjs.com/package/sort-package-json
+[github_actions_badge]: https://img.shields.io/github/actions/workflow/status/keithamus/sort-package-json/pr.yml
+[github_actions_link]: https://github.com/keithamus/sort-package-json/actions?query=workflow%3ACI+branch%3Amain
 
 ## CLI
 
@@ -18,7 +24,7 @@ npm install --global sort-package-json
 
 ### Usage
 
-```bash
+```console
 $ cd my-project
 $ cat package.json
 {
@@ -32,6 +38,9 @@ $ cat package.json
 
 $ npx sort-package-json
 package.json is sorted!
+
+Found 1 file.
+1 file successfully sorted.
 
 $ cat package.json
 {
@@ -50,23 +59,27 @@ CLI also supports multi file paths or [`glob`](https://github.com/sindresorhus/g
 $ sort-package-json "my-package/package.json" "other-package/package.json"
 
 $ sort-package-json "package.json" "packages/*/package.json"
+
+$ sort-package-json "package.json" "packages/*/package.json" --ignore "packages/one-package"
 ```
 
 #### `--check` flag
 
 When you want to check if your files are sorted, you can run CLI with the `--check` flag (or `-c`). This will output a list of not sorted files, if any.
 
-```bash
+```console
 $ sort-package-json "**/package.json" --check
 
-# 5 matched files are sorted.
-
+Found 5 files.
+5 files were already sorted.
 
 $ sort-package-json "**/package.json" --check
-# foo/package.json
-# bar/package.json
+foo/package.json
+bar/package.json
 
-# 2 of 5 matched files are not sorted.
+Found 5 files.
+3 files were not sorted.
+2 files were already sorted.
 ```
 
 #### `--quiet` flag
@@ -76,6 +89,20 @@ In order to silence any successful output, you can run CLI with the `--quiet` fl
 ```bash
 $ sort-package-json "**/package.json" --check --quiet
 $ sort-package-json "**/package.json" --quiet
+```
+
+#### `--stdin` flag
+
+To read from `stdin` and output the result to `stdout` use the `--stdin` flag.
+
+```bash
+$ cat package.json | sort-package-json --stdin
+```
+
+This can, for instance, be used to generate a diff before changing `package.json`.
+
+```bash
+$ ( PKG="./package.json" ; cat "${PKG?}" | sort-package-json --stdin | diff "${PKG?}" - ; )
 ```
 
 ## API
@@ -146,7 +173,7 @@ If an array, sort keys in ordering of `options.sortOrder`.
 
 ```js
 const sorted = sortPackageJson(packageJsonObject, {
-  sortOrder: ['version']
+  sortOrder: ['version'],
 })
 
 console.log(Object.keys(sorted))
@@ -162,7 +189,7 @@ If a function, sort fields by [Array#sort(options.sortOrder)](https://developer.
 const sorted = sortPackageJson(packageJsonObject, {
   sortOrder(left, right) {
     return left.localeCompare(right)
-  }
+  },
 })
 
 console.log(Object.keys(sorted))
@@ -191,6 +218,8 @@ console.log(Object.keys(sorted))
 - [Mocha](https://mochajs.org/)
 - [node-pre-gyp](https://github.com/mapbox/node-pre-gyp)
 - [npm-package-json-lint](https://npmpackagejsonlint.org/)
+- [oclif](https://oclif.io/)
+- [pnpm](https://pnpm.io/)
 - [Prettier](https://prettier.io/)
 - [remark](https://remark.js.org/)
 - [semantic-release](https://github.com/semantic-release/semantic-release)
@@ -246,6 +275,152 @@ Could be. I wanted this one because at the time of writing, nothing is:
 The lack of configuration here is a feature, not a bug. The intent of this tool is that a user can open a package json and always expect to see keys in a particular order. If we add a configuration for this tool, then that promise is broken, as users will first need to look at the configuration for each project to learn the ways in which this tool will change the `package.json`. The structure of the `package.json` should always be predictable & deterministic from project to project. I think the _reason_ why this project is well used is because it is not another "tool" you have to set up with yet another JSON file and more cruft in your project to support it. You run a command and it does what it says on the tin.
 
 A lot of people who ask for configuration cite the use case that they simply don't like the given order that exists and want to make sweeping changes. To me this seems far better suited to simply making a fork of this project as then you can go far further than specifying configuration.
+
+### What is the order this package defaults to?
+
+The default order is exported as a `sortOrder` object.
+
+<details>
+<summary>Properties mentioned in the npm docs</summary>
+
+1. `name`
+1. `version`
+1. `private`
+1. `description`
+1. `keywords`
+1. `homepage`
+1. `bugs`
+1. `repository`
+1. `funding`
+1. `license`
+1. `author`
+1. `contributors`
+1. `main`
+1. `browser`
+1. `bin`
+1. `man`
+1. `directories`
+1. `files`
+1. `workspaces`
+1. `scripts`
+1. `config`
+1. `dependencies`
+1. `engines`
+1. `os`
+1. `cpu`
+
+</details>
+
+<details>
+<summary>Full list of recognized properties</summary>
+
+1. `$schema`
+1. `name`
+1. `displayName`
+1. `version`
+1. `private`
+1. `description`
+1. `categories`
+1. `keywords`
+1. `homepage`
+1. `bugs`
+1. `repository`
+1. `funding`
+1. `license`
+1. `qna`
+1. `author`
+1. `maintainers`
+1. `contributors`
+1. `publisher`
+1. `sideEffects`
+1. `type`
+1. `imports`
+1. `exports`
+1. `main`
+1. `svelte`
+1. `umd:main`
+1. `jsdelivr`
+1. `unpkg`
+1. `module`
+1. `source`
+1. `jsnext:main`
+1. `browser`
+1. `react-native`
+1. `types`
+1. `typesVersions`
+1. `typings`
+1. `style`
+1. `example`
+1. `examplestyle`
+1. `assets`
+1. `bin`
+1. `man`
+1. `directories`
+1. `files`
+1. `workspaces`
+1. `binary`
+1. `scripts`
+1. `betterScripts`
+1. `contributes`
+1. `activationEvents`
+1. `husky`
+1. `simple-git-hooks`
+1. `pre-commit`
+1. `commitlint`
+1. `lint-staged`
+1. `nano-staged`
+1. `config`
+1. `nodemonConfig`
+1. `browserify`
+1. `babel`
+1. `browserslist`
+1. `xo`
+1. `prettier`
+1. `eslintConfig`
+1. `eslintIgnore`
+1. `npmpkgjsonlint`
+1. `npmPackageJsonLintConfig`
+1. `npmpackagejsonlint`
+1. `release`
+1. `remarkConfig`
+1. `stylelint`
+1. `ava`
+1. `jest`
+1. `jest-junit`
+1. `jest-stare`
+1. `mocha`
+1. `nyc`
+1. `c8`
+1. `tap`
+1. `resolutions`
+1. `dependencies`
+1. `devDependencies`
+1. `dependenciesMeta`
+1. `peerDependencies`
+1. `peerDependenciesMeta`
+1. `optionalDependencies`
+1. `bundledDependencies`
+1. `bundleDependencies`
+1. `extensionPack`
+1. `extensionDependencies`
+1. `flat`
+1. `packageManager`
+1. `engines`
+1. `engineStrict`
+1. `volta`
+1. `languageName`
+1. `os`
+1. `cpu`
+1. `preferGlobal`
+1. `publishConfig`
+1. `icon`
+1. `badges`
+1. `galleryBanner`
+1. `preview`
+1. `markdown`
+1. `pnpm`
+
+</details>
 
 ### What?! Why would you want to do this?!
 
