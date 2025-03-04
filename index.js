@@ -270,159 +270,6 @@ const sortScripts = onObject((scripts, packageJson) => {
   return sortObjectKeys(scripts, order)
 })
 
-/**
- * Sorts an array in relative terms defined by the `order`
- *
- * The effect of relative sort is that keys not in the `order` will be kept
- * in the order they were in the original array unless it is shifted to
- * accommodate a key in the `order`
- */
-const relativeOrderSort = (list, order) => {
-  const orderMap = new Map(
-    order.map((key, index) => {
-      return [key, index]
-    }),
-  )
-  const indexes = list.flatMap((item, i) => {
-    if (orderMap.has(item)) {
-      return i
-    }
-    return []
-  })
-  const sortedIndexes = [...indexes].sort((a, b) => {
-    const aIndex = orderMap.get(list[a])
-    const bIndex = orderMap.get(list[b])
-    return aIndex - bIndex
-  })
-
-  const copy = [...list]
-  sortedIndexes.forEach((desiredIndex, thisIndex) => {
-    copy[indexes[thisIndex]] = list[desiredIndex]
-  })
-
-  return copy
-}
-
-const withLastKey = (keyName, { [keyName]: keyValue, ...rest }) =>
-  typeof keyValue !== 'undefined'
-    ? {
-        ...rest,
-        [keyName]: keyValue,
-      }
-    : rest
-
-const withFirstKey = (keyName, { [keyName]: keyValue, ...rest }) =>
-  typeof keyValue !== 'undefined'
-    ? {
-        [keyName]: keyValue,
-        ...rest,
-      }
-    : rest
-
-const sortConditionObject = (conditionObject) => {
-  /**
-   * Sources:
-   * - WinterCG maintained list of standard runtime keys: https://runtime-keys.proposal.wintercg.org
-   * - Node.js conditional exports: https://nodejs.org/api/packages.html#conditional-exports
-   * - Webpack conditions: https://webpack.js.org/guides/package-exports/#conditions
-   * - Bun condition: https://bun.sh/docs/runtime/modules#importing-packages
-   * - Bun macro condition: https://bun.sh/docs/bundler/macros#export-condition-macro
-   */
-  const bundlerConditions = ['vite', 'rollup', 'webpack']
-
-  const serverVariantConditions = ['react-server']
-  const edgeConditions = [
-    'azion',
-    'edge-light',
-    'edge-routine',
-    'fastly',
-    'lagon',
-    'netlify',
-    'wasmer',
-    'workerd',
-  ]
-
-  const referenceSyntaxConditions = [
-    'svelte',
-    'asset',
-    'sass',
-    'stylus',
-    'style',
-    /**
-     * 'script' condition must come before 'module' condition, as 'script'
-     * may also be used by bundlers but in more specific conditions than
-     * 'module'
-     */
-    'script',
-    'esmodules',
-    /**
-     * 'module' condition must come before 'import'. import may include pure node ESM modules
-     * that are only compatible with node environments, while 'module' may be
-     * used by bundlers and leverage other bundler features
-     */
-    'module',
-    'import',
-    /**
-     * `module-sync` condition must come before `require` condition and after
-     * `import`.
-     */
-    'module-sync',
-    'require',
-  ]
-
-  const targetEnvironmentConditions = [
-    /**
-     * bun macro condition must come before 'bun'
-     */
-    'macro',
-    'bun',
-    'deno',
-    'browser',
-    'electron',
-    'kiesel', // https://runtime-keys.proposal.wintercg.org/#kiesel
-    'node-addons',
-    'node',
-    'moddable', // https://runtime-keys.proposal.wintercg.org/#moddable
-    'react-native',
-    'worker',
-    'worklet',
-  ]
-
-  const environmentConditions = ['test', 'development', 'production']
-
-  const order = relativeOrderSort(Object.keys(conditionObject), [
-    /**
-     * Environment conditions at the top as they are generally used to override
-     * default behavior based on the environment
-     */
-    ...environmentConditions,
-    /**
-     * Bundler conditions are generally more important than other conditions
-     * because they leverage code that will not work outside of the
-     * bundler environment
-     */
-    ...bundlerConditions,
-    /**
-     * Edge run-times are often variants of other target environments, so they must come
-     * before the target environment conditions
-     */
-    ...edgeConditions,
-    /**
-     * Server variants need to be placed before `referenceSyntaxConditions` and
-     * `targetEnvironmentConditions` since they may use multiple syntaxes and target
-     * environments. They should also go after `edgeConditions`
-     * to allow custom implementations per edge runtime.
-     */
-    ...serverVariantConditions,
-    ...targetEnvironmentConditions,
-    ...referenceSyntaxConditions,
-  ])
-  return withFirstKey(
-    'types',
-    withLastKey('default', sortObjectKeys(conditionObject, order)),
-  )
-}
-
 const sortPathLikeObjectWithWildcards = onObject((object) => {
   // Replace all '*' with the highest possible unicode character
   // To force all wildcards to be at the end, but relative to
@@ -448,24 +295,17 @@ const sortExportsOrImports = onObject((exportOrImports) => {
   )
 
   const keys = Object.keys(exportsWithSortedChildren)
-  let isConditionObject = true
   let isPathLikeObject = true
   for (const key of keys) {
     const keyIsPathLike = key.startsWith('.') || key.startsWith('#')
-
-    isConditionObject = isConditionObject && !keyIsPathLike
     isPathLikeObject = isPathLikeObject && keyIsPathLike
-  }
-
-  if (isConditionObject) {
-    return sortConditionObject(exportsWithSortedChildren)
   }
 
   if (isPathLikeObject) {
     return sortPathLikeObjectWithWildcards(exportsWithSortedChildren)
   }
 
-  // Object is improperly formatted. Leave it alone
+  // Object is likely condition object
   return exportOrImports
 })
 
