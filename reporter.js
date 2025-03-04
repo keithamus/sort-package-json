@@ -60,7 +60,7 @@ class Reporter {
       return
     }
 
-    const { isCheck, isQuiet } = this.#options
+    const { isCheck, shouldBeQuiet } = this.#options
 
     if (isCheck && changedFilesCount) {
       process.exitCode = 1
@@ -70,7 +70,7 @@ class Reporter {
       process.exitCode = 2
     }
 
-    if (isQuiet) {
+    if (shouldBeQuiet) {
       return
     }
 
