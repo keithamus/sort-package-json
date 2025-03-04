@@ -40,7 +40,7 @@
     "index.cjs"
   ],
   "scripts": {
-    "build": "esbuild index.js --bundle --platform=node --alias:git-hooks-list=./git-hooks-list_shim.cjs --outfile=./index.cjs",
+    "build": "esbuild index.js --bundle --platform=node --outfile=index.cjs",
     "fix": "eslint . --fix && prettier . --write && node cli.js \"package.json\"",
     "lint": "eslint . && prettier . \"!**/*.js\" --check && node cli.js \"package.json\" --check",
     "prepare": "husky",
@@ -77,7 +77,7 @@
     "detect-indent": "^7.0.1",
     "detect-newline": "^4.0.1",
     "get-stdin": "^9.0.0",
-    "git-hooks-list": "^3.0.0",
+    "git-hooks-list": "^4.0.0",
     "is-plain-obj": "^4.1.0",
     "semver": "^7.7.1",
     "sort-object-keys": "^1.1.3",
