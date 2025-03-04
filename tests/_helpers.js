@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { execFile } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { getProperty, setProperty } from 'dot-prop'
-import tempy from 'tempy'
+import * as tempy from 'tempy'
 import makeDir from 'make-dir'
 import { deleteSync } from 'del'
 import sortPackageJson from '../index.js'
@@ -67,14 +67,14 @@ function sortObjectWithRangeAlphabetically(t, options = {}) {
       ...options,
       value: keysToObject(
         [
-          '@z-package@1.2.3',
+          '@z-package/package@1.2.3',
           'c-package@1.2.3',
           'b-package-package@1.2.3',
-          '@a-package@1.2.3',
+          '@a-package/package@1.2.3',
           'b-package@1.2.3',
-          '@b-package',
-          '@e-package@1.2.3',
-          '@ch-package@1.2.3',
+          '@b-package/package',
+          '@e-package/package@1.2.3',
+          '@ch-package/package@1.2.3',
           'e-package@1.2.3',
           'ch-package@1.2.3',
         ],
@@ -84,11 +84,11 @@ function sortObjectWithRangeAlphabetically(t, options = {}) {
         expect ||
         keysToObject(
           [
-            '@a-package@1.2.3',
-            '@b-package',
-            '@ch-package@1.2.3',
-            '@e-package@1.2.3',
-            '@z-package@1.2.3',
+            '@a-package/package@1.2.3',
+            '@b-package/package',
+            '@ch-package/package@1.2.3',
+            '@e-package/package@1.2.3',
+            '@z-package/package@1.2.3',
             'b-package@1.2.3',
             'b-package-package@1.2.3',
             'c-package@1.2.3',
@@ -163,7 +163,7 @@ function asItIs(t, { path, options }, excludeTypes = []) {
 }
 
 async function testCLI(t, { fixtures = [], args, message, stdin }) {
-  const cwd = tempy.directory()
+  const cwd = tempy.temporaryDirectory()
 
   fixtures = fixtures.map(({ file = 'package.json', content, expect }) => {
     const absolutePath = path.join(cwd, file)

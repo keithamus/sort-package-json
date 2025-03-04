@@ -1,3 +1,3 @@
 node_modules
-/cjs
+/index.cjs
 /coverage
