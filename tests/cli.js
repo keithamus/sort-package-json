@@ -63,6 +63,31 @@ test('run `cli --help` with `--version`', macro.testCLI, {
   message: 'Should prioritize help over version.',
 })
 
+test('run `cli --help=value`', macro.testCLI, {
+  args: ['--help=value'],
+  message: 'Should report illegal argument and suggest help.',
+})
+
+test('run `cli --version=true`', macro.testCLI, {
+  args: ['--version=true'],
+  message: 'Should report illegal argument and suggest help.',
+})
+
+test('run `cli --unknown-option`', macro.testCLI, {
+  args: ['--unknown-option'],
+  message: 'Should report unknown option and suggest help.',
+})
+
+test('run `cli -u` with unknown option', macro.testCLI, {
+  args: ['-u'],
+  message: 'Should report unknown option and suggest help.',
+})
+
+test('run `cli --no-version`', macro.testCLI, {
+  args: ['--no-version'],
+  message: 'A snapshot to show how `--no-*` works, not care about result.',
+})
+
 test('run `cli` with no patterns', macro.testCLI, {
   fixtures: [
     {
@@ -87,6 +112,11 @@ test('run `cli --quiet` with no patterns', macro.testCLI, {
   message: 'Should format package.json without message.',
 })
 
+test('run `cli --quiet=value`', macro.testCLI, {
+  args: ['--quiet=value'],
+  message: 'Should report illegal argument and suggest help.',
+})
+
 test('run `cli -q` with no patterns', macro.testCLI, {
   fixtures: [
     {
@@ -109,6 +139,11 @@ test('run `cli --check` with no patterns', macro.testCLI, {
   ],
   args: ['--check'],
   message: 'Should not sort package.json',
+})
+
+test('run `cli --check=value`', macro.testCLI, {
+  args: ['--check=value'],
+  message: 'Should report illegal argument and suggest help.',
 })
 
 test('run `cli --check --quiet` with no patterns', macro.testCLI, {
@@ -145,6 +180,18 @@ test('run `cli -c -q` with no patterns', macro.testCLI, {
   ],
   args: ['-c', '-q'],
   message: 'Should support `-q` alias',
+})
+
+test('run `cli -cq` with no patterns', macro.testCLI, {
+  fixtures: [
+    {
+      file: 'package.json',
+      content: badJson,
+      expect: badJson,
+    },
+  ],
+  args: ['-cq'],
+  message: 'Should support option aggregation',
 })
 
 test('run `cli` on 1 bad file', macro.testCLI, {

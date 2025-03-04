@@ -5,11 +5,6 @@ import gitHooks from 'git-hooks-list'
 import isPlainObject from 'is-plain-obj'
 import semver from 'semver'
 
-const hasOwn =
-  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- Safe
-  Object.hasOwn ||
-  // TODO: Remove this when we drop supported for Node.js v20
-  ((object, property) => Object.prototype.hasOwnProperty.call(object, property))
 const pipe =
   (fns) =>
   (x, ...args) =>
@@ -38,8 +33,9 @@ const sortObjectBy = (comparator, deep) => {
   return over
 }
 const objectGroupBy =
-  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- will enable later
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- Safe
   Object.groupBy ||
+  // Remove this when we drop support for Node.js 20
   ((array, callback) => {
     const result = Object.create(null)
     for (const value of array) {
@@ -66,7 +62,7 @@ const sortDirectories = sortObjectBy([
 const overProperty =
   (property, over) =>
   (object, ...args) =>
-    hasOwn(object, property)
+    Object.hasOwn(object, property)
       ? { ...object, [property]: over(object[property], ...args) }
       : object
 const sortGitHooks = sortObjectBy(gitHooks)
@@ -233,8 +229,8 @@ const defaultNpmScripts = new Set([
 
 const hasDevDependency = (dependency, packageJson) => {
   return (
-    hasOwn(packageJson, 'devDependencies') &&
-    hasOwn(packageJson.devDependencies, dependency)
+    Object.hasOwn(packageJson, 'devDependencies') &&
+    Object.hasOwn(packageJson.devDependencies, dependency)
   )
 }
 
