@@ -14,5 +14,5 @@ export default [
       globals: { ...globals.builtin, ...globals.node },
     },
   },
-  { ignores: ['cjs'] },
+  { ignores: ['index.cjs'] },
 ]
