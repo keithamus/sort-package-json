@@ -261,32 +261,41 @@ const sortScripts = onObject((scripts, packageJson) => {
   return sortObjectKeys(scripts, order)
 })
 
+const sortConditions = (conditions) => {
+  const result = [...conditions]
+
+  // Move `types` to top
+  {
+    const index = result.indexOf('types')
+    if (index > 0) {
+      result.splice(index, 1)
+      result.unshift('types')
+    }
+  }
+
+  // Move `default` to bottom
+  {
+    const index = result.indexOf('default')
+    if (index !== -1) {
+      result.splice(index, 1)
+      result.push('default')
+    }
+  }
+
+  return result
+}
+
 const sortExports = onObject((exports) => {
   const { paths = [], conditions = [] } = objectGroupBy(
     Object.keys(exports),
     (key) => (key.startsWith('.') ? 'paths' : 'conditions'),
   )
 
-  // Move `types` to top
-  {
-    const index = conditions.indexOf('types')
-    if (index > 0) {
-      conditions.splice(index, 1)
-      conditions.unshift('types')
-    }
-  }
-
-  // Move `default` to bottom
-  {
-    const index = conditions.indexOf('default')
-    if (index !== -1) {
-      conditions.splice(index, 1)
-      conditions.push('default')
-    }
-  }
-
   return Object.fromEntries(
-    [...paths, ...conditions].map((key) => [key, sortExports(exports[key])]),
+    [...paths, ...sortConditions(conditions)].map((key) => [
+      key,
+      sortExports(exports[key]),
+    ]),
   )
 })
 
