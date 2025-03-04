@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { globSync } from 'tinyglobby'
 import fs from 'node:fs'
+import streamConsumers from 'node:stream/consumers'
 import { parseArgs } from 'node:util'
-import getStdin from 'get-stdin'
+import { globSync } from 'tinyglobby'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
 
@@ -88,7 +88,9 @@ function sortPackageJsonFiles(patterns, { ignore, ...options }) {
 }
 
 async function sortPackageJsonFromStdin() {
-  process.stdout.write(sortPackageJson(await getStdin()))
+  process.stdout.write(
+    sortPackageJson(await streamConsumers.text(process.stdin)),
+  )
 }
 
 function run() {
