@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import fs from 'node:fs'
-// eslint-disable-next-line n/no-unsupported-features/node-builtins
 import streamConsumers from 'node:stream/consumers'
 import { globSync } from 'tinyglobby'
 import sortPackageJson from './index.js'
@@ -62,7 +61,6 @@ function sortPackageJsonFiles(patterns, { ignore, ...options }) {
 
 async function sortPackageJsonFromStdin() {
   process.stdout.write(
-    // eslint-disable-next-line n/no-unsupported-features/node-builtins
     sortPackageJson(await streamConsumers.text(process.stdin)),
   )
 }
