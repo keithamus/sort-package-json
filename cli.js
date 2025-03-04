@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { globSync } from 'tinyglobby'
 import fs from 'node:fs'
-// eslint-disable-next-line n/no-unsupported-features/node-builtins
 import { parseArgs } from 'node:util'
 import getStdin from 'get-stdin'
 import sortPackageJson from './index.js'
