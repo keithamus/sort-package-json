@@ -326,3 +326,40 @@ test('pnpm', macro.sortObject, {
     },
   },
 })
+
+test('imports', macro.sortObject, {
+  path: 'imports',
+  value: {
+    '#c': './index.js',
+    '#c/sub': './index.js',
+    '#c/*': './wild/*.js',
+    '#a': './sub/index.js',
+    '#b/sub/*': './wild/*.js',
+    '#b/*': './wild/*.js',
+    '#b/sub': './wild/sub-module.js',
+  },
+  expect: {
+    '#a': './sub/index.js',
+    '#b/sub': './wild/sub-module.js',
+    '#b/sub/*': './wild/*.js',
+    '#b/*': './wild/*.js',
+    '#c': './index.js',
+    '#c/sub': './index.js',
+    '#c/*': './wild/*.js',
+  },
+})
+test('exports level 1', macro.sortObject, {
+  path: 'exports',
+  value: {
+    './sub': './sub/index.js',
+    './a-wildcard/*': './wild/*.js',
+    './a-wildcard/sub': './wild/sub-module.js',
+    '.': './index.js',
+  },
+  expect: {
+    '.': './index.js',
+    './a-wildcard/sub': './wild/sub-module.js',
+    './a-wildcard/*': './wild/*.js',
+    './sub': './sub/index.js',
+  },
+})

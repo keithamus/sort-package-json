@@ -250,6 +250,45 @@ const sortScripts = onObject((scripts, packageJson) => {
   return sortObjectKeys(scripts, order)
 })
 
+const sortPathLikeObjectWithWildcards = onObject((object) => {
+  // Replace all '*' with the highest possible unicode character
+  // To force all wildcards to be at the end, but relative to
+  // the path they are in
+  const wildcard = '\u{10FFFF}'
+  const sortableWildcardPaths = new Map()
+  const sortablePath = (path) => {
+    if (sortableWildcardPaths.has(path)) return sortableWildcardPaths.get(path)
+    const wildcardWeightedPath = path.replace(/\*/g, wildcard)
+    sortableWildcardPaths.set(path, wildcardWeightedPath)
+    return wildcardWeightedPath
+  }
+  return sortObjectKeys(object, (a, b) => {
+    return sortablePath(a).localeCompare(sortablePath(b))
+  })
+})
+
+const sortExportsOrImports = onObject((exportOrImports) => {
+  const exportsWithSortedChildren = Object.fromEntries(
+    Object.entries(exportOrImports).map(([key, value]) => {
+      return [key, sortExportsOrImports(value)]
+    }),
+  )
+
+  const keys = Object.keys(exportsWithSortedChildren)
+  let isPathLikeObject = true
+  for (const key of keys) {
+    const keyIsPathLike = key.startsWith('.') || key.startsWith('#')
+    isPathLikeObject = isPathLikeObject && keyIsPathLike
+  }
+
+  if (isPathLikeObject) {
+    return sortPathLikeObjectWithWildcards(exportsWithSortedChildren)
+  }
+
+  // Object is likely condition object
+  return exportOrImports
+})
+
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
 // Supported fields:
@@ -287,8 +326,8 @@ const fields = [
   /* vscode */ { key: 'publisher' },
   { key: 'sideEffects' },
   { key: 'type' },
-  { key: 'imports' },
-  { key: 'exports' },
+  { key: 'imports', over: sortExportsOrImports },
+  { key: 'exports', over: sortExportsOrImports },
   { key: 'main' },
   { key: 'svelte' },
   { key: 'umd:main' },
