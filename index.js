@@ -261,28 +261,28 @@ const sortScripts = onObject((scripts, packageJson) => {
   return sortObjectKeys(scripts, order)
 })
 
+/*
+- Move `types` and versioned types to top
+- Move `default` to last
+*/
 const sortConditions = (conditions) => {
-  const result = [...conditions]
-
-  // Move `types` to top
-  {
-    const index = result.indexOf('types')
-    if (index > 0) {
-      result.splice(index, 1)
-      result.unshift('types')
+  const {
+    types = [],
+    default: defaultConditions = [],
+    rest: restConditions = [],
+  } = objectGroupBy(conditions, (condition) => {
+    if (condition === 'types' || condition.startsWith('types@')) {
+      return 'types'
     }
-  }
 
-  // Move `default` to bottom
-  {
-    const index = result.indexOf('default')
-    if (index !== -1) {
-      result.splice(index, 1)
-      result.push('default')
+    if (condition === 'default') {
+      return 'default'
     }
-  }
 
-  return result
+    return 'rest'
+  })
+
+  return [...types, ...restConditions, ...defaultConditions]
 }
 
 const sortExports = onObject((exports) => {
