@@ -262,27 +262,27 @@ const sortScripts = onObject((scripts, packageJson) => {
 })
 
 /*
-- Move `types` and versioned types to top
-- Move `default` to last
+- Move `types` and versioned type condition to top
+- Move `default` condition to bottom
 */
 const sortConditions = (conditions) => {
   const {
-    types = [],
-    default: defaultConditions = [],
-    rest: restConditions = [],
+    typesConditions = [],
+    defaultConditions = [],
+    restConditions = [],
   } = objectGroupBy(conditions, (condition) => {
     if (condition === 'types' || condition.startsWith('types@')) {
-      return 'types'
+      return 'typesConditions'
     }
 
     if (condition === 'default') {
-      return 'default'
+      return 'defaultConditions'
     }
 
-    return 'rest'
+    return 'restConditions'
   })
 
-  return [...types, ...restConditions, ...defaultConditions]
+  return [...typesConditions, ...restConditions, ...defaultConditions]
 }
 
 const sortExports = onObject((exports) => {
