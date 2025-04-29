@@ -3,9 +3,7 @@ import fs from 'node:fs'
 import { execFile } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { getProperty, setProperty } from 'dot-prop'
-import tempy from 'tempy'
-import makeDir from 'make-dir'
-import { deleteSync } from 'del'
+import * as tempy from 'tempy'
 import sortPackageJson from '../index.js'
 
 const cliScript = fileURLToPath(new URL('../cli.js', import.meta.url))
@@ -53,8 +51,50 @@ function sortObjectAlphabetically(t, options = {}) {
   for (let depth = 1; depth < maxDepth + 1; depth++) {
     sortObject(t, {
       ...options,
-      value: keysToObject(['z', 'a'], depth),
-      expect: expect || keysToObject(['a', 'z'], depth),
+      value: keysToObject(['z', 'e', 'ch', 'a'], depth),
+      expect: expect || keysToObject(['a', 'ch', 'e', 'z'], depth),
+    })
+  }
+}
+
+function sortObjectWithRangeAlphabetically(t, options = {}) {
+  const { maxDepth = 1, expect } = options
+
+  for (let depth = 1; depth < maxDepth + 1; depth++) {
+    sortObject(t, {
+      ...options,
+      value: keysToObject(
+        [
+          '@z-package/package@1.2.3',
+          'c-package@1.2.3',
+          'b-package-package@1.2.3',
+          '@a-package/package@1.2.3',
+          'b-package@1.2.3',
+          '@b-package/package',
+          '@e-package/package@1.2.3',
+          '@ch-package/package@1.2.3',
+          'e-package@1.2.3',
+          'ch-package@1.2.3',
+        ],
+        depth,
+      ),
+      expect:
+        expect ||
+        keysToObject(
+          [
+            '@a-package/package@1.2.3',
+            '@b-package/package',
+            '@ch-package/package@1.2.3',
+            '@e-package/package@1.2.3',
+            '@z-package/package@1.2.3',
+            'b-package@1.2.3',
+            'b-package-package@1.2.3',
+            'c-package@1.2.3',
+            'ch-package@1.2.3',
+            'e-package@1.2.3',
+          ],
+          depth,
+        ),
     })
   }
 }
@@ -120,12 +160,12 @@ function asItIs(t, { path, options }, excludeTypes = []) {
   }
 }
 
-async function testCLI(t, { fixtures = [], args, message }) {
-  const cwd = tempy.directory()
+async function testCLI(t, { fixtures = [], args, message, stdin }) {
+  const temporaryDirectory = tempy.temporaryDirectory()
 
   fixtures = fixtures.map(({ file = 'package.json', content, expect }) => {
-    const absolutePath = path.join(cwd, file)
-    makeDir.sync(path.dirname(absolutePath))
+    const absolutePath = path.join(temporaryDirectory, file)
+    fs.mkdirSync(path.dirname(absolutePath), { recursive: true })
 
     const original =
       typeof content === 'string' ? content : JSON.stringify(content, null, 2)
@@ -143,8 +183,9 @@ async function testCLI(t, { fixtures = [], args, message }) {
 
   const result = await runCLI({
     args,
-    cwd,
+    cwd: temporaryDirectory,
     message,
+    stdin,
   })
 
   for (const fixture of fixtures) {
@@ -152,7 +193,7 @@ async function testCLI(t, { fixtures = [], args, message }) {
   }
 
   // clean up fixtures
-  deleteSync(cwd, { force: true })
+  fs.rmSync(temporaryDirectory, { force: true, recursive: true })
 
   for (const { actual, expect, file } of fixtures) {
     t.is(actual, expect, `\`${file}\` content is expected.`)
@@ -172,11 +213,19 @@ async function testCLI(t, { fixtures = [], args, message }) {
   )
 }
 
-function runCLI({ args = [], cwd = process.cwd() }) {
+function runCLI({ args = [], cwd = process.cwd(), stdin }) {
   return new Promise((resolve) => {
-    execFile('node', [cliScript, ...args], { cwd }, (error, stdout, stderr) => {
-      resolve({ errorCode: error && error.code, stdout, stderr })
-    })
+    const cp = execFile(
+      'node',
+      [cliScript, ...args],
+      { cwd },
+      (error, stdout, stderr) => {
+        resolve({ errorCode: error && error.code, stdout, stderr })
+      },
+    )
+    if (stdin) {
+      cp.stdin.end(stdin)
+    }
   })
 }
 
@@ -202,6 +251,7 @@ export const macro = {
   sortObject,
   asItIs,
   sortObjectAlphabetically,
+  sortObjectWithRangeAlphabetically,
   testCLI,
   uniqueArray,
   uniqueAndSort,

@@ -17,6 +17,16 @@ test('main', (t) => {
     '{"name":"sort-package-json","version":"1.0.0"}',
     'Accepts string, returns sorted string',
   )
+  t.is(
+    sortPackageJson(JSON.stringify(packageJson, null, 4)),
+    '{\n    "name": "sort-package-json",\n    "version": "1.0.0"\n}',
+    'Detect indent',
+  )
+  t.is(
+    sortPackageJson(JSON.stringify(packageJson, null, '\t')),
+    '{\n\t"name": "sort-package-json",\n\t"version": "1.0.0"\n}',
+    'Detect tab indent',
+  )
 
   const array = ['foo', 'bar']
   const string = JSON.stringify(array)
