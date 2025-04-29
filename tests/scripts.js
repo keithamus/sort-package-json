@@ -121,7 +121,7 @@ for (const field of ['scripts', 'betterScripts']) {
       devDependencies: { 'npm-run-all2': '^1.0.0' },
     },
     expect: {
-      [field]: expectPreAndPostSorted,
+      [field]: expectAllSorted,
       devDependencies: { 'npm-run-all2': '^1.0.0' },
     },
   })
