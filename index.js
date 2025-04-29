@@ -218,6 +218,22 @@ const hasDevDependency = (dependency, packageJson) => {
   )
 }
 
+const runSRegExp =
+  /(?<=^|[\s&;<>|(])(?:run-s|npm-run-all .*(?:--sequential|--serial|-s))(?=$|[\s&;<>|)])/
+
+const isSequentialScript = (command) =>
+  command.includes('*') && runSRegExp.test(command)
+
+const hasSequentialScript = (packageJson) => {
+  if (!hasDevDependency('npm-run-all', packageJson)) {
+    return false
+  }
+  const scripts = ['scripts', 'betterScripts'].flatMap((field) =>
+    packageJson[field] ? Object.values(packageJson[field]) : [],
+  )
+  return scripts.some((script) => isSequentialScript(script))
+}
+
 const sortScripts = onObject((scripts, packageJson) => {
   const names = Object.keys(scripts)
   const prefixable = new Set()
@@ -231,10 +247,7 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
-  if (
-    !hasDevDependency('npm-run-all', packageJson) &&
-    !hasDevDependency('npm-run-all2', packageJson)
-  ) {
+  if (!hasSequentialScript(packageJson)) {
     keys.sort()
   }
 
