@@ -1,4 +1,5 @@
 import test from 'ava'
+import sortPackageJson from '../index.js'
 import { macro } from './_helpers.js'
 
 // `resolutions` and `dependencies`
@@ -53,39 +54,41 @@ test('pnpm.overrides', macro.sortObjectWithRangeAlphabetically, {
 })
 
 test('dependencies with capital and lowercase letters', (t) => {
-  const input = {
-    dependencies: {
-      'JSONStream': '^1.3.5',
-      'axios': '^1.9.0',
-      'json-schema': '^0.4.0',
+  t.deepEqual(
+    sortPackageJson({
+      dependencies: {
+        JSONStream: '^1.3.5',
+        axios: '^1.9.0',
+        'json-schema': '^0.4.0',
+      },
+    }),
+    {
+      dependencies: {
+        axios: '^1.9.0',
+        JSONStream: '^1.3.5',
+        'json-schema': '^0.4.0',
+      },
     },
-  }
-  const expected = {
-    dependencies: {
-      'axios': '^1.9.0',
-      'JSONStream': '^1.3.5',
-      'json-schema': '^0.4.0',
-    },
-  }
-  t.deepEqual(macro.sortObjectLikeNpm(input.dependencies), expected.dependencies)
+  )
 })
 
 test('devDependencies with capital and lowercase letters', (t) => {
-  const input = {
-    devDependencies: {
-      'JSONStream': '^1.3.5',
-      'axios': '^1.9.0',
-      'json-schema': '^0.4.0',
-      'webpack': '^5.36.2',
+  t.deepEqual(
+    sortPackageJson({
+      devDependencies: {
+        JSONStream: '^1.3.5',
+        axios: '^1.9.0',
+        'json-schema': '^0.4.0',
+        webpack: '^5.36.2',
+      },
+    }),
+    {
+      devDependencies: {
+        axios: '^1.9.0',
+        JSONStream: '^1.3.5',
+        'json-schema': '^0.4.0',
+        webpack: '^5.36.2',
+      },
     },
-  }
-  const expected = {
-    devDependencies: {
-      'JSONStream': '^1.3.5',
-      'axios': '^1.9.0',
-      'json-schema': '^0.4.0',
-      'webpack': '^5.36.2',
-    },
-  }
-  t.deepEqual(macro.sortObjectLikeNpm(input.devDependencies), expected.devDependencies)
+  )
 })

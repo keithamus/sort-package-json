@@ -247,18 +247,8 @@ function uniqueAndSort(t, { path, options }) {
   asItIs(t, { path, options }, ['array'])
 }
 
-function sortObjectLikeNpm(object) {
-  return Object.keys(object)
-    .sort((a, b) => a.localeCompare(b, 'en'))
-    .reduce((result, key) => {
-      result[key] = object[key]
-      return result
-    }, {})
-}
-
 export const macro = {
   sortObject,
-  sortObjectLikeNpm,
   asItIs,
   sortObjectAlphabetically,
   sortObjectWithRangeAlphabetically,
