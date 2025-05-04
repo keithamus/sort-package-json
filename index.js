@@ -99,6 +99,10 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
+// sort deps like the npm CLI does (via the package @npmcli/package-json)
+// https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
+const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
+
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
 const eslintBaseConfigProperties = [
   // `files` and `excludedFiles` are only on `overrides[]`
@@ -366,13 +370,14 @@ const fields = [
   { key: 'tap', over: sortObject },
   { key: 'oclif', over: sortObjectBy(undefined, true) },
   { key: 'resolutions', over: sortObject },
-  { key: 'dependencies', over: sortObject },
-  { key: 'devDependencies', over: sortObject },
+  { key: 'overrides', over: sortDependenciesLikeNpm },
+  { key: 'dependencies', over: sortDependenciesLikeNpm },
+  { key: 'devDependencies', over: sortDependenciesLikeNpm },
   { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
-  { key: 'peerDependencies', over: sortObject },
+  { key: 'peerDependencies', over: sortDependenciesLikeNpm },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
-  { key: 'optionalDependencies', over: sortObject },
+  { key: 'optionalDependencies', over: sortDependenciesLikeNpm },
   { key: 'bundledDependencies', over: uniqAndSortArray },
   { key: 'bundleDependencies', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
