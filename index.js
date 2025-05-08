@@ -223,13 +223,16 @@ const hasDevDependency = (dependency, packageJson) => {
 }
 
 const runSRegExp =
-  /(?<=^|[\s&;<>|(])(?:run-s|npm-run-all .*(?:--sequential|--serial|-s))(?=$|[\s&;<>|)])/
+  /(?<=^|[\s&;<>|(])(?:run-s|npm-run-all2? .*(?:--sequential|--serial|-s))(?=$|[\s&;<>|)])/
 
 const isSequentialScript = (command) =>
   command.includes('*') && runSRegExp.test(command)
 
 const hasSequentialScript = (packageJson) => {
-  if (!hasDevDependency('npm-run-all', packageJson)) {
+  if (
+    !hasDevDependency('npm-run-all', packageJson) &&
+    !hasDevDependency('npm-run-all2', packageJson)
+  ) {
     return false
   }
   const scripts = ['scripts', 'betterScripts'].flatMap((field) =>
