@@ -67,6 +67,15 @@ function sortScriptsWithNpmRunAll(script) {
 
   return Object.keys(sortPackageJson(packageJson).scripts)
 }
+function sortScriptsWithNpmRunAll2(script) {
+  const packageJson = {
+    scripts: { z: 'z', a: 'a', maybeRunS: script },
+    devDependencies: { 'npm-run-all2': '^1.0.0' },
+  }
+
+  return Object.keys(sortPackageJson(packageJson).scripts)
+}
+
 const sortedScripts = ['a', 'maybeRunS', 'z']
 const unsortedScripts = ['z', 'a', 'maybeRunS']
 for (const { script, expected } of [
@@ -108,6 +117,10 @@ for (const { script, expected } of [
   test(`command: '${script}'`, (t) => {
     t.deepEqual(sortScriptsWithNpmRunAll(script), expected)
   })
+
+  test(`command: '${script}' with npm-run-all2`, (t) => {
+    t.deepEqual(sortScriptsWithNpmRunAll2(script), expected)
+  })
 }
 
 for (const field of ['scripts', 'betterScripts']) {
@@ -124,6 +137,16 @@ for (const field of ['scripts', 'betterScripts']) {
       [field]: expectAllSorted,
       devDependencies: { 'npm-run-all2': '^1.0.0' },
     },
+  })
+}
+
+// npm-run-all2
+for (const { script, expected } of [
+  // Should NOT sort
+  { script: 'npm-run-all2 -s "lint:*"', expected: unsortedScripts },
+]) {
+  test(`command: '${script}' with npm-run-all2`, (t) => {
+    t.deepEqual(sortScriptsWithNpmRunAll2(script), expected)
   })
 }
 
