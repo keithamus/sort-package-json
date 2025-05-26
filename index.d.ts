@@ -4,6 +4,7 @@ type ComparatorFunction = (left: string, right: string) => number
 
 interface Options {
   readonly sortOrder?: readonly string[] | ComparatorFunction
+  readonly ignoreScripts?: boolean
 }
 
 export interface SortPackageJson {
@@ -31,3 +32,4 @@ export default sortPackageJsonDefault
 
 export const sortPackageJson: SortPackageJson
 export const sortOrder: string[]
+export const ignoreScripts: boolean

@@ -197,6 +197,21 @@ console.log(Object.keys(sorted))
 // -> [ 'dependencies', 'name', 'version' ]
 ```
 
+#### options.ignoreScripts
+
+Type: `boolean`\
+Default: `false`
+
+If `true`, scripts will not be sorted. This is useful if you have a lot of scripts and want to keep them in the order you wrote them.
+
+```js
+const sorted = sortPackageJson(packageJsonObject, {
+  ignoreScripts: true,
+})
+
+console.log(sorted.scripts)
+```
+
 ## Related tools
 
 - [ESLint Rule with Autofix](https://github.com/kellyselden/eslint-plugin-json-files#supported-rules)

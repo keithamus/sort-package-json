@@ -407,6 +407,7 @@ const fields = [
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
+const defaultIgnoreScripts = false
 const overFields = pipe(
   fields
     .map(({ key, over }) => (over ? overProperty(key, over) : undefined))
@@ -446,6 +447,7 @@ function sortPackageJson(jsonIsh, options = {}) {
     jsonIsh,
     onObject((json) => {
       let sortOrder = options.sortOrder || defaultSortOrder
+      const ignoreScripts = options.ignoreScripts ?? defaultIgnoreScripts
 
       if (Array.isArray(sortOrder)) {
         const keys = Object.keys(json)
@@ -458,10 +460,21 @@ function sortPackageJson(jsonIsh, options = {}) {
         ]
       }
 
+      if (ignoreScripts) {
+        const scriptsField = fields.find(({ key }) => key === 'scripts')
+        if (scriptsField?.over) {
+          delete scriptsField.over
+        }
+      }
+
       return overFields(sortObjectKeys(json, sortOrder), json)
     }),
   )
 }
 
 export default sortPackageJson
-export { sortPackageJson, defaultSortOrder as sortOrder }
+export {
+  sortPackageJson,
+  defaultSortOrder as sortOrder,
+  defaultIgnoreScripts as ignoreScripts,
+}

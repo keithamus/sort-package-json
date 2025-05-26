@@ -28,3 +28,13 @@ sortPackageJson('{}', {
 sortPackageJson('{}', {
   sortOrder: (a, b) => 'not a number',
 })
+
+// $ExpectType string
+sortPackageJson('{}', {
+  ignoreScripts: true,
+})
+
+// $ExpectType string
+sortPackageJson('{}', {
+  ignoreScripts: false,
+})
