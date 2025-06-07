@@ -25,7 +25,7 @@
         "default": "./index.js"
       },
       "require": {
-        "types": "./index.d.ts",
+        "types": "./index.d.cts",
         "default": "./index.cjs"
       }
     }
@@ -37,7 +37,8 @@
     "index.d.ts",
     "cli.js",
     "reporter.js",
-    "index.cjs"
+    "index.cjs",
+    "index.d.cts"
   ],
   "scripts": {
     "build": "esbuild index.js --bundle --platform=node --outfile=index.cjs",

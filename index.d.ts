@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 type ComparatorFunction = (left: string, right: string) => number
 
 interface Options {
