@@ -47,7 +47,7 @@
     "prepublishOnly": "npm run build",
     "semantic-release": "semantic-release",
     "test": "ava && tstyche",
-    "test-coverage": "c8 ava",
+    "test-coverage": "c8 npm run test",
     "update-snapshots": "ava --update-snapshots"
   },
   "commitlint": {
