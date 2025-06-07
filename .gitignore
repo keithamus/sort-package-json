@@ -1,3 +1,4 @@
 node_modules
 /index.cjs
+/index.d.cts
 /coverage
