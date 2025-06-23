@@ -27,7 +27,7 @@ for (const field of [
 test('peerDependenciesMeta', macro.sortObjectAlphabetically, {
   path: 'peerDependenciesMeta',
   maxDepth: 2,
-  // TODO: don't use snapshot, find a esaier way for review
+  // TODO: don't use snapshot, find a easier way for review
   expect: 'snapshot',
 })
 
@@ -35,21 +35,21 @@ test('peerDependenciesMeta', macro.sortObjectAlphabetically, {
 test('dependenciesMeta', macro.sortObjectAlphabetically, {
   path: 'dependenciesMeta',
   maxDepth: 2,
-  // TODO: don't use snapshot, find a esaier way for review
+  // TODO: don't use snapshot, find a easier way for review
   expect: 'snapshot',
 })
 
 test('dependenciesMetaRange', macro.sortObjectWithRangeAlphabetically, {
   path: 'dependenciesMeta',
   maxDepth: 2,
-  // TODO: don't use snapshot, find a esaier way for review
+  // TODO: don't use snapshot, find a easier way for review
   expect: 'snapshot',
 })
 
 test('pnpm.overrides', macro.sortObjectWithRangeAlphabetically, {
   path: 'pnpm.overrides',
   maxDepth: 2,
-  // TODO: don't use snapshot, find a esaier way for review
+  // TODO: don't use snapshot, find a easier way for review
   expect: 'snapshot',
 })
 
