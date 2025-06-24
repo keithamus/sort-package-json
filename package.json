@@ -102,5 +102,8 @@
     "semantic-release": "^24.2.3",
     "tempy": "^3.1.0",
     "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
