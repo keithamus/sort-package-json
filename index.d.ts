@@ -10,9 +10,9 @@ export interface SortPackageJson {
   /**
    * Sort packageJson object.
    *
-   * @param packageJson - A packageJson
-   * @param options - An options object
-   * @returns Sorted packageJson object
+   * @param packageJson - A packageJson.
+   * @param options - An options object.
+   * @returns Sorted packageJson object.
    */
   <T extends Record<any, any>>(packageJson: T, options?: Options): T
 
@@ -20,7 +20,7 @@ export interface SortPackageJson {
    * Sort packageJson string.
    *
    * @param packageJson - A packageJson string.
-   * @param options - An options object
+   * @param options - An options object.
    * @returns Sorted packageJson string.
    */
   (packageJson: string, options?: Options): string
