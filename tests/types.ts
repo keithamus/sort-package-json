@@ -1,30 +1,30 @@
+import { expect, test } from 'tstyche'
 import sortPackageJson, {
   sortPackageJson as nestedSorter,
 } from 'sort-package-json'
 
-// $ExpectType { a: string; }
-nestedSorter({ a: '' })
+test('sortPackageJson', () => {
+  expect(nestedSorter({ a: '' })).type.toBe<{ a: string }>()
 
-// $ExpectType { a: string; }
-sortPackageJson({ a: '' })
+  expect(sortPackageJson({ a: '' })).type.toBe<{ a: string }>()
 
-// $ExpectType string
-sortPackageJson('{}')
+  expect(sortPackageJson('{}')).type.toBe<string>()
 
-// $ExpectError
-sortPackageJson(1)
+  expect(sortPackageJson).type.not.toBeCallableWith(1)
 
-// $ExpectType string
-sortPackageJson('{}', {
-  sortOrder: ['a', 'b'],
-})
+  expect(
+    sortPackageJson('{}', {
+      sortOrder: ['a', 'b'],
+    }),
+  ).type.toBe<string>()
 
-// $ExpectType string
-sortPackageJson('{}', {
-  sortOrder: (a, b) => 2,
-})
+  expect(
+    sortPackageJson('{}', {
+      sortOrder: (_a, _b) => 2,
+    }),
+  ).type.toBe<string>()
 
-// $ExpectError
-sortPackageJson('{}', {
-  sortOrder: (a, b) => 'not a number',
+  expect(sortPackageJson).type.not.toBeCallableWith('{}', {
+    sortOrder: (_a: string, _b: string) => 'not a number',
+  })
 })
