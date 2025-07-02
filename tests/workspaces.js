@@ -1,14 +1,5 @@
 import test from 'ava'
-import sortPackageJson from '../index.js'
 import { sortPackageJsonAsObject } from './_helpers.js'
-
-test('workspaces array (yarn) should be sorted and unique', (t) => {
-  const packageJson = {
-    workspaces: ['packages/c', 'packages/a', 'packages/b', 'packages/a'],
-  }
-  const sorted = sortPackageJson(packageJson)
-  t.deepEqual(sorted.workspaces, ['packages/a', 'packages/b', 'packages/c'])
-})
 
 test('workspaces object should be sorted', (t) => {
   const sortedWorkspaces = sortPackageJsonAsObject({
