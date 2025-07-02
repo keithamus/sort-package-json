@@ -103,40 +103,42 @@ const sortObjectByIdent = (a, b) => {
 // https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
 const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
 
+/**
+ * "workspaces" can be an array (npm or yarn classic) or an object (pnpm/bun).
+ * In the case of an array, we do not want to alphabetically sort it in case
+ * scripts need to run in a specific order.
+ *
+ * @see https://docs.npmjs.com/cli/v7/using-npm/workspaces?v=true#running-commands-in-the-context-of-workspaces
+ */
 const sortWorkspaces = (workspaces) => {
-  // workspaces can be an array (yarn classic) or an object (pnpm/bun)
-  if (Array.isArray(workspaces)) {
-    return uniqAndSortArray(workspaces)
+  if (!isPlainObject(workspaces)) {
+    return workspaces
   }
 
-  if (isPlainObject(workspaces)) {
-    // Sort known properties in a specific order
-    const sortedWorkspaces = {}
+  // Sort known properties in a specific order
+  const sortedWorkspaces = {}
 
-    // First add packages if it exists
-    if (workspaces.packages) {
-      sortedWorkspaces.packages = uniqAndSortArray(workspaces.packages)
-    }
-
-    // Then add catalog if it exists and sort it like dependencies
-    if (workspaces.catalog) {
-      sortedWorkspaces.catalog = sortDependenciesLikeNpm(workspaces.catalog)
-    }
-
-    // Add any other properties in alphabetical order
-    const knownKeys = ['packages', 'catalog']
-    const otherKeys = Object.keys(workspaces)
-      .filter((key) => !knownKeys.includes(key))
-      .sort()
-
-    for (const key of otherKeys) {
-      sortedWorkspaces[key] = workspaces[key]
-    }
-
-    return sortedWorkspaces
+  // First add packages if it exists
+  if (workspaces.packages) {
+    sortedWorkspaces.packages = uniqAndSortArray(workspaces.packages)
   }
 
-  return workspaces
+  // Then add catalog if it exists and sort it like dependencies
+  if (workspaces.catalog) {
+    sortedWorkspaces.catalog = sortDependenciesLikeNpm(workspaces.catalog)
+  }
+
+  // Add any other properties in alphabetical order
+  const knownKeys = ['packages', 'catalog']
+  const otherKeys = Object.keys(workspaces)
+    .filter((key) => !knownKeys.includes(key))
+    .sort()
+
+  for (const key of otherKeys) {
+    sortedWorkspaces[key] = workspaces[key]
+  }
+
+  return sortedWorkspaces
 }
 
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
