@@ -106,9 +106,9 @@ const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
 /**
  * "workspaces" can be an array (npm or yarn classic) or an object (pnpm/bun).
  * In the case of an array, we do not want to alphabetically sort it in case
- * scripts need to run in a specific order:
+ * scripts need to run in a specific order.
  *
- * https://docs.npmjs.com/cli/v7/using-npm/workspaces?v=true#running-commands-in-the-context-of-workspaces
+ * @see https://docs.npmjs.com/cli/v7/using-npm/workspaces?v=true#running-commands-in-the-context-of-workspaces
  */
 const sortWorkspaces = (workspaces) => {
   if (!isPlainObject(workspaces)) {
