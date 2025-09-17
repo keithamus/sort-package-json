@@ -15,5 +15,4 @@ export default [
     },
     settings: { node: { version: '20' } },
   },
-  { ignores: ['index.cjs'] },
 ]
