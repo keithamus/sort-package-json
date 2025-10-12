@@ -252,6 +252,7 @@ test('scripts: group scripts with multiple colons', (t) => {
       'test:b': 'bar',
       'test:a:a': 'foofoo',
       'test:a:b': 'foobar',
+      'test:a-coverage': 'foobar',
       'test:b:a': 'barfoo',
       'test:b:b': 'barbar',
       'test-coverage': 'c8 node --run test',
