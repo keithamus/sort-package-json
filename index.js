@@ -292,14 +292,31 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
+  let source = keys
   if (!hasSequentialScript(packageJson)) {
-    keys.sort()
+    const groupMap = new Map()
+    for (const key of keys) {
+      const idx = key.indexOf(':')
+      if (idx !== -1) {
+        const base = key.slice(0, idx)
+        if (!groupMap.has(base)) {
+          groupMap.set(base, [])
+        }
+        groupMap.get(base).push(key)
+      } else {
+        if (!groupMap.has(key)) {
+          groupMap.set(key, [])
+        }
+        groupMap.get(key).push(key)
+      }
+    }
+    source = Array.from(groupMap.keys())
+      .sort()
+      .flatMap((groupKey) => groupMap.get(groupKey).sort())
   }
-
-  const order = keys.flatMap((key) =>
+  const order = source.flatMap((key) =>
     prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
   )
-
   return sortObjectKeys(scripts, order)
 })
 

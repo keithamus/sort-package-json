@@ -225,3 +225,21 @@ for (const field of ['scripts', 'betterScripts']) {
     },
   )
 }
+
+test('scripts: group base and colon scripts together, do not split with unrelated', (t) => {
+  const input = {
+    scripts: {
+      test: 'run-s test:a test:b',
+      'test:a': 'foo',
+      'test:b': 'bar',
+      'test-coverage': 'c8 node --run test',
+    },
+  }
+  const sorted = sortPackageJson(input)
+  t.deepEqual(Object.keys(sorted.scripts), [
+    'test',
+    'test:a',
+    'test:b',
+    'test-coverage',
+  ])
+})
