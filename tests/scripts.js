@@ -243,3 +243,29 @@ test('scripts: group base and colon scripts together, do not split with unrelate
     'test-coverage',
   ])
 })
+
+test('scripts: group scripts with multiple colons', (t) => {
+  const input = {
+    scripts: {
+      test: 'run-s test:a test:b',
+      'test:a': 'foo',
+      'test:b': 'bar',
+      'test:a:a': 'foofoo',
+      'test:a:b': 'foobar',
+      'test:b:a': 'barfoo',
+      'test:b:b': 'barbar',
+      'test-coverage': 'c8 node --run test',
+    },
+  }
+  const sorted = sortPackageJson(input)
+  t.deepEqual(Object.keys(sorted.scripts), [
+    'test',
+    'test:a',
+    'test:a:a',
+    'test:a:b',
+    'test:b',
+    'test:b:a',
+    'test:b:b',
+    'test-coverage',
+  ])
+})
