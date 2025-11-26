@@ -32,6 +32,22 @@ const sortObjectBy = (comparator, deep) => {
 
   return over
 }
+const objectGroupBy =
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- Safe
+  Object.groupBy ||
+  // Remove this when we drop support for Node.js 20
+  ((array, callback) => {
+    const result = Object.create(null)
+    for (const value of array) {
+      const key = callback(value)
+      if (result[key]) {
+        result[key].push(value)
+      } else {
+        result[key] = [value]
+      }
+    }
+    return result
+  })
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
@@ -303,6 +319,44 @@ const sortScripts = onObject((scripts, packageJson) => {
   return sortObjectKeys(scripts, order)
 })
 
+/*
+- Move `types` and versioned type condition to top
+- Move `default` condition to bottom
+*/
+const sortConditions = (conditions) => {
+  const {
+    typesConditions = [],
+    defaultConditions = [],
+    restConditions = [],
+  } = objectGroupBy(conditions, (condition) => {
+    if (condition === 'types' || condition.startsWith('types@')) {
+      return 'typesConditions'
+    }
+
+    if (condition === 'default') {
+      return 'defaultConditions'
+    }
+
+    return 'restConditions'
+  })
+
+  return [...typesConditions, ...restConditions, ...defaultConditions]
+}
+
+const sortExports = onObject((exports) => {
+  const { paths = [], conditions = [] } = objectGroupBy(
+    Object.keys(exports),
+    (key) => (key.startsWith('.') ? 'paths' : 'conditions'),
+  )
+
+  return Object.fromEntries(
+    [...paths, ...sortConditions(conditions)].map((key) => [
+      key,
+      sortExports(exports[key]),
+    ]),
+  )
+})
+
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
 // https://code.visualstudio.com/api/references/extension-manifest
 // Supported fields:
@@ -341,7 +395,7 @@ const fields = [
   { key: 'sideEffects' },
   { key: 'type' },
   { key: 'imports' },
-  { key: 'exports' },
+  { key: 'exports', over: sortExports },
   { key: 'main' },
   { key: 'svelte' },
   { key: 'umd:main' },
