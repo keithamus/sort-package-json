@@ -5,11 +5,6 @@ import gitHooks from 'git-hooks-list'
 import isPlainObject from 'is-plain-obj'
 import semver from 'semver'
 
-const hasOwn =
-  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- will enable later
-  Object.hasOwn ||
-  // TODO: Remove this when we drop supported for Node.js v14
-  ((object, property) => Object.prototype.hasOwnProperty.call(object, property))
 const pipe =
   (fns) =>
   (x, ...args) =>
@@ -18,7 +13,7 @@ const onArray = (fn) => (x) => (Array.isArray(x) ? fn(x) : x)
 const onStringArray = (fn) => (x) =>
   Array.isArray(x) && x.every((item) => typeof item === 'string') ? fn(x) : x
 const uniq = onStringArray((xs) => [...new Set(xs)])
-const sortArray = onStringArray((array) => [...array].sort())
+const sortArray = onStringArray((array) => array.toSorted())
 const uniqAndSortArray = pipe([uniq, sortArray])
 const onObject =
   (fn) =>
@@ -37,6 +32,22 @@ const sortObjectBy = (comparator, deep) => {
 
   return over
 }
+const objectGroupBy =
+  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- Safe
+  Object.groupBy ||
+  // Remove this when we drop support for Node.js 20
+  ((array, callback) => {
+    const result = Object.create(null)
+    for (const value of array) {
+      const key = callback(value)
+      if (result[key]) {
+        result[key].push(value)
+      } else {
+        result[key] = [value]
+      }
+    }
+    return result
+  })
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
@@ -51,7 +62,7 @@ const sortDirectories = sortObjectBy([
 const overProperty =
   (property, over) =>
   (object, ...args) =>
-    hasOwn(object, property)
+    Object.hasOwn(object, property)
       ? { ...object, [property]: over(object[property], ...args) }
       : object
 const sortGitHooks = sortObjectBy(gitHooks)
@@ -102,6 +113,48 @@ const sortObjectByIdent = (a, b) => {
   if (packageNameA < packageNameB) return -1
   if (packageNameA > packageNameB) return 1
   return 0
+}
+
+// sort deps like the npm CLI does (via the package @npmcli/package-json)
+// https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
+const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
+
+/**
+ * "workspaces" can be an array (npm or yarn classic) or an object (pnpm/bun).
+ * In the case of an array, we do not want to alphabetically sort it in case
+ * scripts need to run in a specific order.
+ *
+ * @see https://docs.npmjs.com/cli/v7/using-npm/workspaces?v=true#running-commands-in-the-context-of-workspaces
+ */
+const sortWorkspaces = (workspaces) => {
+  if (!isPlainObject(workspaces)) {
+    return workspaces
+  }
+
+  // Sort known properties in a specific order
+  const sortedWorkspaces = {}
+
+  // First add packages if it exists
+  if (workspaces.packages) {
+    sortedWorkspaces.packages = uniqAndSortArray(workspaces.packages)
+  }
+
+  // Then add catalog if it exists and sort it like dependencies
+  if (workspaces.catalog) {
+    sortedWorkspaces.catalog = sortDependenciesLikeNpm(workspaces.catalog)
+  }
+
+  // Add any other properties in alphabetical order
+  const knownKeys = ['packages', 'catalog']
+  const otherKeys = Object.keys(workspaces)
+    .filter((key) => !knownKeys.includes(key))
+    .sort()
+
+  for (const key of otherKeys) {
+    sortedWorkspaces[key] = workspaces[key]
+  }
+
+  return sortedWorkspaces
 }
 
 const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
@@ -176,9 +229,28 @@ const defaultNpmScripts = new Set([
 
 const hasDevDependency = (dependency, packageJson) => {
   return (
-    hasOwn(packageJson, 'devDependencies') &&
-    hasOwn(packageJson.devDependencies, dependency)
+    Object.hasOwn(packageJson, 'devDependencies') &&
+    Object.hasOwn(packageJson.devDependencies, dependency)
   )
+}
+
+const runSRegExp =
+  /(?<=^|[\s&;<>|(])(?:run-s|npm-run-all2? .*(?:--sequential|--serial|-s))(?=$|[\s&;<>|)])/
+
+const isSequentialScript = (command) =>
+  command.includes('*') && runSRegExp.test(command)
+
+const hasSequentialScript = (packageJson) => {
+  if (
+    !hasDevDependency('npm-run-all', packageJson) &&
+    !hasDevDependency('npm-run-all2', packageJson)
+  ) {
+    return false
+  }
+  const scripts = ['scripts', 'betterScripts'].flatMap((field) =>
+    packageJson[field] ? Object.values(packageJson[field]) : [],
+  )
+  return scripts.some((script) => isSequentialScript(script))
 }
 
 const sortScripts = onObject((scripts, packageJson) => {
@@ -194,10 +266,7 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
-  if (
-    !hasDevDependency('npm-run-all', packageJson) &&
-    !hasDevDependency('npm-run-all2', packageJson)
-  ) {
+  if (!hasSequentialScript(packageJson)) {
     keys.sort()
   }
 
@@ -206,6 +275,44 @@ const sortScripts = onObject((scripts, packageJson) => {
   )
 
   return sortObjectKeys(scripts, order)
+})
+
+/*
+- Move `types` and versioned type condition to top
+- Move `default` condition to bottom
+*/
+const sortConditions = (conditions) => {
+  const {
+    typesConditions = [],
+    defaultConditions = [],
+    restConditions = [],
+  } = objectGroupBy(conditions, (condition) => {
+    if (condition === 'types' || condition.startsWith('types@')) {
+      return 'typesConditions'
+    }
+
+    if (condition === 'default') {
+      return 'defaultConditions'
+    }
+
+    return 'restConditions'
+  })
+
+  return [...typesConditions, ...restConditions, ...defaultConditions]
+}
+
+const sortExports = onObject((exports) => {
+  const { paths = [], conditions = [] } = objectGroupBy(
+    Object.keys(exports),
+    (key) => (key.startsWith('.') ? 'paths' : 'conditions'),
+  )
+
+  return Object.fromEntries(
+    [...paths, ...sortConditions(conditions)].map((key) => [
+      key,
+      sortExports(exports[key]),
+    ]),
+  )
 })
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
@@ -246,7 +353,7 @@ const fields = [
   { key: 'sideEffects' },
   { key: 'type' },
   { key: 'imports' },
-  { key: 'exports' },
+  { key: 'exports', over: sortExports },
   { key: 'main' },
   { key: 'svelte' },
   { key: 'umd:main' },
@@ -268,7 +375,7 @@ const fields = [
   { key: 'man' },
   { key: 'directories', over: sortDirectories },
   { key: 'files', over: uniq },
-  { key: 'workspaces' },
+  { key: 'workspaces', over: sortWorkspaces },
   // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
   {
     key: 'binary',
@@ -314,13 +421,14 @@ const fields = [
   { key: 'tap', over: sortObject },
   { key: 'oclif', over: sortObjectBy(undefined, true) },
   { key: 'resolutions', over: sortObject },
-  { key: 'dependencies', over: sortObject },
-  { key: 'devDependencies', over: sortObject },
+  { key: 'overrides', over: sortDependenciesLikeNpm },
+  { key: 'dependencies', over: sortDependenciesLikeNpm },
+  { key: 'devDependencies', over: sortDependenciesLikeNpm },
   { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
-  { key: 'peerDependencies', over: sortObject },
+  { key: 'peerDependencies', over: sortDependenciesLikeNpm },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
-  { key: 'optionalDependencies', over: sortObject },
+  { key: 'optionalDependencies', over: sortDependenciesLikeNpm },
   { key: 'bundledDependencies', over: uniqAndSortArray },
   { key: 'bundleDependencies', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },

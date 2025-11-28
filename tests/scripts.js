@@ -1,4 +1,5 @@
 import test from 'ava'
+import sortPackageJson from '../index.js'
 import { macro } from './_helpers.js'
 
 const fixture = {
@@ -35,37 +36,90 @@ const expectAllSorted = {
   watch: 'watch things',
 }
 
-const expectPreAndPostSorted = {
-  pretest: 'xyz',
-  test: 'node test.js',
-  posttest: 'abc',
-  multiply: '2 * 3',
-  prewatch: 'echo "about to watch"',
-  watch: 'watch things',
-  preinstall: 'echo "Installing"',
-  postinstall: 'echo "Installed"',
-  start: 'node server.js',
-  preprettier: 'echo "not pretty"',
-  prettier: 'prettier -l "**/*.js"',
-  postprettier: 'echo "so pretty"',
-  prepare: 'npm run build',
-  'pre-fetch-info': 'foo',
-}
-
 for (const field of ['scripts', 'betterScripts']) {
-  test(`${field} when npm-run-all is not a dev dependency`, macro.sortObject, {
+  test(`${field} when npm-run-all is NOT a dev dependency`, macro.sortObject, {
     value: { [field]: fixture },
     expect: { [field]: expectAllSorted },
   })
-  test(`${field} when npm-run-all is a dev dependency`, macro.sortObject, {
-    value: {
-      [field]: fixture,
-      devDependencies: { 'npm-run-all': '^1.0.0' },
+
+  test(
+    `${field} when npm-run-all IS a dev dependency, but is NOT used in scripts`,
+    macro.sortObject,
+    {
+      value: {
+        [field]: { z: 'z', a: 'a' },
+        devDependencies: { 'npm-run-all': '^1.0.0' },
+      },
+      expect: {
+        [field]: { a: 'a', z: 'z' },
+        devDependencies: { 'npm-run-all': '^1.0.0' },
+      },
     },
-    expect: {
-      [field]: expectPreAndPostSorted,
-      devDependencies: { 'npm-run-all': '^1.0.0' },
-    },
+  )
+}
+
+// `run-s` command
+function sortScriptsWithNpmRunAll(script) {
+  const packageJson = {
+    scripts: { z: 'z', a: 'a', maybeRunS: script },
+    devDependencies: { 'npm-run-all': '^1.0.0' },
+  }
+
+  return Object.keys(sortPackageJson(packageJson).scripts)
+}
+function sortScriptsWithNpmRunAll2(script) {
+  const packageJson = {
+    scripts: { z: 'z', a: 'a', maybeRunS: script },
+    devDependencies: { 'npm-run-all2': '^1.0.0' },
+  }
+
+  return Object.keys(sortPackageJson(packageJson).scripts)
+}
+
+const sortedScripts = ['a', 'maybeRunS', 'z']
+const unsortedScripts = ['z', 'a', 'maybeRunS']
+for (const { script, expected } of [
+  // Should NOT sort
+  { script: 'run-s "lint:*"', expected: unsortedScripts },
+  { script: 'npm-run-all -s "lint:*"', expected: unsortedScripts },
+  { script: 'npm-run-all --sequential "lint:*"', expected: unsortedScripts },
+  { script: 'npm-run-all --serial "lint:*"', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --sequential', expected: unsortedScripts },
+  { script: 'foo&&npm-run-all --serial "lint:*"', expected: unsortedScripts },
+  { script: 'foo||npm-run-all --serial "lint:*"', expected: unsortedScripts },
+  { script: 'foo|npm-run-all --serial "lint:*"', expected: unsortedScripts },
+  { script: 'foo>npm-run-all --serial "lint:*"', expected: unsortedScripts },
+  { script: 'foo<npm-run-all --serial "lint:*"', expected: unsortedScripts },
+  {
+    script: 'cross-env FOO=1 npm-run-all --serial "lint:*"',
+    expected: unsortedScripts,
+  },
+  { script: 'npm-run-all "lint:*" --serial&&foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial|foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial||foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial>foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial<foo', expected: unsortedScripts },
+  { script: 'npm-run-all --serial "lint:*"&&foo', expected: unsortedScripts },
+  { script: 'npm-run-all "lint:*" --serial;foo', expected: unsortedScripts },
+  { script: '(npm-run-all "lint:*" --serial)|foo', expected: unsortedScripts },
+
+  // Should sort
+  { script: 'run-s lint:a lint:b', expected: sortedScripts },
+  { script: 'not-run-s *', expected: sortedScripts },
+  { script: 'npm-run-all * --serial!', expected: sortedScripts },
+  { script: 'looks like && run-s-but-its-not *', expected: sortedScripts },
+  { script: 'npm-run-all *', expected: sortedScripts },
+  { script: 'npm-run-all --parallel watch:*', expected: sortedScripts },
+
+  // False positive
+  { script: 'rm -rf dist/* && run-s lint:a lint:b', expected: unsortedScripts },
+]) {
+  test(`command: '${script}'`, (t) => {
+    t.deepEqual(sortScriptsWithNpmRunAll(script), expected)
+  })
+
+  test(`command: '${script}' with npm-run-all2`, (t) => {
+    t.deepEqual(sortScriptsWithNpmRunAll2(script), expected)
   })
 }
 
@@ -80,9 +134,19 @@ for (const field of ['scripts', 'betterScripts']) {
       devDependencies: { 'npm-run-all2': '^1.0.0' },
     },
     expect: {
-      [field]: expectPreAndPostSorted,
+      [field]: expectAllSorted,
       devDependencies: { 'npm-run-all2': '^1.0.0' },
     },
+  })
+}
+
+// npm-run-all2
+for (const { script, expected } of [
+  // Should NOT sort
+  { script: 'npm-run-all2 -s "lint:*"', expected: unsortedScripts },
+]) {
+  test(`command: '${script}' with npm-run-all2`, (t) => {
+    t.deepEqual(sortScriptsWithNpmRunAll2(script), expected)
   })
 }
 

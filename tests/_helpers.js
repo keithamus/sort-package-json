@@ -3,9 +3,7 @@ import fs from 'node:fs'
 import { execFile } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { getProperty, setProperty } from 'dot-prop'
-import tempy from 'tempy'
-import makeDir from 'make-dir'
-import { deleteSync } from 'del'
+import * as tempy from 'tempy'
 import sortPackageJson from '../index.js'
 
 const cliScript = fileURLToPath(new URL('../cli.js', import.meta.url))
@@ -163,11 +161,11 @@ function asItIs(t, { path, options }, excludeTypes = []) {
 }
 
 async function testCLI(t, { fixtures = [], args, message, stdin }) {
-  const cwd = tempy.directory()
+  const temporaryDirectory = tempy.temporaryDirectory()
 
   fixtures = fixtures.map(({ file = 'package.json', content, expect }) => {
-    const absolutePath = path.join(cwd, file)
-    makeDir.sync(path.dirname(absolutePath))
+    const absolutePath = path.join(temporaryDirectory, file)
+    fs.mkdirSync(path.dirname(absolutePath), { recursive: true })
 
     const original =
       typeof content === 'string' ? content : JSON.stringify(content, null, 2)
@@ -185,7 +183,7 @@ async function testCLI(t, { fixtures = [], args, message, stdin }) {
 
   const result = await runCLI({
     args,
-    cwd,
+    cwd: temporaryDirectory,
     message,
     stdin,
   })
@@ -195,7 +193,7 @@ async function testCLI(t, { fixtures = [], args, message, stdin }) {
   }
 
   // clean up fixtures
-  deleteSync(cwd, { force: true })
+  fs.rmSync(temporaryDirectory, { force: true, recursive: true })
 
   for (const { actual, expect, file } of fixtures) {
     t.is(actual, expect, `\`${file}\` content is expected.`)

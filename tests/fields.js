@@ -32,7 +32,6 @@ for (const field of [
   'examplestyle',
   'assets',
   'man',
-  'workspaces',
   'pre-commit',
   'browserslist',
   'stylelint',

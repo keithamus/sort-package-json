@@ -6,10 +6,10 @@ class Reporter {
   #status
   #logger
 
-  constructor(files, options) {
+  constructor(options) {
     this.#options = options
     this.#status = {
-      matchedFilesCount: files.length,
+      matchedFilesCount: 0,
       failedFilesCount: 0,
       wellSortedFilesCount: 0,
       changedFilesCount: 0,
@@ -27,6 +27,10 @@ class Reporter {
             console.error(...args)
           },
         }
+  }
+
+  reportFound(/* file */) {
+    this.#status.matchedFilesCount++
   }
 
   // The file is well-sorted
@@ -60,7 +64,7 @@ class Reporter {
       return
     }
 
-    const { isCheck, isQuiet } = this.#options
+    const { isCheck, shouldBeQuiet } = this.#options
 
     if (isCheck && changedFilesCount) {
       process.exitCode = 1
@@ -70,7 +74,7 @@ class Reporter {
       process.exitCode = 2
     }
 
-    if (isQuiet) {
+    if (shouldBeQuiet) {
       return
     }
 

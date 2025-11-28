@@ -12,12 +12,9 @@ jobs:
           # - 'macos-latest'
           # - 'windows-latest'
         node_version:
+          - '24'
           - '22'
           - '20'
-          - '18'
-          - '16'
-          - '14'
-          - '12'
     name: Node.js ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -33,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        if: matrix.node_version == '22'
+        if: matrix.node_version == '24'
         run: npm run lint
 
       - name: Run Tests

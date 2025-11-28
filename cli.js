@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-import { globSync } from 'tinyglobby'
-import fs from 'node:fs'
-import getStdin from 'get-stdin'
+import fs from 'node:fs/promises'
+import streamConsumers from 'node:stream/consumers'
+import { parseArgs } from 'node:util'
+import { glob } from 'tinyglobby'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
+import packageJson from './package.json' with { type: 'json' }
 
 function showVersion() {
-  const { name, version } = JSON.parse(
-    fs.readFileSync(new URL('package.json', import.meta.url)),
-  )
+  const { name, version } = packageJson
 
   console.log(`${name} ${version}`)
 }
@@ -30,95 +30,104 @@ If file/glob is omitted, './package.json' file will be processed.
   )
 }
 
-function sortPackageJsonFile(file, reporter, isCheck) {
-  const original = fs.readFileSync(file, 'utf8')
+function parseCliArguments() {
+  const { values: options, positionals: patterns } = parseArgs({
+    options: {
+      check: { type: 'boolean', short: 'c', default: false },
+      quiet: { type: 'boolean', short: 'q', default: false },
+      stdin: { type: 'boolean', default: false },
+      ignore: {
+        type: 'string',
+        short: 'i',
+        multiple: true,
+        default: ['node_modules/**'],
+      },
+      version: { type: 'boolean', short: 'v', default: false },
+      help: { type: 'boolean', short: 'h', default: false },
+    },
+    allowPositionals: true,
+    strict: true,
+  })
+
+  if (patterns.length === 0) {
+    patterns[0] = 'package.json'
+  }
+
+  return { options, patterns }
+}
+
+async function sortPackageJsonFile(file, reporter, isCheck) {
+  const original = await fs.readFile(file, 'utf8')
   const sorted = sortPackageJson(original)
   if (sorted === original) {
     return reporter.reportNotChanged(file)
   }
 
   if (!isCheck) {
-    fs.writeFileSync(file, sorted)
+    await fs.writeFile(file, sorted)
   }
 
   reporter.reportChanged(file)
 }
 
-function sortPackageJsonFiles(patterns, { ignore, ...options }) {
-  const files = globSync(patterns, { ignore })
-  const reporter = new Reporter(files, options)
+async function sortPackageJsonFiles(patterns, { ignore, ...options }) {
+  const files = await glob(patterns, { ignore })
+
+  const reporter = new Reporter(options)
   const { isCheck } = options
 
   for (const file of files) {
+    reporter.reportFound(file)
+
     try {
-      sortPackageJsonFile(file, reporter, isCheck)
+      await sortPackageJsonFile(file, reporter, isCheck)
     } catch (error) {
       reporter.reportFailed(file, error)
     }
   }
+
   reporter.printSummary()
 }
 
 async function sortPackageJsonFromStdin() {
-  process.stdout.write(sortPackageJson(await getStdin()))
+  process.stdout.write(
+    sortPackageJson(await streamConsumers.text(process.stdin)),
+  )
 }
 
-function run() {
-  const cliArguments = process.argv
-    .slice(2)
-    .map((arg) => arg.split('='))
-    .flat()
+async function run() {
+  let options, patterns
+  try {
+    ;({ options, patterns } = parseCliArguments())
+  } catch (error) {
+    process.exitCode = 2
+    console.error(error.message)
+    if (
+      error.code === 'ERR_PARSE_ARGS_UNKNOWN_OPTION' ||
+      error.code === 'ERR_PARSE_ARGS_INVALID_OPTION_VALUE'
+    ) {
+      console.error(`Try 'sort-package-json --help' for more information.`)
+    }
+    return
+  }
 
-  if (
-    cliArguments.some((argument) => argument === '--help' || argument === '-h')
-  ) {
+  if (options.help) {
     return showHelpInformation()
   }
 
-  if (
-    cliArguments.some(
-      (argument) => argument === '--version' || argument === '-v',
-    )
-  ) {
+  if (options.version) {
     return showVersion()
   }
 
-  if (cliArguments.some((argument) => argument === '--stdin')) {
+  if (options.stdin) {
     return sortPackageJsonFromStdin()
   }
 
-  const patterns = []
-  const ignore = []
-  let isCheck = false
-  let shouldBeQuiet = false
-
-  let lastArg
-  for (const argument of cliArguments) {
-    if (lastArg === '--ignore' || lastArg === '-i') {
-      ignore.push(argument)
-      lastArg = undefined
-      continue
-    }
-    if (argument === '--check' || argument === '-c') {
-      isCheck = true
-    } else if (argument === '--quiet' || argument === '-q') {
-      shouldBeQuiet = true
-    } else if (argument === '--ignore' || argument === '-i') {
-      lastArg = argument
-    } else {
-      patterns.push(argument)
-    }
-  }
-
-  if (!patterns.length) {
-    patterns[0] = 'package.json'
-  }
-
-  if (!ignore.length) {
-    ignore[0] = 'node_modules'
-  }
-
-  sortPackageJsonFiles(patterns, { ignore, isCheck, shouldBeQuiet })
+  await sortPackageJsonFiles(patterns, {
+    ignore: options.ignore,
+    isCheck: options.check,
+    shouldBeQuiet: options.quiet,
+  })
 }
 
-run()
+await run()
