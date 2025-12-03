@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import sortObjectKeys from 'sort-object-keys'
 import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
@@ -115,9 +116,43 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
-// sort deps like the npm CLI does (via the package @npmcli/package-json)
+// Sort using locale-aware comparison (used by npm)
 // https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
-const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
+const sortObjectAlphabeticallyWithLocale = sortObjectBy((a, b) =>
+  a.localeCompare(b, 'en'),
+)
+
+// Sort using simple string comparison (used by yarn and pnpm)
+const sortObjectAlphabetically = sortObjectBy((a, b) => {
+  if (a < b) return -1
+  if (a > b) return 1
+  return 0
+})
+
+/**
+ * Detects the package manager from package.json and lock files
+ * @param {object} json - The parsed package.json object
+ * @returns {'npm'|'yarn'|'pnpm'} - The detected package manager. Default to npm if not detected.
+ */
+function detectPackageManager(json) {
+  if (json.packageManager && typeof json.packageManager === 'string') {
+    if (json.packageManager.startsWith('yarn@')) return 'yarn'
+    if (json.packageManager.startsWith('pnpm@')) return 'pnpm'
+  }
+
+  if (json.pnpm) return 'pnpm'
+  if (json.engines?.npm) return 'npm'
+
+  try {
+    if (fs.existsSync('yarn.lock')) return 'yarn'
+    if (fs.existsSync('pnpm-lock.yaml')) return 'pnpm'
+    if (fs.existsSync('package-lock.json')) return 'npm'
+  } catch {
+    // If fs operations fail, default to npm
+  }
+
+  return 'npm'
+}
 
 /**
  * "workspaces" can be an array (npm or yarn classic) or an object (pnpm/bun).
@@ -139,9 +174,11 @@ const sortWorkspaces = (workspaces) => {
     sortedWorkspaces.packages = uniqAndSortArray(workspaces.packages)
   }
 
-  // Then add catalog if it exists and sort it like dependencies
+  // Then add catalog if it exists and sort it using locale-aware comparison
   if (workspaces.catalog) {
-    sortedWorkspaces.catalog = sortDependenciesLikeNpm(workspaces.catalog)
+    sortedWorkspaces.catalog = sortObjectAlphabeticallyWithLocale(
+      workspaces.catalog,
+    )
   }
 
   // Add any other properties in alphabetical order
@@ -357,153 +394,167 @@ const sortExports = onObject((exports) => {
   )
 })
 
-// fields marked `vscode` are for `Visual Studio Code extension manifest` only
-// https://code.visualstudio.com/api/references/extension-manifest
-// Supported fields:
-// publisher, displayName, categories, galleryBanner, preview, contributes,
-// activationEvents, badges, markdown, qna, extensionPack,
-// extensionDependencies, icon
+/**
+ * Creates fields configuration with appropriate sorting function for
+ * dependencies based on the package manager
+ *
+ * fields marked `vscode` are for `Visual Studio Code extension manifest` only
+ * https://code.visualstudio.com/api/references/extension-manifest
+ * Supported fields:
+ * publisher, displayName, categories, galleryBanner, preview, contributes,
+ * activationEvents, badges, markdown, qna, extensionPack,
+ * extensionDependencies, icon
+ *
+ * field.key{string}: field name
+ * field.over{function}: sort field subKey
+ *
+ * @param {'npm'|'yarn'|'pnpm'} packageManager - The package manager to use
+ * @returns {Array} fields configuration array
+ */
+function createFields(packageManager) {
+  // npm uses locale-aware comparison, yarn and pnpm use simple string comparison
+  const sortDependencies =
+    packageManager === 'npm'
+      ? sortObjectAlphabeticallyWithLocale
+      : sortObjectAlphabetically
 
-// field.key{string}: field name
-// field.over{function}: sort field subKey
-const fields = [
-  { key: '$schema' },
-  { key: 'name' },
-  /* vscode */ { key: 'displayName' },
-  { key: 'version' },
-  /* yarn */ { key: 'stableVersion' },
-  { key: 'private' },
-  { key: 'description' },
-  /* vscode */ { key: 'categories', over: uniq },
-  { key: 'keywords', over: uniq },
-  { key: 'homepage' },
-  { key: 'bugs', over: sortObjectBy(['url', 'email']) },
-  { key: 'repository', over: sortURLObject },
-  { key: 'funding', over: sortURLObject },
-  { key: 'license', over: sortURLObject },
-  /* vscode */ { key: 'qna' },
-  { key: 'author', over: sortPeopleObject },
-  {
-    key: 'maintainers',
-    over: onArray((maintainers) => maintainers.map(sortPeopleObject)),
-  },
-  {
-    key: 'contributors',
-    over: onArray((contributors) => contributors.map(sortPeopleObject)),
-  },
-  /* vscode */ { key: 'publisher' },
-  { key: 'sideEffects' },
-  { key: 'type' },
-  { key: 'imports' },
-  { key: 'exports', over: sortExports },
-  { key: 'main' },
-  { key: 'svelte' },
-  { key: 'umd:main' },
-  { key: 'jsdelivr' },
-  { key: 'unpkg' },
-  { key: 'module' },
-  { key: 'source' },
-  { key: 'jsnext:main' },
-  { key: 'browser' },
-  { key: 'react-native' },
-  { key: 'types' },
-  { key: 'typesVersions' },
-  { key: 'typings' },
-  { key: 'style' },
-  { key: 'example' },
-  { key: 'examplestyle' },
-  { key: 'assets' },
-  { key: 'bin', over: sortObject },
-  { key: 'man' },
-  { key: 'directories', over: sortDirectories },
-  { key: 'files', over: uniq },
-  { key: 'workspaces', over: sortWorkspaces },
-  // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
-  {
-    key: 'binary',
-    over: sortObjectBy([
-      'module_name',
-      'module_path',
-      'remote_path',
-      'package_name',
-      'host',
-    ]),
-  },
-  { key: 'scripts', over: sortScripts },
-  { key: 'betterScripts', over: sortScripts },
-  /* vscode */ { key: 'l10n' },
-  /* vscode */ { key: 'contributes', over: sortObject },
-  /* vscode */ { key: 'activationEvents', over: uniq },
-  { key: 'husky', over: overProperty('hooks', sortGitHooks) },
-  { key: 'simple-git-hooks', over: sortGitHooks },
-  { key: 'pre-commit' },
-  { key: 'commitlint', over: sortObject },
-  { key: 'lint-staged' },
-  { key: 'nano-staged' },
-  { key: 'config', over: sortObject },
-  { key: 'nodemonConfig', over: sortObject },
-  { key: 'browserify', over: sortObject },
-  { key: 'babel', over: sortObject },
-  { key: 'browserslist' },
-  { key: 'xo', over: sortObject },
-  { key: 'prettier', over: sortPrettierConfig },
-  { key: 'eslintConfig', over: sortEslintConfig },
-  { key: 'eslintIgnore' },
-  { key: 'npmpkgjsonlint', over: sortObject },
-  { key: 'npmPackageJsonLintConfig', over: sortObject },
-  { key: 'npmpackagejsonlint', over: sortObject },
-  { key: 'release', over: sortObject },
-  { key: 'remarkConfig', over: sortObject },
-  { key: 'stylelint' },
-  { key: 'ava', over: sortObject },
-  { key: 'jest', over: sortObject },
-  { key: 'jest-junit', over: sortObject },
-  { key: 'jest-stare', over: sortObject },
-  { key: 'mocha', over: sortObject },
-  { key: 'nyc', over: sortObject },
-  { key: 'c8', over: sortObject },
-  { key: 'tap', over: sortObject },
-  { key: 'oclif', over: sortObjectBy(undefined, true) },
-  { key: 'resolutions', over: sortObject },
-  { key: 'overrides', over: sortDependenciesLikeNpm },
-  { key: 'dependencies', over: sortDependenciesLikeNpm },
-  { key: 'devDependencies', over: sortDependenciesLikeNpm },
-  { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
-  { key: 'peerDependencies', over: sortDependenciesLikeNpm },
-  // TODO: only sort depth = 2
-  { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
-  { key: 'optionalDependencies', over: sortDependenciesLikeNpm },
-  { key: 'bundledDependencies', over: uniqAndSortArray },
-  { key: 'bundleDependencies', over: uniqAndSortArray },
-  /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
-  /* vscode */ { key: 'extensionDependencies', over: uniqAndSortArray },
-  { key: 'flat' },
-  { key: 'packageManager' },
-  { key: 'engines', over: sortObject },
-  { key: 'engineStrict', over: sortObject },
-  { key: 'volta', over: sortVolta },
-  { key: 'languageName' },
-  { key: 'os' },
-  { key: 'cpu' },
-  { key: 'preferGlobal', over: sortObject },
-  { key: 'publishConfig', over: sortObject },
-  /* vscode */ { key: 'icon' },
-  /* vscode */ {
-    key: 'badges',
-    over: onArray((badge) => badge.map(sortVSCodeBadgeObject)),
-  },
-  /* vscode */ { key: 'galleryBanner', over: sortObject },
-  /* vscode */ { key: 'preview' },
-  /* vscode */ { key: 'markdown' },
-  { key: 'pnpm', over: sortPnpmConfig },
-]
+  return [
+    { key: '$schema' },
+    { key: 'name' },
+    /* vscode */ { key: 'displayName' },
+    { key: 'version' },
+    /* yarn */ { key: 'stableVersion' },
+    { key: 'private' },
+    { key: 'description' },
+    /* vscode */ { key: 'categories', over: uniq },
+    { key: 'keywords', over: uniq },
+    { key: 'homepage' },
+    { key: 'bugs', over: sortObjectBy(['url', 'email']) },
+    { key: 'repository', over: sortURLObject },
+    { key: 'funding', over: sortURLObject },
+    { key: 'license', over: sortURLObject },
+    /* vscode */ { key: 'qna' },
+    { key: 'author', over: sortPeopleObject },
+    {
+      key: 'maintainers',
+      over: onArray((maintainers) => maintainers.map(sortPeopleObject)),
+    },
+    {
+      key: 'contributors',
+      over: onArray((contributors) => contributors.map(sortPeopleObject)),
+    },
+    /* vscode */ { key: 'publisher' },
+    { key: 'sideEffects' },
+    { key: 'type' },
+    { key: 'imports' },
+    { key: 'exports', over: sortExports },
+    { key: 'main' },
+    { key: 'svelte' },
+    { key: 'umd:main' },
+    { key: 'jsdelivr' },
+    { key: 'unpkg' },
+    { key: 'module' },
+    { key: 'source' },
+    { key: 'jsnext:main' },
+    { key: 'browser' },
+    { key: 'react-native' },
+    { key: 'types' },
+    { key: 'typesVersions' },
+    { key: 'typings' },
+    { key: 'style' },
+    { key: 'example' },
+    { key: 'examplestyle' },
+    { key: 'assets' },
+    { key: 'bin', over: sortObject },
+    { key: 'man' },
+    { key: 'directories', over: sortDirectories },
+    { key: 'files', over: uniq },
+    { key: 'workspaces', over: sortWorkspaces },
+    // node-pre-gyp https://www.npmjs.com/package/node-pre-gyp#1-add-new-entries-to-your-packagejson
+    {
+      key: 'binary',
+      over: sortObjectBy([
+        'module_name',
+        'module_path',
+        'remote_path',
+        'package_name',
+        'host',
+      ]),
+    },
+    { key: 'scripts', over: sortScripts },
+    { key: 'betterScripts', over: sortScripts },
+    /* vscode */ { key: 'l10n' },
+    /* vscode */ { key: 'contributes', over: sortObject },
+    /* vscode */ { key: 'activationEvents', over: uniq },
+    { key: 'husky', over: overProperty('hooks', sortGitHooks) },
+    { key: 'simple-git-hooks', over: sortGitHooks },
+    { key: 'pre-commit' },
+    { key: 'commitlint', over: sortObject },
+    { key: 'lint-staged' },
+    { key: 'nano-staged' },
+    { key: 'config', over: sortObject },
+    { key: 'nodemonConfig', over: sortObject },
+    { key: 'browserify', over: sortObject },
+    { key: 'babel', over: sortObject },
+    { key: 'browserslist' },
+    { key: 'xo', over: sortObject },
+    { key: 'prettier', over: sortPrettierConfig },
+    { key: 'eslintConfig', over: sortEslintConfig },
+    { key: 'eslintIgnore' },
+    { key: 'npmpkgjsonlint', over: sortObject },
+    { key: 'npmPackageJsonLintConfig', over: sortObject },
+    { key: 'npmpackagejsonlint', over: sortObject },
+    { key: 'release', over: sortObject },
+    { key: 'remarkConfig', over: sortObject },
+    { key: 'stylelint' },
+    { key: 'ava', over: sortObject },
+    { key: 'jest', over: sortObject },
+    { key: 'jest-junit', over: sortObject },
+    { key: 'jest-stare', over: sortObject },
+    { key: 'mocha', over: sortObject },
+    { key: 'nyc', over: sortObject },
+    { key: 'c8', over: sortObject },
+    { key: 'tap', over: sortObject },
+    { key: 'oclif', over: sortObjectBy(undefined, true) },
+    { key: 'resolutions', over: sortObject },
+    { key: 'overrides', over: sortDependencies },
+    { key: 'dependencies', over: sortDependencies },
+    { key: 'devDependencies', over: sortDependencies },
+    { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
+    { key: 'peerDependencies', over: sortDependencies },
+    // TODO: only sort depth = 2
+    { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
+    { key: 'optionalDependencies', over: sortDependencies },
+    { key: 'bundledDependencies', over: uniqAndSortArray },
+    { key: 'bundleDependencies', over: uniqAndSortArray },
+    /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
+    /* vscode */ { key: 'extensionDependencies', over: uniqAndSortArray },
+    { key: 'flat' },
+    { key: 'packageManager' },
+    { key: 'engines', over: sortObject },
+    { key: 'engineStrict', over: sortObject },
+    { key: 'volta', over: sortVolta },
+    { key: 'languageName' },
+    { key: 'os' },
+    { key: 'cpu' },
+    { key: 'preferGlobal', over: sortObject },
+    { key: 'publishConfig', over: sortObject },
+    /* vscode */ { key: 'icon' },
+    /* vscode */ {
+      key: 'badges',
+      over: onArray((badge) => badge.map(sortVSCodeBadgeObject)),
+    },
+    /* vscode */ { key: 'galleryBanner', over: sortObject },
+    /* vscode */ { key: 'preview' },
+    /* vscode */ { key: 'markdown' },
+    { key: 'pnpm', over: sortPnpmConfig },
+  ]
+}
+
+// Create default fields with npm sorting (for backwards compatibility and exports)
+const fields = createFields('npm')
 
 const defaultSortOrder = fields.map(({ key }) => key)
-const overFields = pipe(
-  fields
-    .map(({ key, over }) => (over ? overProperty(key, over) : undefined))
-    .filter(Boolean),
-)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -537,6 +588,15 @@ function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
     onObject((json) => {
+      // Detect package manager and create appropriate fields configuration
+      const packageManager = detectPackageManager(json)
+      const fieldsForPackageManager = createFields(packageManager)
+      const overFields = pipe(
+        fieldsForPackageManager
+          .map(({ key, over }) => (over ? overProperty(key, over) : undefined))
+          .filter(Boolean),
+      )
+
       let sortOrder = options.sortOrder || defaultSortOrder
 
       if (Array.isArray(sortOrder)) {
