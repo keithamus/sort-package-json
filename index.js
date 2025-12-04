@@ -297,7 +297,6 @@ function groupRecursive(keys, prefix = '') {
     .sort()
     .flatMap((groupKey) => {
       const children = groupMap.get(groupKey)
-      // If there are further colon children, recurse
       if (
         children.length > 1 &&
         children.some((k) => k !== groupKey && k.startsWith(groupKey + ':'))
