@@ -279,6 +279,39 @@ const hasSequentialScript = (packageJson) => {
   return scripts.some((script) => isSequentialScript(script))
 }
 
+function groupRecursive(keys, prefix = '') {
+  const groupMap = new Map()
+  for (const key of keys) {
+    const rest = prefix ? key.slice(prefix.length + 1) : key
+    const idx = rest.indexOf(':')
+    if (idx !== -1) {
+      const base = key.slice(0, (prefix ? prefix.length + 1 : 0) + idx)
+      if (!groupMap.has(base)) groupMap.set(base, [])
+      groupMap.get(base).push(key)
+    } else {
+      if (!groupMap.has(key)) groupMap.set(key, [])
+      groupMap.get(key).push(key)
+    }
+  }
+  return Array.from(groupMap.keys())
+    .sort()
+    .flatMap((groupKey) => {
+      const children = groupMap.get(groupKey)
+      // If there are further colon children, recurse
+      if (
+        children.length > 1 &&
+        children.some((k) => k !== groupKey && k.startsWith(groupKey + ':'))
+      ) {
+        const direct = children
+          .filter((k) => k === groupKey || !k.startsWith(groupKey + ':'))
+          .sort()
+        const nested = children.filter((k) => k.startsWith(groupKey + ':'))
+        return [...direct, ...groupRecursive(nested, groupKey)]
+      }
+      return children.sort()
+    })
+}
+
 const sortScripts = onObject((scripts, packageJson) => {
   const names = Object.keys(scripts)
   const prefixable = new Set()
@@ -294,25 +327,7 @@ const sortScripts = onObject((scripts, packageJson) => {
 
   let source = keys
   if (!hasSequentialScript(packageJson)) {
-    const groupMap = new Map()
-    for (const key of keys) {
-      const idx = key.indexOf(':')
-      if (idx !== -1) {
-        const base = key.slice(0, idx)
-        if (!groupMap.has(base)) {
-          groupMap.set(base, [])
-        }
-        groupMap.get(base).push(key)
-      } else {
-        if (!groupMap.has(key)) {
-          groupMap.set(key, [])
-        }
-        groupMap.get(key).push(key)
-      }
-    }
-    source = Array.from(groupMap.keys())
-      .sort()
-      .flatMap((groupKey) => groupMap.get(groupKey).sort())
+    source = groupRecursive(keys)
   }
   const order = source.flatMap((key) =>
     prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
