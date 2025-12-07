@@ -142,14 +142,14 @@ function detectPackageManager(json) {
 }
 
 /**
- * Sort dependencies alphabetically, detecting package manager to use
- * appropriate comparison npm uses locale-aware comparison, yarn and pnpm use
+ * Sort dependencies alphabetically, detecting package manager to use the
+ * appropriate comparison. npm uses locale-aware comparison, yarn and pnpm use
  * simple string comparison
  *
  * @param {object} packageJson - The full package.json object for detection
  * @returns {function} - Sort function for dependencies
  */
-function sortObjectLikePackageManager(packageJson) {
+function sortDependencies(packageJson) {
   const packageManager = detectPackageManager(packageJson)
 
   if (packageManager === 'npm') {
@@ -515,14 +515,14 @@ const fields = [
   { key: 'tap', over: sortObject },
   { key: 'oclif', over: sortObjectBy(undefined, true) },
   { key: 'resolutions', over: sortObject },
-  { key: 'overrides', over: sortObjectLikePackageManager },
-  { key: 'dependencies', over: sortObjectLikePackageManager },
-  { key: 'devDependencies', over: sortObjectLikePackageManager },
+  { key: 'overrides', over: sortDependencies },
+  { key: 'dependencies', over: sortDependencies },
+  { key: 'devDependencies', over: sortDependencies },
   { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
-  { key: 'peerDependencies', over: sortObjectLikePackageManager },
+  { key: 'peerDependencies', over: sortDependencies },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
-  { key: 'optionalDependencies', over: sortObjectLikePackageManager },
+  { key: 'optionalDependencies', over: sortDependencies },
   { key: 'bundledDependencies', over: uniqAndSortArray },
   { key: 'bundleDependencies', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
@@ -588,7 +588,7 @@ function sortPackageJson(jsonIsh, options = {}) {
             if (over) {
               // Pass the whole json object to functions that need package
               // manager detection
-              if (over === sortObjectLikePackageManager) {
+              if (over === sortDependencies) {
                 return overProperty(key, over(json))
               }
               return overProperty(key, over)
