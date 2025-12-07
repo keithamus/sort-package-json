@@ -116,29 +116,38 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
+let detectedPackageManager
+
 /**
  * Detects the package manager from package.json and lock files
  * @param {object} json - The parsed package.json object
  * @returns {'npm'|'yarn'|'pnpm'} - The detected package manager. Default to npm if not detected.
  */
 function detectPackageManager(json) {
-  if (json.packageManager && typeof json.packageManager === 'string') {
-    if (json.packageManager.startsWith('yarn@')) return 'yarn'
-    if (json.packageManager.startsWith('pnpm@')) return 'pnpm'
+  function cacheAndReturn(packageManager) {
+    detectedPackageManager = packageManager
+    return detectedPackageManager
   }
 
-  if (json.pnpm) return 'pnpm'
-  if (json.engines?.npm) return 'npm'
+  if (detectedPackageManager) return detectedPackageManager
+
+  if (json.packageManager && typeof json.packageManager === 'string') {
+    if (json.packageManager.startsWith('yarn@')) return cacheAndReturn('yarn')
+    if (json.packageManager.startsWith('pnpm@')) return cacheAndReturn('pnpm')
+  }
+
+  if (json.pnpm) return cacheAndReturn('pnpm')
+  if (json.engines?.npm) return cacheAndReturn('npm')
 
   try {
-    if (fs.existsSync('yarn.lock')) return 'yarn'
-    if (fs.existsSync('pnpm-lock.yaml')) return 'pnpm'
-    if (fs.existsSync('package-lock.json')) return 'npm'
+    if (fs.existsSync('yarn.lock')) return cacheAndReturn('yarn')
+    if (fs.existsSync('pnpm-lock.yaml')) return cacheAndReturn('pnpm')
+    if (fs.existsSync('package-lock.json')) return cacheAndReturn('npm')
   } catch {
     // If fs operations fail, default to npm
   }
 
-  return 'npm'
+  return cacheAndReturn('npm')
 }
 
 /**
@@ -579,6 +588,7 @@ const partition = (array, predicate) =>
     [[], []],
   )
 function sortPackageJson(jsonIsh, options = {}) {
+  detectedPackageManager = undefined
   return editStringJSON(
     jsonIsh,
     onObject((json) => {
