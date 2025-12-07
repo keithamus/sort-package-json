@@ -116,7 +116,7 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
-let detectedPackageManager
+let cachedDetectedPackageManager
 
 /**
  * Detects the package manager from package.json and lock files
@@ -125,11 +125,11 @@ let detectedPackageManager
  */
 function detectPackageManager(json) {
   function cacheAndReturn(packageManager) {
-    detectedPackageManager = packageManager
-    return detectedPackageManager
+    cachedDetectedPackageManager = packageManager
+    return cachedDetectedPackageManager
   }
 
-  if (detectedPackageManager) return detectedPackageManager
+  if (cachedDetectedPackageManager) return cachedDetectedPackageManager
 
   if (json.packageManager && typeof json.packageManager === 'string') {
     if (json.packageManager.startsWith('yarn@')) return cacheAndReturn('yarn')
@@ -588,7 +588,8 @@ const partition = (array, predicate) =>
     [[], []],
   )
 function sortPackageJson(jsonIsh, options = {}) {
-  detectedPackageManager = undefined
+  // Reset cache at the start
+  cachedDetectedPackageManager = undefined
   return editStringJSON(
     jsonIsh,
     onObject((json) => {
