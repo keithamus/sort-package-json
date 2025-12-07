@@ -142,12 +142,14 @@ function detectPackageManager(json) {
 }
 
 /**
- * Sort dependencies alphabetically, detecting package manager to use appropriate comparison
- * npm uses locale-aware comparison, yarn and pnpm use simple string comparison
+ * Sort dependencies alphabetically, detecting package manager to use
+ * appropriate comparison npm uses locale-aware comparison, yarn and pnpm use
+ * simple string comparison
+ *
  * @param {object} packageJson - The full package.json object for detection
  * @returns {function} - Sort function for dependencies
  */
-function sortObjectAlphabeticallyDetectingPackageManager(packageJson) {
+function sortObjectLikePackageManager(packageJson) {
   const packageManager = detectPackageManager(packageJson)
 
   if (packageManager === 'npm') {
@@ -184,7 +186,8 @@ const sortWorkspaces = (workspaces) => {
     sortedWorkspaces.packages = uniqAndSortArray(workspaces.packages)
   }
 
-  // Then add catalog if it exists and sort it using locale-aware comparison (npm-style)
+  // Then add catalog if it exists and sort it using locale-aware comparison
+  // (npm-style)
   if (workspaces.catalog) {
     sortedWorkspaces.catalog = sortObjectBy((a, b) => a.localeCompare(b, 'en'))(
       workspaces.catalog,
@@ -512,26 +515,14 @@ const fields = [
   { key: 'tap', over: sortObject },
   { key: 'oclif', over: sortObjectBy(undefined, true) },
   { key: 'resolutions', over: sortObject },
-  { key: 'overrides', over: sortObjectAlphabeticallyDetectingPackageManager },
-  {
-    key: 'dependencies',
-    over: sortObjectAlphabeticallyDetectingPackageManager,
-  },
-  {
-    key: 'devDependencies',
-    over: sortObjectAlphabeticallyDetectingPackageManager,
-  },
+  { key: 'overrides', over: sortObjectLikePackageManager },
+  { key: 'dependencies', over: sortObjectLikePackageManager },
+  { key: 'devDependencies', over: sortObjectLikePackageManager },
   { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
-  {
-    key: 'peerDependencies',
-    over: sortObjectAlphabeticallyDetectingPackageManager,
-  },
+  { key: 'peerDependencies', over: sortObjectLikePackageManager },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
-  {
-    key: 'optionalDependencies',
-    over: sortObjectAlphabeticallyDetectingPackageManager,
-  },
+  { key: 'optionalDependencies', over: sortObjectLikePackageManager },
   { key: 'bundledDependencies', over: uniqAndSortArray },
   { key: 'bundleDependencies', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
@@ -595,8 +586,9 @@ function sortPackageJson(jsonIsh, options = {}) {
         fields
           .map(({ key, over }) => {
             if (over) {
-              // Pass the whole json object to functions that need package manager detection
-              if (over === sortObjectAlphabeticallyDetectingPackageManager) {
+              // Pass the whole json object to functions that need package
+              // manager detection
+              if (over === sortObjectLikePackageManager) {
                 return overProperty(key, over(json))
               }
               return overProperty(key, over)
