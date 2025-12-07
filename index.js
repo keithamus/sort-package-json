@@ -116,63 +116,61 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
-let cachedDetectedPackageManager
+const cache = new WeakMap()
+const hasYarnOrPnpmLock = (packageJson) => {
+  if (!cache.has(packageJson)) {
+    cache.set(
+      packageJson,
+      fs.existsSync('yarn.lock') || fs.existsSync('pnpm-lock.yaml'),
+    )
+  }
+  return cache.get(packageJson)
+}
 
 /**
  * Detects the package manager from package.json and lock files
  * @param {object} json - The parsed package.json object
- * @returns {'npm'|'yarn'|'pnpm'} - The detected package manager. Default to npm if not detected.
+ * @returns {boolean} - The detected package manager. Default to npm if not detected.
  */
-function detectPackageManager(json) {
-  function cacheAndReturn(packageManager) {
-    cachedDetectedPackageManager = packageManager
-    return cachedDetectedPackageManager
+function shouldSortDependenciesLikeNpm(json) {
+  const packageManager = json.packageManager
+  if (
+    typeof packageManager === 'string' &&
+    (packageManager.startsWith('yarn@') || packageManager.startsWith('pnpm@'))
+  ) {
+    return false
   }
 
-  if (cachedDetectedPackageManager) return cachedDetectedPackageManager
-
-  if (json.packageManager && typeof json.packageManager === 'string') {
-    if (json.packageManager.startsWith('yarn@')) return cacheAndReturn('yarn')
-    if (json.packageManager.startsWith('pnpm@')) return cacheAndReturn('pnpm')
+  if (json.pnpm) {
+    return false
   }
 
-  if (json.pnpm) return cacheAndReturn('pnpm')
-  if (json.engines?.npm) return cacheAndReturn('npm')
-
-  try {
-    if (fs.existsSync('yarn.lock')) return cacheAndReturn('yarn')
-    if (fs.existsSync('pnpm-lock.yaml')) return cacheAndReturn('pnpm')
-    if (fs.existsSync('package-lock.json')) return cacheAndReturn('npm')
-  } catch {
-    // If fs operations fail, default to npm
+  if (json.engines?.npm) {
+    return true
   }
 
-  return cacheAndReturn('npm')
+  if (hasYarnOrPnpmLock(json)) {
+    return false
+  }
+
+  return true
 }
+
+// sort deps like the npm CLI does (via the package @npmcli/package-json)
+// https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
+const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
 
 /**
  * Sort dependencies alphabetically, detecting package manager to use the
  * appropriate comparison. npm uses locale-aware comparison, yarn and pnpm use
  * simple string comparison
- *
- * @param {object} packageJson - The full package.json object for detection
- * @returns {function} - Sort function for dependencies
  */
-function sortDependencies(packageJson) {
-  const packageManager = detectPackageManager(packageJson)
-
-  if (packageManager === 'npm') {
-    // npm uses locale-aware comparison (localeCompare)
-    // https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
-    return sortObjectBy((a, b) => a.localeCompare(b, 'en'))
-  } else {
-    // yarn and pnpm use simple string comparison
-    return sortObjectBy((a, b) => {
-      if (a < b) return -1
-      if (a > b) return 1
-      return 0
-    })
-  }
+function sortDependencies(dependencies, packageJson) {
+  return (
+    shouldSortDependenciesLikeNpm(packageJson)
+      ? sortDependenciesLikeNpm
+      : sortObject
+  )(dependencies)
 }
 
 /**
@@ -558,6 +556,11 @@ const fields = [
 ]
 
 const defaultSortOrder = fields.map(({ key }) => key)
+const overFields = pipe(
+  fields
+    .map(({ key, over }) => (over ? overProperty(key, over) : undefined))
+    .filter(Boolean),
+)
 
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
@@ -588,27 +591,9 @@ const partition = (array, predicate) =>
     [[], []],
   )
 function sortPackageJson(jsonIsh, options = {}) {
-  // Reset cache at the start
-  cachedDetectedPackageManager = undefined
   return editStringJSON(
     jsonIsh,
     onObject((json) => {
-      const overFields = pipe(
-        fields
-          .map(({ key, over }) => {
-            if (over) {
-              // Pass the whole json object to functions that need package
-              // manager detection
-              if (over === sortDependencies) {
-                return overProperty(key, over(json))
-              }
-              return overProperty(key, over)
-            }
-            return undefined
-          })
-          .filter(Boolean),
-      )
-
       let sortOrder = options.sortOrder || defaultSortOrder
 
       if (Array.isArray(sortOrder)) {
