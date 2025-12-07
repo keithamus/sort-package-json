@@ -165,13 +165,18 @@ const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
  * appropriate comparison. npm uses locale-aware comparison, yarn and pnpm use
  * simple string comparison
  */
-function sortDependencies(dependencies, packageJson) {
+const sortDependencies = onObject((dependencies, packageJson) => {
+  // Avoid file access
+  if (Object.keys(dependencies).length < 2) {
+    return dependencies
+  }
+
   return (
     shouldSortDependenciesLikeNpm(packageJson)
       ? sortDependenciesLikeNpm
       : sortObject
   )(dependencies)
-}
+})
 
 /**
  * "workspaces" can be an array (npm or yarn classic) or an object (pnpm/bun).
