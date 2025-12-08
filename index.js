@@ -279,7 +279,7 @@ const hasSequentialScript = (packageJson) => {
   return scripts.some((script) => isSequentialScript(script))
 }
 
-function groupRecursive(keys, prefix = '') {
+function sortScriptNames(keys, prefix = '') {
   const groupMap = new Map()
   for (const key of keys) {
     const rest = prefix ? key.slice(prefix.length + 1) : key
@@ -305,17 +305,17 @@ function groupRecursive(keys, prefix = '') {
           .filter((k) => k === groupKey || !k.startsWith(groupKey + ':'))
           .sort()
         const nested = children.filter((k) => k.startsWith(groupKey + ':'))
-        return [...direct, ...groupRecursive(nested, groupKey)]
+        return [...direct, ...sortScriptNames(nested, groupKey)]
       }
       return children.sort()
     })
 }
 
 const sortScripts = onObject((scripts, packageJson) => {
-  const names = Object.keys(scripts)
+  let names = Object.keys(scripts)
   const prefixable = new Set()
 
-  const keys = names.map((name) => {
+  names = names.map((name) => {
     const omitted = name.replace(/^(?:pre|post)/, '')
     if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
       prefixable.add(omitted)
@@ -324,14 +324,13 @@ const sortScripts = onObject((scripts, packageJson) => {
     return name
   })
 
-  let source = keys
   if (!hasSequentialScript(packageJson)) {
-    source = groupRecursive(keys)
+    names = sortScriptNames(names)
   }
-  const order = source.flatMap((key) =>
+  names = names.flatMap((key) =>
     prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
   )
-  return sortObjectKeys(scripts, order)
+  return sortObjectKeys(scripts, names)
 })
 
 // fields marked `vscode` are for `Visual Studio Code extension manifest` only
