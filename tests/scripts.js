@@ -296,6 +296,8 @@ test('scripts: nested production and format variants are grouped and sorted', (t
       'test:production:a': 'echo',
       'test:production:b': 'echo',
       'test:production-coverage': 'echo',
+      'test:production2': 'echo',
+      'test:production$2': 'echo',
       'test:production:cjs': 'echo',
       'test:production:cjs:a': 'echo',
       'test:production:cjs:b': 'echo',
@@ -323,7 +325,9 @@ test('scripts: nested production and format variants are grouped and sorted', (t
     'test:production:mjs:a',
     'test:production:mjs:b',
     'test:production:mjs-coverage',
+    'test:production$2',
     'test:production-coverage',
+    'test:production2',
     'test-coverage',
   ])
 })
