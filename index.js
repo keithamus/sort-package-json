@@ -3,7 +3,8 @@ import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
 import gitHooks from 'git-hooks-list'
 import isPlainObject from 'is-plain-obj'
-import semver from 'semver'
+import semverCompare from 'semver/functions/compare.js'
+import semverMinVersion from 'semver/ranges/min-version.js'
 
 const pipe =
   (fns) =>
@@ -97,7 +98,7 @@ const sortObjectBySemver = sortObjectBy((a, b) => {
   if (!bRange) {
     return 1
   }
-  return semver.compare(semver.minVersion(aRange), semver.minVersion(bRange))
+  return semverCompare(semverMinVersion(aRange), semverMinVersion(bRange))
 })
 
 const getPackageName = (ident) => {
