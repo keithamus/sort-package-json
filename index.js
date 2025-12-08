@@ -273,11 +273,43 @@ const hasSequentialScript = (packageJson) => {
   return scripts.some((script) => isSequentialScript(script))
 }
 
+function sortScriptNames(keys, prefix = '') {
+  const groupMap = new Map()
+  for (const key of keys) {
+    const rest = prefix ? key.slice(prefix.length + 1) : key
+    const idx = rest.indexOf(':')
+    if (idx !== -1) {
+      const base = key.slice(0, (prefix ? prefix.length + 1 : 0) + idx)
+      if (!groupMap.has(base)) groupMap.set(base, [])
+      groupMap.get(base).push(key)
+    } else {
+      if (!groupMap.has(key)) groupMap.set(key, [])
+      groupMap.get(key).push(key)
+    }
+  }
+  return Array.from(groupMap.keys())
+    .sort()
+    .flatMap((groupKey) => {
+      const children = groupMap.get(groupKey)
+      if (
+        children.length > 1 &&
+        children.some((k) => k !== groupKey && k.startsWith(groupKey + ':'))
+      ) {
+        const direct = children
+          .filter((k) => k === groupKey || !k.startsWith(groupKey + ':'))
+          .sort()
+        const nested = children.filter((k) => k.startsWith(groupKey + ':'))
+        return [...direct, ...sortScriptNames(nested, groupKey)]
+      }
+      return children.sort()
+    })
+}
+
 const sortScripts = onObject((scripts, packageJson) => {
-  const names = Object.keys(scripts)
+  let names = Object.keys(scripts)
   const prefixable = new Set()
 
-  const keys = names.map((name) => {
+  names = names.map((name) => {
     const omitted = name.replace(/^(?:pre|post)/, '')
     if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
       prefixable.add(omitted)
@@ -287,14 +319,12 @@ const sortScripts = onObject((scripts, packageJson) => {
   })
 
   if (!hasSequentialScript(packageJson)) {
-    keys.sort()
+    names = sortScriptNames(names)
   }
-
-  const order = keys.flatMap((key) =>
+  names = names.flatMap((key) =>
     prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
   )
-
-  return sortObjectKeys(scripts, order)
+  return sortObjectKeys(scripts, names)
 })
 
 /*
