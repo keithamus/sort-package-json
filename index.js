@@ -127,36 +127,13 @@ const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
  *
  * @see https://docs.npmjs.com/cli/v7/using-npm/workspaces?v=true#running-commands-in-the-context-of-workspaces
  */
-const sortWorkspaces = (workspaces) => {
-  if (!isPlainObject(workspaces)) {
-    return workspaces
-  }
-
-  // Sort known properties in a specific order
-  const sortedWorkspaces = {}
-
-  // First add packages if it exists
-  if (workspaces.packages) {
-    sortedWorkspaces.packages = uniqAndSortArray(workspaces.packages)
-  }
-
-  // Then add catalog if it exists and sort it like dependencies
-  if (workspaces.catalog) {
-    sortedWorkspaces.catalog = sortDependenciesLikeNpm(workspaces.catalog)
-  }
-
-  // Add any other properties in alphabetical order
-  const knownKeys = ['packages', 'catalog']
-  const otherKeys = Object.keys(workspaces)
-    .filter((key) => !knownKeys.includes(key))
-    .sort()
-
-  for (const key of otherKeys) {
-    sortedWorkspaces[key] = workspaces[key]
-  }
-
-  return sortedWorkspaces
-}
+const sortWorkspaces = onObject(
+  pipe([
+    sortObjectBy(['packages', 'catalog']),
+    overProperty('packages', uniqAndSortArray),
+    overProperty('catalog', sortDependenciesLikeNpm),
+  ]),
+)
 
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
 const eslintBaseConfigProperties = [
@@ -525,15 +502,6 @@ function editStringJSON(json, over) {
   return over(json)
 }
 
-const isPrivateKey = (key) => key[0] === '_'
-const partition = (array, predicate) =>
-  array.reduce(
-    (result, value) => {
-      result[predicate(value) ? 0 : 1].push(value)
-      return result
-    },
-    [[], []],
-  )
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
@@ -542,7 +510,10 @@ function sortPackageJson(jsonIsh, options = {}) {
 
       if (Array.isArray(sortOrder)) {
         const keys = Object.keys(json)
-        const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
+        const { privateKeys = [], publicKeys = [] } = objectGroupBy(
+          keys,
+          (key) => (key[0] === '_' ? 'privateKeys' : 'publicKeys'),
+        )
         sortOrder = [
           ...sortOrder,
           ...defaultSortOrder,
