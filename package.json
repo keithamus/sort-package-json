@@ -68,32 +68,32 @@
     "verbose": true
   },
   "dependencies": {
-    "detect-indent": "^7.0.1",
+    "detect-indent": "^7.0.2",
     "detect-newline": "^4.0.1",
-    "git-hooks-list": "^4.0.0",
+    "git-hooks-list": "^4.1.1",
     "is-plain-obj": "^4.1.0",
-    "semver": "^7.7.1",
-    "sort-object-keys": "^1.1.3",
-    "tinyglobby": "^0.2.12"
+    "semver": "^7.7.3",
+    "sort-object-keys": "^2.0.1",
+    "tinyglobby": "^0.2.15"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.7.1",
-    "@commitlint/config-conventional": "^19.7.1",
-    "@eslint/js": "^9.21.0",
-    "ava": "^6.2.0",
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/js": "^9.39.1",
+    "ava": "^6.4.1",
     "c8": "^10.1.3",
-    "dot-prop": "^9.0.0",
-    "eslint": "^9.21.0",
-    "eslint-config-prettier": "^10.0.2",
-    "eslint-plugin-n": "^17.15.1",
+    "dot-prop": "^10.1.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-n": "^17.23.1",
     "eslint-plugin-promise": "^7.2.1",
-    "globals": "^16.0.0",
+    "globals": "^16.5.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.4.3",
-    "prettier": "^3.5.2",
-    "semantic-release": "^24.2.3",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.1",
+    "semantic-release": "^25.0.2",
     "tempy": "^3.1.0",
-    "tstyche": "^4.0.0"
+    "tstyche": "^5.0.1"
   },
   "engines": {
     "node": ">=20"

@@ -1,7 +1,7 @@
 name: CI
-
 on: [push, pull_request]
-
+permissions:
+  contents: read
 jobs:
   test:
     strategy:
@@ -12,16 +12,17 @@ jobs:
           # - 'macos-latest'
           # - 'windows-latest'
         node_version:
+          - '24'
           - '22'
           - '20'
     name: Node.js ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node_version }}
 
@@ -29,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        if: matrix.node_version == '22'
+        if: matrix.node_version == '24'
         run: npm run lint
 
       - name: Run Tests
