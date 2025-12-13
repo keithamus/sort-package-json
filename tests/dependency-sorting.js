@@ -55,9 +55,9 @@ test('npm', (t) => {
   )
 
   // Should not call `fs.existsSync()`
-  getDependencyOrders({ dependencies: { 'one-dependency': '1.0.0' } }, () =>
-    t.fail(),
-  )
+  getDependencyOrders({ dependencies: { 'one-dependency': '1.0.0' } }, () => {
+    t.fail()
+  })
 })
 
 test('pnpm', (t) => {
@@ -71,14 +71,18 @@ test('pnpm', (t) => {
           },
         },
       },
-      () => t.fail(),
+      () => {
+        t.fail()
+      },
     ),
     nonNpmSortedResult,
   )
 
   // packageManager
   t.deepEqual(
-    getDependencyOrders({ packageManager: 'pnpm@1.0.0' }, () => t.fail()),
+    getDependencyOrders({ packageManager: 'pnpm@1.0.0' }, () => {
+      t.fail()
+    }),
     nonNpmSortedResult,
   )
 
@@ -97,7 +101,9 @@ test('pnpm', (t) => {
 test('yarn', (t) => {
   // packageManager
   t.deepEqual(
-    getDependencyOrders({ packageManager: 'yarn@1.0.0' }, () => t.fail()),
+    getDependencyOrders({ packageManager: 'yarn@1.0.0' }, () => {
+      t.fail()
+    }),
     nonNpmSortedResult,
   )
 
