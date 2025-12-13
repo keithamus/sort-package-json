@@ -141,12 +141,15 @@ const hasYarnOrPnpmFiles = () => {
  */
 function shouldSortDependenciesLikeNpm(packageJson) {
   const packageManager = packageJson.packageManager
-  if (
-    packageJson.pnpm ||
-    (typeof packageManager === 'string' &&
-      (packageManager.startsWith('yarn@') ||
-        packageManager.startsWith('pnpm@')))
-  ) {
+  if (packageManager) {
+    if (typeof packageManager === 'string') {
+      return packageManager.startsWith('npm@')
+    }
+
+    return packageManager.name === 'npm'
+  }
+
+  if (packageJson.pnpm) {
     return false
   }
 

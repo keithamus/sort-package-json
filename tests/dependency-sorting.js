@@ -54,6 +54,20 @@ test('npm', (t) => {
     npmSortedResult,
   )
 
+  // packageManager
+  t.deepEqual(
+    getDependencyOrders({ packageManager: 'npm@1.0.0' }, () => {
+      t.fail()
+    }),
+    npmSortedResult,
+  )
+  t.deepEqual(
+    getDependencyOrders({ packageManager: { name: 'npm' } }, () => {
+      t.fail()
+    }),
+    npmSortedResult,
+  )
+
   // Should not call `fs.existsSync()`
   getDependencyOrders({ dependencies: { 'one-dependency': '1.0.0' } }, () => {
     t.fail()
@@ -85,6 +99,12 @@ test('pnpm', (t) => {
     }),
     nonNpmSortedResult,
   )
+  t.deepEqual(
+    getDependencyOrders({ packageManager: { name: 'pnpm' } }, () => {
+      t.fail()
+    }),
+    nonNpmSortedResult,
+  )
 
   // pnpm file exists
   let fsExistsSyncCalled
@@ -102,6 +122,12 @@ test('yarn', (t) => {
   // packageManager
   t.deepEqual(
     getDependencyOrders({ packageManager: 'yarn@1.0.0' }, () => {
+      t.fail()
+    }),
+    nonNpmSortedResult,
+  )
+  t.deepEqual(
+    getDependencyOrders({ packageManager: { name: 'yarn' } }, () => {
       t.fail()
     }),
     nonNpmSortedResult,
