@@ -192,13 +192,11 @@ const sortDependencies = onObject((dependencies, packageJson) => {
  *
  * @see https://docs.npmjs.com/cli/v7/using-npm/workspaces?v=true#running-commands-in-the-context-of-workspaces
  */
-const sortWorkspaces = onObject(
-  pipe([
-    sortObjectBy(['packages', 'catalog']),
-    overProperty('packages', uniqAndSortArray),
-    overProperty('catalog', sortDependencies),
-  ]),
-)
+const sortWorkspaces = pipe([
+  sortObjectBy(['packages', 'catalog']),
+  overProperty('packages', uniqAndSortArray),
+  overProperty('catalog', sortDependencies),
+])
 
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
 const eslintBaseConfigProperties = [
@@ -221,56 +219,53 @@ const eslintBaseConfigProperties = [
   'noInlineConfig',
   'reportUnusedDisableDirectives',
 ]
-const sortEslintConfig = onObject(
-  pipe([
-    sortObjectBy(eslintBaseConfigProperties),
-    overProperty('env', sortObject),
-    overProperty('globals', sortObject),
-    overProperty(
-      'overrides',
-      onArray((overrides) => overrides.map(sortEslintConfig)),
+const sortEslintConfig = pipe([
+  sortObjectBy(eslintBaseConfigProperties),
+  overProperty('env', sortObject),
+  overProperty('globals', sortObject),
+  overProperty(
+    'overrides',
+    onArray((overrides) => overrides.map(sortEslintConfig)),
+  ),
+  overProperty('parserOptions', sortObject),
+  overProperty(
+    'rules',
+    sortObjectBy(
+      (rule1, rule2) =>
+        rule1.split('/').length - rule2.split('/').length ||
+        rule1.localeCompare(rule2),
     ),
-    overProperty('parserOptions', sortObject),
-    overProperty(
-      'rules',
-      sortObjectBy(
-        (rule1, rule2) =>
-          rule1.split('/').length - rule2.split('/').length ||
-          rule1.localeCompare(rule2),
-      ),
-    ),
-    overProperty('settings', sortObject),
-  ]),
-)
+  ),
+  overProperty('settings', sortObject),
+])
 const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 
-const sortPrettierConfig = onObject(
-  pipe([
-    // sort keys alphabetically, but put `overrides` at bottom
-    (config) =>
-      sortObjectKeys(config, [
-        ...Object.keys(config)
-          .filter((key) => key !== 'overrides')
-          .sort(),
-        'overrides',
-      ]),
-    // if `config.overrides` exists
-    overProperty(
+const sortPrettierConfig = pipe([
+  // sort keys alphabetically, but put `overrides` at bottom
+  onObject((config) =>
+    sortObjectKeys(config, [
+      ...Object.keys(config)
+        .filter((key) => key !== 'overrides')
+        .sort(),
       'overrides',
-      // and `config.overrides` is an array
-      onArray((overrides) =>
-        overrides.map(
-          pipe([
-            // sort `config.overrides[]` alphabetically
-            sortObject,
-            // sort `config.overrides[].options` alphabetically
-            overProperty('options', sortObject),
-          ]),
-        ),
+    ]),
+  ),
+  // if `config.overrides` exists
+  overProperty(
+    'overrides',
+    // and `config.overrides` is an array
+    onArray((overrides) =>
+      overrides.map(
+        pipe([
+          // sort `config.overrides[]` alphabetically
+          sortObject,
+          // sort `config.overrides[].options` alphabetically
+          overProperty('options', sortObject),
+        ]),
       ),
     ),
-  ]),
-)
+  ),
+])
 
 const sortVolta = sortObjectBy(['node', 'npm', 'yarn'])
 const sortDevEngines = overProperty(
@@ -294,12 +289,10 @@ const pnpmBaseConfigProperties = [
   'packageExtensions',
 ]
 
-const sortPnpmConfig = onObject(
-  pipe([
-    sortObjectBy(pnpmBaseConfigProperties, true),
-    overProperty('overrides', sortObjectBySemver),
-  ]),
-)
+const sortPnpmConfig = pipe([
+  sortObjectBy(pnpmBaseConfigProperties, true),
+  overProperty('overrides', sortObjectBySemver),
+])
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
