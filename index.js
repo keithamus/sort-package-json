@@ -136,13 +136,13 @@ const hasYarnOrPnpmFiles = () => {
 
 /**
  * Detects the package manager from package.json and lock files
- * @param {object} json - The parsed package.json object
+ * @param {object} packageJson - The parsed package.json object
  * @returns {boolean} - The detected package manager. Default to npm if not detected.
  */
-function shouldSortDependenciesLikeNpm(json) {
-  const packageManager = json.packageManager
+function shouldSortDependenciesLikeNpm(packageJson) {
+  const packageManager = packageJson.packageManager
   if (
-    json.pnpm ||
+    packageJson.pnpm ||
     (typeof packageManager === 'string' &&
       (packageManager.startsWith('yarn@') ||
         packageManager.startsWith('pnpm@')))
@@ -151,7 +151,7 @@ function shouldSortDependenciesLikeNpm(json) {
   }
 
   // Optimisation: Check if npm is explicit before reading FS.
-  if (json.engines?.npm) {
+  if (packageJson.engines?.npm) {
     return true
   }
 
@@ -597,7 +597,6 @@ function editStringJSON(json, over) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
-  cache.clear()
   return editStringJSON(
     jsonIsh,
     onObject((json) => {

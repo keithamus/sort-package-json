@@ -2,198 +2,113 @@ import test from 'ava'
 import fs from 'node:fs'
 import sortPackageJson from '../index.js'
 
+const originalProcessCwd = process.cwd
+const originalFsExistsSync = fs.existsSync
+
 // Test case from the original issue: https://github.com/keithamus/sort-package-json/issues/363
 // @types/babel-plugin-tester vs @types/babel__core vs @types/babel__register
 
-test('npm: sorts dependencies using localeCompare with engines.npm', (t) => {
-  const originalExistsSync = fs.existsSync
+const dependencies = {
+  '@types/babel__register': '7.17.3',
+  '@types/babel-plugin-tester': '9.0.10',
+  '@types/babel__core': '7.20.5',
+}
 
-  // Mock fs.existsSync to simulate pnpm-lock.yaml exists
-  // engines.npm should take precedence over this lockfile
-  fs.existsSync = (path) => path.endsWith('pnpm-lock.yaml')
+const npmSortedResult = [
+  '@types/babel__core',
+  '@types/babel__register',
+  '@types/babel-plugin-tester',
+]
+
+const nonNpmSortedResult = [
+  '@types/babel-plugin-tester',
+  '@types/babel__core',
+  '@types/babel__register',
+]
+
+const getDependencyOrders = (packageJson, mockFileExistence) => {
+  // Invalid cache
+  process.cwd = () => Symbol()
+  if (mockFileExistence) {
+    fs.existsSync = mockFileExistence
+  }
 
   try {
-    const input = {
-      name: 'test-package',
-      engines: {
-        npm: '>=10.0.0',
-      },
-      devDependencies: {
-        '@types/babel__register': '7.17.3',
-        '@types/babel-plugin-tester': '9.0.10',
-        '@types/babel__core': '7.20.5',
-      },
-    }
-
-    const result = sortPackageJson(input)
-
-    // npm uses localeCompare which sorts underscore before hyphen
-    t.deepEqual(Object.keys(result.devDependencies), [
-      '@types/babel__core',
-      '@types/babel__register',
-      '@types/babel-plugin-tester',
-    ])
+    return Object.keys(
+      sortPackageJson({ dependencies, ...packageJson }).dependencies,
+    )
   } finally {
-    // Restore original function
-    fs.existsSync = originalExistsSync
+    process.cwd = originalProcessCwd
+    fs.existsSync = originalFsExistsSync
   }
+}
+
+test('npm', (t) => {
+  t.deepEqual(
+    getDependencyOrders({}, () => false),
+    npmSortedResult,
+  )
+
+  t.deepEqual(
+    getDependencyOrders({ engine: { npm: '>1.0.0' } }, () => false),
+    npmSortedResult,
+  )
+
+  // Should not call `fs.existsSync()`
+  getDependencyOrders({ dependencies: { 'one-dependency': '1.0.0' } }, () =>
+    t.fail(),
+  )
 })
 
-test('pnpm: detects pnpm usage by root `pnpm` package.json field', (t) => {
-  const originalExistsSync = fs.existsSync
-
-  // Mock fs.existsSync to simulate yarn.lock exists
+test('pnpm', (t) => {
   // pnpm field should take precedence over yarn.lock
-  fs.existsSync = (path) => path.endsWith('yarn.lock')
-
-  try {
-    const input = {
-      name: 'test-package',
-      pnpm: {
-        overrides: {
-          'some-package': '1.0.0',
+  t.deepEqual(
+    getDependencyOrders(
+      {
+        pnpm: {
+          overrides: {
+            'some-package': '1.0.0',
+          },
         },
       },
-      devDependencies: {
-        '@types/babel__register': '7.17.3',
-        '@types/babel-plugin-tester': '9.0.10',
-        '@types/babel__core': '7.20.5',
-      },
-    }
+      () => t.fail(),
+    ),
+    nonNpmSortedResult,
+  )
 
-    const result = sortPackageJson(input)
+  // packageManager
+  t.deepEqual(
+    getDependencyOrders({ packageManager: 'pnpm@1.0.0' }, () => t.fail()),
+    nonNpmSortedResult,
+  )
 
-    // pnpm uses string comparison which sorts hyphen before underscore
-    t.deepEqual(Object.keys(result.devDependencies), [
-      '@types/babel-plugin-tester',
-      '@types/babel__core',
-      '@types/babel__register',
-    ])
-  } finally {
-    // Restore original function
-    fs.existsSync = originalExistsSync
-  }
+  // pnpm file exists
+  let fsExistsSyncCalled
+  t.deepEqual(
+    getDependencyOrders({}, () => {
+      fsExistsSyncCalled = true
+      return true
+    }),
+    nonNpmSortedResult,
+  )
+  t.is(fsExistsSyncCalled, true)
 })
 
-test('yarn: sorts dependencies using string comparison', (t) => {
-  const input = {
-    name: 'test-package',
-    packageManager: 'yarn@4.6.0',
-    devDependencies: {
-      '@types/babel__register': '7.17.3',
-      '@types/babel-plugin-tester': '9.0.10',
-      '@types/babel__core': '7.20.5',
-    },
-  }
+test('yarn', (t) => {
+  // packageManager
+  t.deepEqual(
+    getDependencyOrders({ packageManager: 'yarn@1.0.0' }, () => t.fail()),
+    nonNpmSortedResult,
+  )
 
-  const result = sortPackageJson(input)
-
-  // yarn uses string comparison which sorts hyphen before underscore
-  t.deepEqual(Object.keys(result.devDependencies), [
-    '@types/babel-plugin-tester',
-    '@types/babel__core',
-    '@types/babel__register',
-  ])
-})
-
-test('pnpm: sorts dependencies using string comparison', (t) => {
-  const input = {
-    name: 'test-package',
-    packageManager: 'pnpm@9.0.0',
-    devDependencies: {
-      '@types/babel__register': '7.17.3',
-      '@types/babel-plugin-tester': '9.0.10',
-      '@types/babel__core': '7.20.5',
-    },
-  }
-
-  const result = sortPackageJson(input)
-
-  // pnpm uses string comparison which sorts hyphen before underscore
-  t.deepEqual(Object.keys(result.devDependencies), [
-    '@types/babel-plugin-tester',
-    '@types/babel__core',
-    '@types/babel__register',
-  ])
-})
-
-test('npm: defaults to npm sorting when no packageManager field, nor any other signals for what package manager is used, can be found', (t) => {
-  const input = {
-    name: 'test-package',
-    devDependencies: {
-      '@types/babel__register': '7.17.3',
-      '@types/babel-plugin-tester': '9.0.10',
-      '@types/babel__core': '7.20.5',
-    },
-  }
-
-  const result = sortPackageJson(input)
-
-  // Should default to npm behavior
-  t.deepEqual(Object.keys(result.devDependencies), [
-    '@types/babel__core',
-    '@types/babel__register',
-    '@types/babel-plugin-tester',
-  ])
-})
-
-test('lock file detection: yarn.lock', (t) => {
-  const originalExistsSync = fs.existsSync
-
-  // Mock fs.existsSync to simulate yarn.lock exists
-  fs.existsSync = (path) => path.endsWith('yarn.lock')
-
-  try {
-    const input = {
-      name: 'test-package',
-      devDependencies: {
-        '@types/babel__register': '7.17.3',
-        '@types/babel-plugin-tester': '9.0.10',
-        '@types/babel__core': '7.20.5',
-      },
-    }
-
-    const result = sortPackageJson(input)
-
-    // Should use yarn sorting (string comparison)
-    t.deepEqual(Object.keys(result.devDependencies), [
-      '@types/babel-plugin-tester',
-      '@types/babel__core',
-      '@types/babel__register',
-    ])
-  } finally {
-    // Restore original function
-    fs.existsSync = originalExistsSync
-  }
-})
-
-test('packageManager field takes precedence over lock files', (t) => {
-  const originalExistsSync = fs.existsSync
-
-  // Mock fs.existsSync to simulate package-lock.json exists
-  fs.existsSync = (path) => path.endsWith('package-lock.json')
-
-  try {
-    const input = {
-      name: 'test-package',
-      packageManager: 'yarn@4.6.0',
-      devDependencies: {
-        '@types/babel__register': '7.17.3',
-        '@types/babel-plugin-tester': '9.0.10',
-        '@types/babel__core': '7.20.5',
-      },
-    }
-
-    const result = sortPackageJson(input)
-
-    // Should use yarn sorting (from packageManager field) not npm (from lock file)
-    t.deepEqual(Object.keys(result.devDependencies), [
-      '@types/babel-plugin-tester',
-      '@types/babel__core',
-      '@types/babel__register',
-    ])
-  } finally {
-    // Restore original function
-    fs.existsSync = originalExistsSync
-  }
+  // yarn file exists
+  let fsExistsSyncCalled
+  t.deepEqual(
+    getDependencyOrders({}, () => {
+      fsExistsSyncCalled = true
+      return true
+    }),
+    nonNpmSortedResult,
+  )
+  t.is(fsExistsSyncCalled, true)
 })
