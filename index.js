@@ -61,12 +61,12 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
-const overProperty =
-  (property, over) =>
-  (object, ...args) =>
+const overProperty = (property, over) =>
+  onObject((object, ...args) =>
     Object.hasOwn(object, property)
       ? { ...object, [property]: over(object[property], ...args) }
-      : object
+      : object,
+  )
 const sortGitHooks = sortObjectBy(gitHooks)
 
 const parseNameAndVersionRange = (specifier) => {
@@ -275,6 +275,8 @@ const sortPrettierConfig = onObject(
 )
 
 const sortVolta = sortObjectBy(['node', 'npm', 'yarn'])
+const sortPackageManager = sortObjectBy(['name', 'version'])
+const sortDevEngines = overProperty('packageManager', sortPackageManager)
 
 const pnpmBaseConfigProperties = [
   'peerDependencyRules',
@@ -553,9 +555,10 @@ const fields = [
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionDependencies', over: uniqAndSortArray },
   { key: 'flat' },
-  { key: 'packageManager' },
+  { key: 'packageManager', over: sortPackageManager },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
+  { key: 'devEngines', over: sortDevEngines },
   { key: 'volta', over: sortVolta },
   { key: 'languageName' },
   { key: 'os' },

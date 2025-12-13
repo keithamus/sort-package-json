@@ -36,7 +36,6 @@ for (const field of [
   'browserslist',
   'stylelint',
   'flat',
-  'packageManager',
   'os',
   'cpu',
   'icon',
