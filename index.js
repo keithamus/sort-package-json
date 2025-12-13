@@ -196,7 +196,7 @@ const sortWorkspaces = onObject(
   pipe([
     sortObjectBy(['packages', 'catalog']),
     overProperty('packages', uniqAndSortArray),
-    overProperty('catalog', sortDependenciesLikeNpm),
+    overProperty('catalog', sortDependencies),
   ]),
 )
 
