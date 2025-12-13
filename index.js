@@ -141,14 +141,12 @@ const hasYarnOrPnpmFiles = () => {
  */
 function shouldSortDependenciesLikeNpm(packageJson) {
   // https://github.com/nodejs/corepack
-  const packageManager =
-    packageJson.packageManager ?? packageJson.devEngines?.packageManager
-  if (packageManager) {
-    return (
-      (typeof packageManager === 'string' &&
-        packageManager.startsWith('npm@')) ||
-      packageManager.name === 'npm'
-    )
+  if (typeof packageJson.packageManager === 'string') {
+    return packageJson.packageManager.startsWith('npm@')
+  }
+
+  if (packageJson.devEngines?.packageManager?.name) {
+    return packageJson.devEngines.packageManager.name === 'npm'
   }
 
   if (packageJson.pnpm) {
@@ -275,8 +273,10 @@ const sortPrettierConfig = onObject(
 )
 
 const sortVolta = sortObjectBy(['node', 'npm', 'yarn'])
-const sortPackageManager = sortObjectBy(['name', 'version'])
-const sortDevEngines = overProperty('packageManager', sortPackageManager)
+const sortDevEngines = overProperty(
+  'packageManager',
+  sortObjectBy(['name', 'version', 'onFail']),
+)
 
 const pnpmBaseConfigProperties = [
   'peerDependencyRules',
@@ -555,7 +555,7 @@ const fields = [
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionDependencies', over: uniqAndSortArray },
   { key: 'flat' },
-  { key: 'packageManager', over: sortPackageManager },
+  { key: 'packageManager' },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
   { key: 'devEngines', over: sortDevEngines },

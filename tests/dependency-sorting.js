@@ -62,15 +62,12 @@ test('npm', (t) => {
     npmSortedResult,
   )
   t.deepEqual(
-    getDependencyOrders({ packageManager: { name: 'npm' } }, () => {
-      t.fail()
-    }),
-    npmSortedResult,
-  )
-  t.deepEqual(
-    getDependencyOrders({ devEngines: { packageManager: 'npm@1.0.0' } }, () => {
-      t.fail()
-    }),
+    getDependencyOrders(
+      { devEngines: { packageManager: { name: 'npm' } } },
+      () => {
+        t.fail()
+      },
+    ),
     npmSortedResult,
   )
 
@@ -106,9 +103,12 @@ test('pnpm', (t) => {
     nonNpmSortedResult,
   )
   t.deepEqual(
-    getDependencyOrders({ packageManager: { name: 'pnpm' } }, () => {
-      t.fail()
-    }),
+    getDependencyOrders(
+      { devEngines: { packageManager: { name: 'pnpm' } } },
+      () => {
+        t.fail()
+      },
+    ),
     nonNpmSortedResult,
   )
 
@@ -133,9 +133,12 @@ test('yarn', (t) => {
     nonNpmSortedResult,
   )
   t.deepEqual(
-    getDependencyOrders({ packageManager: { name: 'yarn' } }, () => {
-      t.fail()
-    }),
+    getDependencyOrders(
+      { devEngines: { packageManager: { name: 'yarn' } } },
+      () => {
+        t.fail()
+      },
+    ),
     nonNpmSortedResult,
   )
 
