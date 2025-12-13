@@ -162,10 +162,6 @@ function shouldSortDependenciesLikeNpm(packageJson) {
   return true
 }
 
-// sort deps like the npm CLI does (via the package @npmcli/package-json)
-// https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
-const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
-
 /**
  * Sort dependencies alphabetically, detecting package manager to use the
  * appropriate comparison. npm uses locale-aware comparison, yarn and pnpm use
@@ -177,11 +173,13 @@ const sortDependencies = onObject((dependencies, packageJson) => {
     return dependencies
   }
 
-  return (
-    shouldSortDependenciesLikeNpm(packageJson)
-      ? sortDependenciesLikeNpm
-      : sortObject
-  )(dependencies)
+  // sort deps like the npm CLI does (via the package @npmcli/package-json)
+  // https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
+  if (shouldSortDependenciesLikeNpm(packageJson)) {
+    return sortObjectKeys(dependencies, (a, b) => a.localeCompare(b, 'en'))
+  }
+
+  return sortObjectKeys(dependencies)
 })
 
 /**
