@@ -1,5 +1,4 @@
 import fs from 'node:fs'
-import path from 'node:path'
 import sortObjectKeys from 'sort-object-keys'
 import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
@@ -118,19 +117,21 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
+// Cache by `process.cwd()` instead of a variable to allow user call `process.chdir()`
 const cache = new Map()
-const hasYarnOrPnpmFiles = (dir) => {
-  if (!cache.has(dir)) {
+const hasYarnOrPnpmFiles = () => {
+  const cwd = process.cwd()
+  if (!cache.has(cwd)) {
     cache.set(
-      dir,
-      fs.existsSync(path.join(dir, 'yarn.lock')) ||
-        fs.existsSync(path.join(dir, '.yarn/')) ||
-        fs.existsSync(path.join(dir, '.yarnrc.yml')) ||
-        fs.existsSync(path.join(dir, 'pnpm-lock.yaml')) ||
-        fs.existsSync(path.join(dir, 'pnpm-workspace.yaml')),
+      cwd,
+      fs.existsSync('yarn.lock') ||
+        fs.existsSync('.yarn/') ||
+        fs.existsSync('.yarnrc.yml') ||
+        fs.existsSync('pnpm-lock.yaml') ||
+        fs.existsSync('pnpm-workspace.yaml'),
     )
   }
-  return cache.get(dir)
+  return cache.get(cwd)
 }
 
 /**
@@ -141,13 +142,11 @@ const hasYarnOrPnpmFiles = (dir) => {
 function shouldSortDependenciesLikeNpm(json) {
   const packageManager = json.packageManager
   if (
-    typeof packageManager === 'string' &&
-    (packageManager.startsWith('yarn@') || packageManager.startsWith('pnpm@'))
+    json.pnpm ||
+    (typeof packageManager === 'string' &&
+      (packageManager.startsWith('yarn@') ||
+        packageManager.startsWith('pnpm@')))
   ) {
-    return false
-  }
-
-  if (json.pnpm) {
     return false
   }
 
@@ -156,7 +155,7 @@ function shouldSortDependenciesLikeNpm(json) {
     return true
   }
 
-  if (hasYarnOrPnpmFiles(process.cwd())) {
+  if (hasYarnOrPnpmFiles()) {
     return false
   }
 
