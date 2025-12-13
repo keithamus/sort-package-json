@@ -407,6 +407,7 @@ The default order is exported as a `sortOrder` object.
 1. `packageManager`
 1. `engines`
 1. `engineStrict`
+1. `devEngines`
 1. `volta`
 1. `languageName`
 1. `os`
