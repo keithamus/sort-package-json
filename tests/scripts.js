@@ -225,3 +225,109 @@ for (const field of ['scripts', 'betterScripts']) {
     },
   )
 }
+
+test('scripts: group base and colon scripts together, do not split with unrelated', (t) => {
+  const input = {
+    scripts: {
+      test: 'run-s test:a test:b',
+      'test:a': 'foo',
+      'test:b': 'bar',
+      'test-coverage': 'c8 node --run test',
+    },
+  }
+  const sorted = sortPackageJson(input)
+  t.deepEqual(Object.keys(sorted.scripts), [
+    'test',
+    'test:a',
+    'test:b',
+    'test-coverage',
+  ])
+})
+
+test('scripts: group scripts with multiple colons', (t) => {
+  const input = {
+    scripts: {
+      test: 'run-s test:a test:b',
+      'test:a': 'foo',
+      'test:b': 'bar',
+      'pretest:a': 'foo',
+      'posttest:a': 'foo',
+      'pretest:a:a': 'foo',
+      'posttest:a:a': 'foo',
+      'test:a:a': 'foofoo',
+      'test:a:b': 'foobar',
+      'pretest:ab': 'foobar',
+      'test:ab': 'foobar',
+      'test:a-coverage': 'foobar',
+      'test:b:a': 'barfoo',
+      'test:b:b': 'barbar',
+      'test-coverage': 'c8 node --run test',
+    },
+  }
+  const sorted = sortPackageJson(input)
+  t.deepEqual(Object.keys(sorted.scripts), [
+    'test',
+    'pretest:a',
+    'test:a',
+    'posttest:a',
+    'pretest:a:a',
+    'test:a:a',
+    'posttest:a:a',
+    'test:a:b',
+    'test:a-coverage',
+    'pretest:ab',
+    'test:ab',
+    'test:b',
+    'test:b:a',
+    'test:b:b',
+    'test-coverage',
+  ])
+})
+
+test('scripts: nested production and format variants are grouped and sorted', (t) => {
+  const input = {
+    scripts: {
+      test: 'echo',
+      'test:a': 'echo',
+      'test:b': 'echo',
+      'test:ab': 'echo',
+      'test-coverage': 'echo',
+      'test:production': 'echo',
+      'test:production:a': 'echo',
+      'test:production:b': 'echo',
+      'test:production-coverage': 'echo',
+      'test:production2': 'echo',
+      'test:production$2': 'echo',
+      'test:production:cjs': 'echo',
+      'test:production:cjs:a': 'echo',
+      'test:production:cjs:b': 'echo',
+      'test:production:cjs-coverage': 'echo',
+      'test:production:mjs': 'echo',
+      'test:production:mjs:a': 'echo',
+      'test:production:mjs:b': 'echo',
+      'test:production:mjs-coverage': 'echo',
+    },
+  }
+  const sorted = sortPackageJson(input)
+  t.deepEqual(Object.keys(sorted.scripts), [
+    'test',
+    'test:a',
+    'test:ab',
+    'test:b',
+    'test:production',
+    'test:production:a',
+    'test:production:b',
+    'test:production:cjs',
+    'test:production:cjs:a',
+    'test:production:cjs:b',
+    'test:production:cjs-coverage',
+    'test:production:mjs',
+    'test:production:mjs:a',
+    'test:production:mjs:b',
+    'test:production:mjs-coverage',
+    'test:production$2',
+    'test:production-coverage',
+    'test:production2',
+    'test-coverage',
+  ])
+})

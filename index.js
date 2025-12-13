@@ -4,7 +4,8 @@ import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
 import gitHooks from 'git-hooks-list'
 import isPlainObject from 'is-plain-obj'
-import semver from 'semver'
+import semverCompare from 'semver/functions/compare.js'
+import semverMinVersion from 'semver/ranges/min-version.js'
 
 const pipe =
   (fns) =>
@@ -98,7 +99,7 @@ const sortObjectBySemver = sortObjectBy((a, b) => {
   if (!bRange) {
     return 1
   }
-  return semver.compare(semver.minVersion(aRange), semver.minVersion(bRange))
+  return semverCompare(semverMinVersion(aRange), semverMinVersion(bRange))
 })
 
 const getPackageName = (ident) => {
@@ -185,39 +186,13 @@ const sortDependencies = onObject((dependencies, packageJson) => {
  *
  * @see https://docs.npmjs.com/cli/v7/using-npm/workspaces?v=true#running-commands-in-the-context-of-workspaces
  */
-const sortWorkspaces = (workspaces) => {
-  if (!isPlainObject(workspaces)) {
-    return workspaces
-  }
-
-  // Sort known properties in a specific order
-  const sortedWorkspaces = {}
-
-  // First add packages if it exists
-  if (workspaces.packages) {
-    sortedWorkspaces.packages = uniqAndSortArray(workspaces.packages)
-  }
-
-  // Then add catalog if it exists and sort it using locale-aware comparison
-  // (npm-style)
-  if (workspaces.catalog) {
-    sortedWorkspaces.catalog = sortObjectBy((a, b) => a.localeCompare(b, 'en'))(
-      workspaces.catalog,
-    )
-  }
-
-  // Add any other properties in alphabetical order
-  const knownKeys = ['packages', 'catalog']
-  const otherKeys = Object.keys(workspaces)
-    .filter((key) => !knownKeys.includes(key))
-    .sort()
-
-  for (const key of otherKeys) {
-    sortedWorkspaces[key] = workspaces[key]
-  }
-
-  return sortedWorkspaces
-}
+const sortWorkspaces = onObject(
+  pipe([
+    sortObjectBy(['packages', 'catalog']),
+    overProperty('packages', uniqAndSortArray),
+    overProperty('catalog', sortDependenciesLikeNpm),
+  ]),
+)
 
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
 const eslintBaseConfigProperties = [
@@ -357,11 +332,43 @@ const hasSequentialScript = (packageJson) => {
   return scripts.some((script) => isSequentialScript(script))
 }
 
+function sortScriptNames(keys, prefix = '') {
+  const groupMap = new Map()
+  for (const key of keys) {
+    const rest = prefix ? key.slice(prefix.length + 1) : key
+    const idx = rest.indexOf(':')
+    if (idx !== -1) {
+      const base = key.slice(0, (prefix ? prefix.length + 1 : 0) + idx)
+      if (!groupMap.has(base)) groupMap.set(base, [])
+      groupMap.get(base).push(key)
+    } else {
+      if (!groupMap.has(key)) groupMap.set(key, [])
+      groupMap.get(key).push(key)
+    }
+  }
+  return Array.from(groupMap.keys())
+    .sort()
+    .flatMap((groupKey) => {
+      const children = groupMap.get(groupKey)
+      if (
+        children.length > 1 &&
+        children.some((k) => k !== groupKey && k.startsWith(groupKey + ':'))
+      ) {
+        const direct = children
+          .filter((k) => k === groupKey || !k.startsWith(groupKey + ':'))
+          .sort()
+        const nested = children.filter((k) => k.startsWith(groupKey + ':'))
+        return [...direct, ...sortScriptNames(nested, groupKey)]
+      }
+      return children.sort()
+    })
+}
+
 const sortScripts = onObject((scripts, packageJson) => {
-  const names = Object.keys(scripts)
+  let names = Object.keys(scripts)
   const prefixable = new Set()
 
-  const keys = names.map((name) => {
+  names = names.map((name) => {
     const omitted = name.replace(/^(?:pre|post)/, '')
     if (defaultNpmScripts.has(omitted) || names.includes(omitted)) {
       prefixable.add(omitted)
@@ -371,14 +378,12 @@ const sortScripts = onObject((scripts, packageJson) => {
   })
 
   if (!hasSequentialScript(packageJson)) {
-    keys.sort()
+    names = sortScriptNames(names)
   }
-
-  const order = keys.flatMap((key) =>
+  names = names.flatMap((key) =>
     prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
   )
-
-  return sortObjectKeys(scripts, order)
+  return sortObjectKeys(scripts, names)
 })
 
 /*
@@ -586,15 +591,6 @@ function editStringJSON(json, over) {
   return over(json)
 }
 
-const isPrivateKey = (key) => key[0] === '_'
-const partition = (array, predicate) =>
-  array.reduce(
-    (result, value) => {
-      result[predicate(value) ? 0 : 1].push(value)
-      return result
-    },
-    [[], []],
-  )
 function sortPackageJson(jsonIsh, options = {}) {
   return editStringJSON(
     jsonIsh,
@@ -603,7 +599,10 @@ function sortPackageJson(jsonIsh, options = {}) {
 
       if (Array.isArray(sortOrder)) {
         const keys = Object.keys(json)
-        const [privateKeys, publicKeys] = partition(keys, isPrivateKey)
+        const { privateKeys = [], publicKeys = [] } = objectGroupBy(
+          keys,
+          (key) => (key[0] === '_' ? 'privateKeys' : 'publicKeys'),
+        )
         sortOrder = [
           ...sortOrder,
           ...defaultSortOrder,
