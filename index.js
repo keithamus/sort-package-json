@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import path from 'node:path'
 import sortObjectKeys from 'sort-object-keys'
 import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
@@ -117,19 +118,19 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
-const cache = new WeakMap()
-const hasYarnOrPnpmFiles = (packageJson) => {
-  if (!cache.has(packageJson)) {
+const cache = new Map()
+const hasYarnOrPnpmFiles = (dir) => {
+  if (!cache.has(dir)) {
     cache.set(
-      packageJson,
-      fs.existsSync('yarn.lock') ||
-        fs.existsSync('.yarn/') ||
-        fs.existsSync('.yarnrc.yml') ||
-        fs.existsSync('pnpm-lock.yaml') ||
-        fs.existsSync('pnpm-workspace.yaml'),
+      dir,
+      fs.existsSync(path.join(dir, 'yarn.lock')) ||
+        fs.existsSync(path.join(dir, '.yarn/')) ||
+        fs.existsSync(path.join(dir, '.yarnrc.yml')) ||
+        fs.existsSync(path.join(dir, 'pnpm-lock.yaml')) ||
+        fs.existsSync(path.join(dir, 'pnpm-workspace.yaml')),
     )
   }
-  return cache.get(packageJson)
+  return cache.get(dir)
 }
 
 /**
@@ -155,7 +156,7 @@ function shouldSortDependenciesLikeNpm(json) {
     return true
   }
 
-  if (hasYarnOrPnpmFiles(json)) {
+  if (hasYarnOrPnpmFiles(process.cwd())) {
     return false
   }
 
@@ -597,6 +598,7 @@ function editStringJSON(json, over) {
 }
 
 function sortPackageJson(jsonIsh, options = {}) {
+  cache.clear()
   return editStringJSON(
     jsonIsh,
     onObject((json) => {

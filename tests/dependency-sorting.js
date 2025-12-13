@@ -10,12 +10,7 @@ test('npm: sorts dependencies using localeCompare with engines.npm', (t) => {
 
   // Mock fs.existsSync to simulate pnpm-lock.yaml exists
   // engines.npm should take precedence over this lockfile
-  fs.existsSync = (path) => {
-    if (path === 'pnpm-lock.yaml') {
-      return true
-    }
-    return false
-  }
+  fs.existsSync = (path) => path.endsWith('pnpm-lock.yaml')
 
   try {
     const input = {
@@ -49,12 +44,7 @@ test('pnpm: detects pnpm usage by root `pnpm` package.json field', (t) => {
 
   // Mock fs.existsSync to simulate yarn.lock exists
   // pnpm field should take precedence over yarn.lock
-  fs.existsSync = (path) => {
-    if (path === 'yarn.lock') {
-      return true
-    }
-    return false
-  }
+  fs.existsSync = (path) => path.endsWith('yarn.lock')
 
   try {
     const input = {
@@ -151,12 +141,7 @@ test('lock file detection: yarn.lock', (t) => {
   const originalExistsSync = fs.existsSync
 
   // Mock fs.existsSync to simulate yarn.lock exists
-  fs.existsSync = (path) => {
-    if (path === 'yarn.lock') {
-      return true
-    }
-    return false
-  }
+  fs.existsSync = (path) => path.endsWith('yarn.lock')
 
   try {
     const input = {
@@ -186,12 +171,7 @@ test('packageManager field takes precedence over lock files', (t) => {
   const originalExistsSync = fs.existsSync
 
   // Mock fs.existsSync to simulate package-lock.json exists
-  fs.existsSync = (path) => {
-    if (path === 'package-lock.json') {
-      return true
-    }
-    return false
-  }
+  fs.existsSync = (path) => path.endsWith('package-lock.json')
 
   try {
     const input = {
