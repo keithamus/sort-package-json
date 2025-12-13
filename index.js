@@ -118,11 +118,15 @@ const sortObjectByIdent = (a, b) => {
 }
 
 const cache = new WeakMap()
-const hasYarnOrPnpmLock = (packageJson) => {
+const hasYarnOrPnpmFiles = (packageJson) => {
   if (!cache.has(packageJson)) {
     cache.set(
       packageJson,
-      fs.existsSync('yarn.lock') || fs.existsSync('pnpm-lock.yaml'),
+      fs.existsSync('yarn.lock') ||
+        fs.existsSync('.yarn/') ||
+        fs.existsSync('.yarnrc.yml') ||
+        fs.existsSync('pnpm-lock.yaml') ||
+        fs.existsSync('pnpm-workspace.yaml'),
     )
   }
   return cache.get(packageJson)
@@ -146,11 +150,12 @@ function shouldSortDependenciesLikeNpm(json) {
     return false
   }
 
+  // Optimisation: Check if npm is explicit before reading FS.
   if (json.engines?.npm) {
     return true
   }
 
-  if (hasYarnOrPnpmLock(json)) {
+  if (hasYarnOrPnpmFiles(json)) {
     return false
   }
 
