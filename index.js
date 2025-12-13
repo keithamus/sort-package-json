@@ -140,13 +140,15 @@ const hasYarnOrPnpmFiles = () => {
  * @returns {boolean} - The detected package manager. Default to npm if not detected.
  */
 function shouldSortDependenciesLikeNpm(packageJson) {
-  const packageManager = packageJson.packageManager
+  // https://github.com/nodejs/corepack
+  const packageManager =
+    packageJson.packageManager ?? packageJson.devEngines?.packageManager
   if (packageManager) {
-    if (typeof packageManager === 'string') {
-      return packageManager.startsWith('npm@')
-    }
-
-    return packageManager.name === 'npm'
+    return (
+      (typeof packageManager === 'string' &&
+        packageManager.startsWith('npm@')) ||
+      packageManager.name === 'npm'
+    )
   }
 
   if (packageJson.pnpm) {
