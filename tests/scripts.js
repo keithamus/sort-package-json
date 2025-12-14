@@ -244,6 +244,34 @@ test('scripts: group base and colon scripts together, do not split with unrelate
   ])
 })
 
+test('scripts: handles names starting with colon and double colons', (t) => {
+  const input = {
+    scripts: {
+      '::delta': 'echo',
+      test: 'echo',
+      ':beta': 'echo',
+      ':alpha:sub': 'echo',
+      ':alpha': 'echo',
+      'test::coverage': 'echo',
+      ':alpha::extra': 'echo',
+      'test:lint': 'echo',
+      'test::smoke': 'echo',
+    },
+  }
+  const sorted = sortPackageJson(input)
+  t.deepEqual(Object.keys(sorted.scripts), [
+    '::delta',
+    ':alpha',
+    ':alpha::extra',
+    ':alpha:sub',
+    ':beta',
+    'test',
+    'test::coverage',
+    'test::smoke',
+    'test:lint',
+  ])
+})
+
 test('scripts: group scripts with multiple colons', (t) => {
   const input = {
     scripts: {
