@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import sortObjectKeys from 'sort-object-keys'
 import detectIndent from 'detect-indent'
 import { detectNewlineGraceful as detectNewline } from 'detect-newline'
@@ -60,12 +61,12 @@ const sortDirectories = sortObjectBy([
   'example',
   'test',
 ])
-const overProperty =
-  (property, over) =>
-  (object, ...args) =>
+const overProperty = (property, over) =>
+  onObject((object, ...args) =>
     Object.hasOwn(object, property)
       ? { ...object, [property]: over(object[property], ...args) }
-      : object
+      : object,
+  )
 const sortGitHooks = sortObjectBy(gitHooks)
 
 const parseNameAndVersionRange = (specifier) => {
@@ -116,9 +117,73 @@ const sortObjectByIdent = (a, b) => {
   return 0
 }
 
-// sort deps like the npm CLI does (via the package @npmcli/package-json)
-// https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
-const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
+// Cache by `process.cwd()` instead of a variable to allow user call `process.chdir()`
+const cache = new Map()
+const hasYarnOrPnpmFiles = () => {
+  const cwd = process.cwd()
+  if (!cache.has(cwd)) {
+    cache.set(
+      cwd,
+      fs.existsSync('yarn.lock') ||
+        fs.existsSync('.yarn/') ||
+        fs.existsSync('.yarnrc.yml') ||
+        fs.existsSync('pnpm-lock.yaml') ||
+        fs.existsSync('pnpm-workspace.yaml'),
+    )
+  }
+  return cache.get(cwd)
+}
+
+/**
+ * Detects the package manager from package.json and lock files
+ * @param {object} packageJson - The parsed package.json object
+ * @returns {boolean} - The detected package manager. Default to npm if not detected.
+ */
+function shouldSortDependenciesLikeNpm(packageJson) {
+  // https://github.com/nodejs/corepack
+  if (typeof packageJson.packageManager === 'string') {
+    return packageJson.packageManager.startsWith('npm@')
+  }
+
+  if (packageJson.devEngines?.packageManager?.name) {
+    return packageJson.devEngines.packageManager.name === 'npm'
+  }
+
+  if (packageJson.pnpm) {
+    return false
+  }
+
+  // Optimisation: Check if npm is explicit before reading FS.
+  if (packageJson.engines?.npm) {
+    return true
+  }
+
+  if (hasYarnOrPnpmFiles()) {
+    return false
+  }
+
+  return true
+}
+
+/**
+ * Sort dependencies alphabetically, detecting package manager to use the
+ * appropriate comparison. npm uses locale-aware comparison, yarn and pnpm use
+ * simple string comparison
+ */
+const sortDependencies = onObject((dependencies, packageJson) => {
+  // Avoid file access
+  if (Object.keys(dependencies).length < 2) {
+    return dependencies
+  }
+
+  // sort deps like the npm CLI does (via the package @npmcli/package-json)
+  // https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
+  if (shouldSortDependenciesLikeNpm(packageJson)) {
+    return sortObjectKeys(dependencies, (a, b) => a.localeCompare(b, 'en'))
+  }
+
+  return sortObjectKeys(dependencies)
+})
 
 /**
  * "workspaces" can be an array (npm or yarn classic) or an object (pnpm/bun).
@@ -127,13 +192,11 @@ const sortDependenciesLikeNpm = sortObjectBy((a, b) => a.localeCompare(b, 'en'))
  *
  * @see https://docs.npmjs.com/cli/v7/using-npm/workspaces?v=true#running-commands-in-the-context-of-workspaces
  */
-const sortWorkspaces = onObject(
-  pipe([
-    sortObjectBy(['packages', 'catalog']),
-    overProperty('packages', uniqAndSortArray),
-    overProperty('catalog', sortDependenciesLikeNpm),
-  ]),
-)
+const sortWorkspaces = pipe([
+  sortObjectBy(['packages', 'catalog']),
+  overProperty('packages', uniqAndSortArray),
+  overProperty('catalog', sortDependencies),
+])
 
 // https://github.com/eslint/eslint/blob/acc0e47572a9390292b4e313b4a4bf360d236358/conf/config-schema.js
 const eslintBaseConfigProperties = [
@@ -156,58 +219,59 @@ const eslintBaseConfigProperties = [
   'noInlineConfig',
   'reportUnusedDisableDirectives',
 ]
-const sortEslintConfig = onObject(
-  pipe([
-    sortObjectBy(eslintBaseConfigProperties),
-    overProperty('env', sortObject),
-    overProperty('globals', sortObject),
-    overProperty(
-      'overrides',
-      onArray((overrides) => overrides.map(sortEslintConfig)),
+const sortEslintConfig = pipe([
+  sortObjectBy(eslintBaseConfigProperties),
+  overProperty('env', sortObject),
+  overProperty('globals', sortObject),
+  overProperty(
+    'overrides',
+    onArray((overrides) => overrides.map(sortEslintConfig)),
+  ),
+  overProperty('parserOptions', sortObject),
+  overProperty(
+    'rules',
+    sortObjectBy(
+      (rule1, rule2) =>
+        rule1.split('/').length - rule2.split('/').length ||
+        rule1.localeCompare(rule2),
     ),
-    overProperty('parserOptions', sortObject),
-    overProperty(
-      'rules',
-      sortObjectBy(
-        (rule1, rule2) =>
-          rule1.split('/').length - rule2.split('/').length ||
-          rule1.localeCompare(rule2),
-      ),
-    ),
-    overProperty('settings', sortObject),
-  ]),
-)
+  ),
+  overProperty('settings', sortObject),
+])
 const sortVSCodeBadgeObject = sortObjectBy(['description', 'url', 'href'])
 
-const sortPrettierConfig = onObject(
-  pipe([
-    // sort keys alphabetically, but put `overrides` at bottom
-    (config) =>
-      sortObjectKeys(config, [
-        ...Object.keys(config)
-          .filter((key) => key !== 'overrides')
-          .sort(),
-        'overrides',
-      ]),
-    // if `config.overrides` exists
-    overProperty(
+const sortPrettierConfig = pipe([
+  // sort keys alphabetically, but put `overrides` at bottom
+  onObject((config) =>
+    sortObjectKeys(config, [
+      ...Object.keys(config)
+        .filter((key) => key !== 'overrides')
+        .sort(),
       'overrides',
-      // and `config.overrides` is an array
-      onArray((overrides) =>
-        overrides.map(
-          pipe([
-            // sort `config.overrides[]` alphabetically
-            sortObject,
-            // sort `config.overrides[].options` alphabetically
-            overProperty('options', sortObject),
-          ]),
-        ),
+    ]),
+  ),
+  // if `config.overrides` exists
+  overProperty(
+    'overrides',
+    // and `config.overrides` is an array
+    onArray((overrides) =>
+      overrides.map(
+        pipe([
+          // sort `config.overrides[]` alphabetically
+          sortObject,
+          // sort `config.overrides[].options` alphabetically
+          overProperty('options', sortObject),
+        ]),
       ),
     ),
-  ]),
-)
+  ),
+])
 
 const sortVolta = sortObjectBy(['node', 'npm', 'yarn'])
+const sortDevEngines = overProperty(
+  'packageManager',
+  sortObjectBy(['name', 'version', 'onFail']),
+)
 
 const pnpmBaseConfigProperties = [
   'peerDependencyRules',
@@ -225,12 +289,10 @@ const pnpmBaseConfigProperties = [
   'packageExtensions',
 ]
 
-const sortPnpmConfig = onObject(
-  pipe([
-    sortObjectBy(pnpmBaseConfigProperties, true),
-    overProperty('overrides', sortObjectBySemver),
-  ]),
-)
+const sortPnpmConfig = pipe([
+  sortObjectBy(pnpmBaseConfigProperties, true),
+  overProperty('overrides', sortObjectBySemver),
+])
 
 // See https://docs.npmjs.com/misc/scripts
 const defaultNpmScripts = new Set([
@@ -473,14 +535,14 @@ const fields = [
   { key: 'tap', over: sortObject },
   { key: 'oclif', over: sortObjectBy(undefined, true) },
   { key: 'resolutions', over: sortObject },
-  { key: 'overrides', over: sortDependenciesLikeNpm },
-  { key: 'dependencies', over: sortDependenciesLikeNpm },
-  { key: 'devDependencies', over: sortDependenciesLikeNpm },
+  { key: 'overrides', over: sortDependencies },
+  { key: 'dependencies', over: sortDependencies },
+  { key: 'devDependencies', over: sortDependencies },
   { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
-  { key: 'peerDependencies', over: sortDependenciesLikeNpm },
+  { key: 'peerDependencies', over: sortDependencies },
   // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
-  { key: 'optionalDependencies', over: sortDependenciesLikeNpm },
+  { key: 'optionalDependencies', over: sortDependencies },
   { key: 'bundledDependencies', over: uniqAndSortArray },
   { key: 'bundleDependencies', over: uniqAndSortArray },
   /* vscode */ { key: 'extensionPack', over: uniqAndSortArray },
@@ -489,6 +551,7 @@ const fields = [
   { key: 'packageManager' },
   { key: 'engines', over: sortObject },
   { key: 'engineStrict', over: sortObject },
+  { key: 'devEngines', over: sortDevEngines },
   { key: 'volta', over: sortVolta },
   { key: 'languageName' },
   { key: 'os' },
