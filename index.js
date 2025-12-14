@@ -278,7 +278,7 @@ function sortScriptNames(keys, prefix = '') {
   for (const key of keys) {
     const rest = prefix ? key.slice(prefix.length + 1) : key
     const idx = rest.indexOf(':')
-    if (idx !== -1) {
+    if (idx > 0) {
       const base = key.slice(0, (prefix ? prefix.length + 1 : 0) + idx)
       if (!groupMap.has(base)) groupMap.set(base, [])
       groupMap.get(base).push(key)
