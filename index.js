@@ -543,7 +543,6 @@ const fields = [
   { key: 'devDependencies', over: sortDependencies },
   { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
   { key: 'peerDependencies', over: sortDependencies },
-  // TODO: only sort depth = 2
   { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, 2) },
   { key: 'optionalDependencies', over: sortDependencies },
   { key: 'bundledDependencies', over: uniqAndSortArray },
