@@ -22,8 +22,11 @@ const onObject =
   (x, ...args) =>
     isPlainObject(x) ? fn(x, ...args) : x
 const sortObjectBy = (comparator, deep) => {
+  let depth = typeof deep === 'number' ? deep : deep === true ? Infinity : 0
+
   const over = onObject((object) => {
-    if (deep) {
+    if (depth > 0) {
+      --depth
       object = Object.fromEntries(
         Object.entries(object).map(([key, value]) => [key, over(value)]),
       )
@@ -541,7 +544,7 @@ const fields = [
   { key: 'dependenciesMeta', over: sortObjectBy(sortObjectByIdent, true) },
   { key: 'peerDependencies', over: sortDependencies },
   // TODO: only sort depth = 2
-  { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, true) },
+  { key: 'peerDependenciesMeta', over: sortObjectBy(undefined, 2) },
   { key: 'optionalDependencies', over: sortDependencies },
   { key: 'bundledDependencies', over: uniqAndSortArray },
   { key: 'bundleDependencies', over: uniqAndSortArray },
