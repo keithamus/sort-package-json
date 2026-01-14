@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises'
 import streamConsumers from 'node:stream/consumers'
 import { parseArgs } from 'node:util'
+// TODO: Use fs.promises.glob when we drop support for Node.js < 22
 import { glob } from 'tinyglobby'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
