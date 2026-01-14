@@ -166,9 +166,38 @@ function shouldSortDependenciesLikeNpm(packageJson) {
 }
 
 /**
+ * Custom comparator that sorts @ before - when comparing strings.
+ * This ensures that "package@..." comes before "package-..." in dependencies.
+ *
+ * Strategy: Check character by character until we find a difference.
+ * If the difference is @ vs -, handle specially. Otherwise, delegate to
+ * the provided comparison function.
+ */
+const compareWithAtBeforeDash = (a, b, fallbackCompareFn) => {
+  const len = Math.min(a.length, b.length)
+
+  for (let i = 0; i < len; i++) {
+    const charA = a[i]
+    const charB = b[i]
+
+    if (charA === charB) continue
+
+    // If one is @ and the other is -, @ comes first
+    if (charA === '@' && charB === '-') return -1
+    if (charA === '-' && charB === '@') return 1
+
+    // For any other difference, use the fallback comparison
+    return fallbackCompareFn ? fallbackCompareFn(a, b) : a < b ? -1 : 1
+  }
+
+  // If all characters match up to the shorter length, shorter string comes first
+  return a.length - b.length
+}
+
+/**
  * Sort dependencies alphabetically, detecting package manager to use the
  * appropriate comparison. npm uses locale-aware comparison, yarn and pnpm use
- * simple string comparison
+ * simple string comparison. In all cases, @ sorts before - for consistent ordering.
  */
 const sortDependencies = onObject((dependencies, packageJson) => {
   // Avoid file access
@@ -178,11 +207,14 @@ const sortDependencies = onObject((dependencies, packageJson) => {
 
   // sort deps like the npm CLI does (via the package @npmcli/package-json)
   // https://github.com/npm/package-json/blob/b6465f44c727d6513db6898c7cbe41dd355cebe8/lib/update-dependencies.js#L8-L21
+  // but with custom handling for @ before -
   if (shouldSortDependenciesLikeNpm(packageJson)) {
-    return sortObjectKeys(dependencies, (a, b) => a.localeCompare(b, 'en'))
+    return sortObjectKeys(dependencies, (a, b) =>
+      compareWithAtBeforeDash(a, b, (x, y) => x.localeCompare(y, 'en')),
+    )
   }
 
-  return sortObjectKeys(dependencies)
+  return sortObjectKeys(dependencies, (a, b) => compareWithAtBeforeDash(a, b))
 })
 
 /**
