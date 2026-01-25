@@ -8,11 +8,9 @@ for (const deep of [false, true]) {
     const exports = {
       unknown: './unknown.unknown',
       './path-not-really-makes-no-sense': {},
-      types: './types.d.ts',
-      'types@<=1': './v1/types.d.ts',
     }
 
-    test(`'types' condition should be first${titleSuffix}`, macro.sortObject, {
+    test(`paths (starting .) should be first${titleSuffix}`, macro.sortObject, {
       path: 'exports',
       expect: 'snapshot',
       value: deep ? { './deep': exports } : exports,
@@ -21,14 +19,17 @@ for (const deep of [false, true]) {
 
   {
     const exports = {
-      unknown: './unknown.unknown',
+      'unknown-3': './unknown.unknown3',
       './path-not-really-makes-no-sense': {},
-      'types@<=1': './v1/types.d.ts',
+      'unknown-1': './unknown.unknown1',
+      default: './whatever/index.js',
       types: './types.d.ts',
+      'unknown-2': './unknown.unknown2',
+      'types@<=1': './v1/types.d.ts',
     }
 
     test(
-      `'types' condition should be first${titleSuffix} 2`,
+      `keys that are not paths or 'default' should retain order, including those that start 'types...' ${titleSuffix}`,
       macro.sortObject,
       {
         path: 'exports',
@@ -41,8 +42,8 @@ for (const deep of [false, true]) {
   {
     const exports = {
       unknown: './unknown.unknown',
-      './path-not-really-makes-no-sense': {},
       default: './default.js',
+      './path-not-really-makes-no-sense': {},
     }
 
     test(`'default' condition should be last${titleSuffix}`, macro.sortObject, {
