@@ -40,7 +40,7 @@
     "index.cjs"
   ],
   "scripts": {
-    "build": "esbuild index.js --bundle --platform=node --outfile=index.cjs --external:semver",
+    "build": "esbuild index.js --bundle --platform=node --outfile=index.cjs --external:semver --external:git-hooks-list",
     "fix": "eslint . --fix && prettier . --write && node cli.js \"package.json\"",
     "lint": "eslint . && prettier . \"!**/*.js\" --check && node cli.js \"package.json\" --check",
     "prepare": "husky",
