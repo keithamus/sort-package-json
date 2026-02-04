@@ -226,6 +226,73 @@ for (const field of ['scripts', 'betterScripts']) {
   )
 }
 
+test('betterScripts: handle object format - basic sorting', (t) => {
+  const input = {
+    betterScripts: {
+      z: {
+        desc: 'z',
+        alias: 'z',
+        command: 'z',
+        env: {
+          c: 'c',
+          b: 'b',
+          a: 'a',
+        },
+      },
+      a: {
+        command: 'a',
+        desc: 'a',
+        alias: 'a',
+        env: {
+          c: 'c',
+          b: 'b',
+          a: 'a',
+        },
+      },
+    },
+  }
+  const sorted = sortPackageJson(input)
+
+  t.deepEqual(Object.keys(sorted.betterScripts), ['a', 'z'])
+  t.deepEqual(Object.keys(sorted.betterScripts.a), [
+    'alias',
+    'command',
+    'desc',
+    'env',
+  ])
+  t.deepEqual(Object.keys(sorted.betterScripts.a.env), ['a', 'b', 'c'])
+})
+
+test('betterScripts: sequential script detection with object format', (t) => {
+  const input = {
+    devDependencies: {
+      'npm-run-all': '^1.0.0',
+    },
+    betterScripts: {
+      z: { command: 'run-s lint:*' },
+      a: { command: 'start dev' },
+      m: { command: 'npm-run-all --serial test:*' },
+    },
+  }
+  const sorted = sortPackageJson(input)
+  t.deepEqual(Object.keys(sorted.betterScripts), ['z', 'a', 'm'])
+})
+
+test('betterScripts: no sequential script - should sort', (t) => {
+  const input = {
+    devDependencies: {
+      'npm-run-all': '^1.0.0',
+    },
+    betterScripts: {
+      z: { command: 'echo z' },
+      a: { command: 'echo a' },
+      m: { command: 'echo m' },
+    },
+  }
+  const sorted = sortPackageJson(input)
+  t.deepEqual(Object.keys(sorted.betterScripts), ['a', 'm', 'z'])
+})
+
 test('scripts: group base and colon scripts together, do not split with unrelated', (t) => {
   const input = {
     scripts: {
