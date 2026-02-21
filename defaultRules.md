@@ -53,6 +53,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | binary,               | Key order: `module_name`, `module_path`, `remote_path`, `package_name`, `host` |
 | scripts               | [Script sort](#scripts)                                                        |
 | betterScripts         | [Script sort](#scripts)                                                        |
+| wireit                | [Wireit sort](#wireit)                                                         |
 | contributes           | Key sort                                                                       |
 | activationEvents      | Unique items                                                                   |
 | husky                 | Sorts the `hooks` field using [git hook sort](#git-hooks)                      |
@@ -160,6 +161,18 @@ Item order:
 ### Prettier
 
 Keys are sorted alphabetically except for `overrides`, which is placed last. Keys are also sorted in `overrides` and `overrides.options` items.
+
+### Wireit
+
+Script names are sorted alphabetically. Each script's properties use the order from [wireit's own examples](https://github.com/google/wireit), with remaining properties sorted alphabetically:
+
+| Key          | Rules                                        |
+| ------------ | -------------------------------------------- |
+| command      |                                              |
+| dependencies | Key order (per item): `script`, `cascade`    |
+| files        |                                              |
+| output       |                                              |
+| _remaining_  | Alphabetical, with nested object key sorting |
 
 ### Scripts
 
