@@ -12,9 +12,9 @@ jobs:
           # - 'macos-latest'
           # - 'windows-latest'
         node_version:
+          - '25'
           - '24'
           - '22'
-          - '20'
     name: Node.js ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
