@@ -34,22 +34,6 @@ const sortObjectBy = (comparator, deep) => {
 
   return over
 }
-const objectGroupBy =
-  // eslint-disable-next-line n/no-unsupported-features/es-builtins, n/no-unsupported-features/es-syntax -- Safe
-  Object.groupBy ||
-  // Remove this when we drop support for Node.js 20
-  ((array, callback) => {
-    const result = Object.create(null)
-    for (const value of array) {
-      const key = callback(value)
-      if (result[key]) {
-        result[key].push(value)
-      } else {
-        result[key] = [value]
-      }
-    }
-    return result
-  })
 const sortObject = sortObjectBy()
 const sortURLObject = sortObjectBy(['type', 'url'])
 const sortPeopleObject = sortObjectBy(['name', 'email', 'url'])
@@ -393,7 +377,7 @@ const sortScripts = onObject((scripts, packageJson) => {
 - Move `default` condition to bottom
 */
 const sortConditions = (conditions) => {
-  const { defaultConditions = [], restConditions = [] } = objectGroupBy(
+  const { defaultConditions = [], restConditions = [] } = Object.groupBy(
     conditions,
     (condition) => {
       if (condition === 'default') {
@@ -408,7 +392,7 @@ const sortConditions = (conditions) => {
 }
 
 const sortExports = onObject((exports) => {
-  const { paths = [], conditions = [] } = objectGroupBy(
+  const { paths = [], conditions = [] } = Object.groupBy(
     Object.keys(exports),
     (key) => (key.startsWith('.') ? 'paths' : 'conditions'),
   )
@@ -597,7 +581,7 @@ function sortPackageJson(jsonIsh, options = {}) {
 
       if (Array.isArray(sortOrder)) {
         const keys = Object.keys(json)
-        const { privateKeys = [], publicKeys = [] } = objectGroupBy(
+        const { privateKeys = [], publicKeys = [] } = Object.groupBy(
           keys,
           (key) => (key[0] === '_' ? 'privateKeys' : 'publicKeys'),
         )
