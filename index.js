@@ -313,9 +313,17 @@ const hasSequentialScript = (packageJson) => {
   ) {
     return false
   }
-  const scripts = ['scripts', 'betterScripts'].flatMap((field) =>
-    packageJson[field] ? Object.values(packageJson[field]) : [],
-  )
+  const scripts = ['scripts', 'betterScripts'].flatMap((field) => {
+    if (!packageJson[field]) {
+      return []
+    }
+    return Object.values(packageJson[field])
+      .map((script) => {
+        return typeof script === 'string' ? script : script?.command
+      })
+      .filter(Boolean)
+  })
+
   return scripts.some((script) => isSequentialScript(script))
 }
 
@@ -371,6 +379,21 @@ const sortScripts = onObject((scripts, packageJson) => {
     prefixable.has(key) ? [`pre${key}`, key, `post${key}`] : [key],
   )
   return sortObjectKeys(scripts, names)
+})
+
+const sortBetterScripts = onObject((betterScripts, packageJson) => {
+  const sorted = sortScripts(betterScripts, packageJson)
+
+  return Object.fromEntries(
+    Object.entries(sorted).map(([key, value]) => {
+      if (isPlainObject(value)) {
+        const sortedValue = sortObjectBy(undefined, true)(value)
+
+        return [key, sortedValue]
+      }
+      return [key, value]
+    }),
+  )
 })
 
 /*
@@ -478,7 +501,7 @@ const fields = [
     ]),
   },
   { key: 'scripts', over: sortScripts },
-  { key: 'betterScripts', over: sortScripts },
+  { key: 'betterScripts', over: sortBetterScripts },
   /* vscode */ { key: 'l10n' },
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents', over: uniq },
