@@ -252,6 +252,43 @@ const sortPrettierConfig = pipe([
 ])
 
 const sortVolta = sortObjectBy(['node', 'npm', 'yarn'])
+
+// https://github.com/google/wireit
+const wireitScriptProperties = ['command', 'dependencies', 'files', 'output']
+const sortWireitScript = pipe([
+  sortObjectBy(wireitScriptProperties),
+  overProperty(
+    'dependencies',
+    onArray((deps) => deps.map(sortObjectBy(['script', 'cascade']))),
+  ),
+  overProperty(
+    'env',
+    onObject((env) =>
+      sortObjectKeys(
+        Object.fromEntries(
+          Object.entries(env).map(([key, value]) => [
+            key,
+            sortObjectBy(['external', 'default'])(value),
+          ]),
+        ),
+      ),
+    ),
+  ),
+  overProperty(
+    'service',
+    pipe([sortObjectBy(['readyWhen']), overProperty('readyWhen', sortObject)]),
+  ),
+])
+const sortWireit = onObject((wireit) =>
+  sortObjectKeys(
+    Object.fromEntries(
+      Object.entries(wireit).map(([name, config]) => [
+        name,
+        sortWireitScript(config),
+      ]),
+    ),
+  ),
+)
 const sortDevEngines = overProperty(
   'packageManager',
   sortObjectBy(['name', 'version', 'onFail']),
@@ -479,6 +516,7 @@ const fields = [
   },
   { key: 'scripts', over: sortScripts },
   { key: 'betterScripts', over: sortScripts },
+  { key: 'wireit', over: sortWireit },
   /* vscode */ { key: 'l10n' },
   /* vscode */ { key: 'contributes', over: sortObject },
   /* vscode */ { key: 'activationEvents', over: uniq },

@@ -258,6 +258,54 @@ test('badges', (t) => {
   )
 })
 
+test('wireit', macro.sortObject, {
+  path: 'wireit',
+  value: {
+    test: {
+      dependencies: ['build'],
+      command: 'jest',
+    },
+    build: {
+      output: ['lib/**'],
+      env: {
+        NODE_ENV: 'production',
+        CI: { default: 'false', external: true },
+      },
+      files: ['src/**/*.ts'],
+      service: {
+        readyWhen: { lineMatches: 'server started', z: 'z', a: 'a' },
+      },
+      allowUsuallyExcludedPaths: false,
+      packageLocks: ['pnpm-lock.yaml'],
+      clean: true,
+      dependencies: [{ cascade: false, script: '../foo:build' }, 'lint'],
+      command: 'tsc',
+    },
+  },
+  expect: {
+    build: {
+      command: 'tsc',
+      dependencies: [{ script: '../foo:build', cascade: false }, 'lint'],
+      files: ['src/**/*.ts'],
+      output: ['lib/**'],
+      allowUsuallyExcludedPaths: false,
+      clean: true,
+      env: {
+        CI: { external: true, default: 'false' },
+        NODE_ENV: 'production',
+      },
+      packageLocks: ['pnpm-lock.yaml'],
+      service: {
+        readyWhen: { a: 'a', lineMatches: 'server started', z: 'z' },
+      },
+    },
+    test: {
+      command: 'jest',
+      dependencies: ['build'],
+    },
+  },
+})
+
 test('pnpm', macro.sortObject, {
   path: 'pnpm',
   value: {
