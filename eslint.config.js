@@ -13,7 +13,7 @@ export default [
     languageOptions: {
       globals: { ...globals.builtin, ...globals.node },
     },
-    settings: { node: { version: '22' } },
+    settings: { node: { version: '20' } },
   },
   { ignores: ['index.cjs'] },
 ]
