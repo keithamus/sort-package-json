@@ -76,3 +76,47 @@ test('allowScripts is optional and can be empty', (t) => {
   })
   t.deepEqual(sortPackageJson({ allowScripts: {} }), { allowScripts: {} })
 })
+
+for (const manager of ['npm', 'pnpm', 'yarn']) {
+  test(`allowScripts follows ${manager} dependency ordering`, (t) => {
+    const policy = Object.freeze({
+      '@types/babel__register': false,
+      '@types/babel-plugin-tester': true,
+      '@types/babel__core': true,
+    })
+    const expectedKeys =
+      manager === 'npm'
+        ? [
+            '@types/babel__core',
+            '@types/babel__register',
+            '@types/babel-plugin-tester',
+          ]
+        : [
+            '@types/babel-plugin-tester',
+            '@types/babel__core',
+            '@types/babel__register',
+          ]
+    const configs = [
+      { packageManager: `${manager}@1.0.0` },
+      { devEngines: { packageManager: { name: manager } } },
+    ]
+    if (manager === 'npm') {
+      configs.push({ engines: { npm: '>=1.0.0' } })
+    } else if (manager === 'pnpm') {
+      configs.push({ pnpm: {} })
+    }
+
+    for (const config of configs) {
+      for (const inputType of ['object', 'string']) {
+        const input = Object.freeze({ ...config, allowScripts: policy })
+        const output = sortPackageJson(
+          inputType === 'string' ? JSON.stringify(input) : input,
+        )
+        const result = inputType === 'string' ? JSON.parse(output) : output
+
+        t.deepEqual(Object.keys(result.allowScripts), expectedKeys)
+        t.deepEqual(result.allowScripts, policy)
+      }
+    }
+  })
+}
