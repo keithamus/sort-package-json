@@ -515,6 +515,7 @@ const fields = [
     ]),
   },
   { key: 'scripts', over: sortScripts },
+  { key: 'allowScripts', over: sortObject },
   { key: 'betterScripts', over: sortScripts },
   { key: 'wireit', over: sortWireit },
   /* vscode */ { key: 'l10n' },

@@ -360,6 +360,7 @@ The default order is exported as a `sortOrder` object.
 1. `workspaces`
 1. `binary`
 1. `scripts`
+1. `allowScripts`
 1. `betterScripts`
 1. `contributes`
 1. `activationEvents`

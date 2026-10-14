@@ -49,6 +49,7 @@ for (const field of [
 // fields sort alphabetically
 for (const field of [
   'bin',
+  'allowScripts',
   'contributes',
   'commitlint',
   'config',

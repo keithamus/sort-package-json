@@ -52,6 +52,7 @@ _Note: when a specific key order is used, any other keys will be sorted in the e
 | workspaces            |                                                                                |
 | binary,               | Key order: `module_name`, `module_path`, `remote_path`, `package_name`, `host` |
 | scripts               | [Script sort](#scripts)                                                        |
+| allowScripts          | Key sort                                                                       |
 | betterScripts         | [Script sort](#scripts)                                                        |
 | wireit                | [Wireit sort](#wireit)                                                         |
 | contributes           | Key sort                                                                       |
