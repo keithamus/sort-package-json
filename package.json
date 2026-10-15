@@ -2,11 +2,7 @@
   "name": "sort-package-json",
   "version": "0.0.0-development",
   "description": "Sort an Object or package.json based on the well-known package.json keys",
-  "keywords": [
-    "keys",
-    "object",
-    "sort"
-  ],
+  "keywords": ["keys", "object", "sort"],
   "homepage": "https://github.com/keithamus/sort-package-json#readme",
   "bugs": {
     "url": "https://github.com/keithamus/sort-package-json/issues"
@@ -32,13 +28,7 @@
   },
   "types": "index.d.ts",
   "bin": "cli.js",
-  "files": [
-    "index.js",
-    "index.d.ts",
-    "cli.js",
-    "reporter.js",
-    "index.cjs"
-  ],
+  "files": ["index.js", "index.d.ts", "cli.js", "reporter.js", "index.cjs"],
   "scripts": {
     "build": "esbuild index.js --bundle --platform=node --outfile=index.cjs --external:semver --external:git-hooks-list",
     "fix": "eslint . --fix && prettier . --write && node cli.js \"package.json\"",
@@ -51,24 +41,24 @@
     "update-snapshots": "ava --update-snapshots"
   },
   "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
+    "extends": ["@commitlint/config-conventional"]
   },
   "lint-staged": {
-    "package.json": [
-      "node cli.js"
-    ],
-    "*.js": [
-      "eslint --fix"
-    ],
-    "**/*": [
-      "prettier --write --ignore-unknown"
-    ]
+    "package.json": ["node cli.js"],
+    "*.js": ["eslint --fix"],
+    "**/*": ["prettier --write --ignore-unknown"]
   },
   "prettier": {
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "package.json",
+        "options": {
+          "parser": "json"
+        }
+      }
+    ]
   },
   "ava": {
     "verbose": true
