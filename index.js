@@ -593,6 +593,60 @@ const overFields = pipe(
     .filter(Boolean),
 )
 
+// Matches the default line width of Prettier and Biome, the formatters this
+// package is commonly used alongside. Arrays whose items are all primitive
+// values render on a single line when they fit within this width.
+const maxInlineArrayWidth = 80
+
+const isPrimitive = (value) => value === null || typeof value !== 'object'
+
+// Like `JSON.stringify(value, null, indentUnit)`, except small arrays of
+// primitive values are contracted into a single line when they fit.
+function formatJson(value, indentUnit, level = 0, column = 0) {
+  if (!indentUnit) {
+    return JSON.stringify(value)
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return '[]'
+    }
+
+    if (value.every(isPrimitive)) {
+      const inline = `[${value.map((item) => JSON.stringify(item)).join(', ')}]`
+      if (column + inline.length <= maxInlineArrayWidth) {
+        return inline
+      }
+    }
+
+    const childIndent = indentUnit.repeat(level + 1)
+    return `[\n${value
+      .map(
+        (item) =>
+          childIndent +
+          formatJson(item, indentUnit, level + 1, childIndent.length),
+      )
+      .join(',\n')}\n${indentUnit.repeat(level)}]`
+  }
+
+  if (!isPrimitive(value)) {
+    const entries = Object.entries(value)
+    if (entries.length === 0) {
+      return '{}'
+    }
+
+    const childIndent = indentUnit.repeat(level + 1)
+    return `{\n${entries
+      .map(([key, item]) => {
+        const prefix = `${childIndent}${JSON.stringify(key)}: `
+        return prefix + formatJson(item, indentUnit, level + 1, prefix.length)
+      })
+      .join(',\n')}\n${indentUnit.repeat(level)}}`
+  }
+
+  return JSON.stringify(value)
+}
+
 function editStringJSON(json, over) {
   if (typeof json === 'string') {
     const { indent, type } = detectIndent(json)
@@ -601,8 +655,7 @@ function editStringJSON(json, over) {
     json = JSON.parse(json)
 
     let result =
-      JSON.stringify(over(json), null, type === 'tab' ? '\t' : indent) +
-      endCharacters
+      formatJson(over(json), type === 'tab' ? '\t' : indent) + endCharacters
     if (newline === '\r\n') {
       result = result.replace(/\n/g, newline)
     }
