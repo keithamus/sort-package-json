@@ -40,16 +40,18 @@ for (const inputType of ['object', 'string']) {
   })
 }
 
-test('allowScripts follows scripts in the default field order', (t) => {
+test('allowScripts follows adjacent scripts and betterScripts fields', (t) => {
   const result = sortPackageJson({
     dependencies: {},
     allowScripts,
+    betterScripts: {},
     scripts: {},
     name: 'test-package',
   })
   t.deepEqual(Object.keys(result), [
     'name',
     'scripts',
+    'betterScripts',
     'allowScripts',
     'dependencies',
   ])
