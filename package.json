@@ -79,8 +79,7 @@
     "git-hooks-list": "^4.1.1",
     "is-plain-obj": "^4.1.0",
     "semver": "^7.7.3",
-    "sort-object-keys": "^2.0.1",
-    "tinyglobby": "^0.2.15"
+    "sort-object-keys": "^2.0.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",

@@ -2,7 +2,6 @@
 import fs from 'node:fs/promises'
 import streamConsumers from 'node:stream/consumers'
 import { parseArgs } from 'node:util'
-import { glob } from 'tinyglobby'
 import sortPackageJson from './index.js'
 import Reporter from './reporter.js'
 import packageJson from './package.json' with { type: 'json' }
@@ -71,7 +70,11 @@ async function sortPackageJsonFile(file, reporter, isCheck) {
 }
 
 async function sortPackageJsonFiles(patterns, { ignore, ...options }) {
-  const files = await glob(patterns, { ignore })
+  const results = await Array.fromAsync(fs.glob(patterns, { exclude: ignore }))
+  const files =
+    process.platform === 'win32'
+      ? results.map((result) => result.replaceAll('\\', '/'))
+      : results
 
   const reporter = new Reporter(options)
   const { isCheck } = options
